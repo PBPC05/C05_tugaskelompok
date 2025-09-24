@@ -1,6 +1,5 @@
 ## 📂 Repository Structure
 project/
-├── .github/workflows/ 
 ├── C05/ 
 ├── docs/
 ├── main/
