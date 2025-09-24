@@ -21,4 +21,4 @@ git push origin feat/<short-name>
 
 4. Open Pull Request into dev
 5. PR must be reviewed before merging
-6. After tests pass, dev can be merged into main
+6. If there is no issues, dev can be merged into main
