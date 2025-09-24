@@ -1,9 +1,11 @@
 ## 📂 Repository Structure
-project/
-├── C05/ 
-├── docs/
-├── main/
-├── .env.example
-├── .gitignore.example
-├── requirements.txt
-└── README.md
+Project/
+    C05/
+    docs/
+    main/
+        templates/
+    templates/
+    .env.example
+    .gitignore.example
+    README.md
+    requirements.txt
