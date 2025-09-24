@@ -5,7 +5,6 @@ Welcome to the team! 🎉
 ## What you need
 - Python 3.11+
 - Git
-- PostgreSQL
 
 ## Steps
 1. Read `docs/setup.md` to run project locally  
