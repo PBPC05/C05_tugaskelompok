@@ -31,8 +31,9 @@ SECRET_KEY = 'django-insecure-1^i!!9@99n-eq+j@h(ummlm9jb12k+h3bs(m8r4h1d=@ey7aks
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "ammar-muhammad41-pittalk.pbp.cs.ui.ac.id"]
 
+CSRF_TRUSTED_ORIGINS = ["https://ammar-muhammad41-pittalk.pbp.cs.ui.ac.id"]
 
 # Application definition
 
