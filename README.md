@@ -39,7 +39,7 @@ Aplikasi **PitTalk** merupakan sebuah platform komunitas berbasis web yang berfo
 ## 📊 Dataset
 | Sumber Dataset | Link |
 |----------------|------|
-| Formula1 Datasets (GitHub) | [Link](https://github.com/toUpperCase78/formula1-datasets) |
+| Formula1 Datasets (GitHub) | [Link Datasets](https://github.com/toUpperCase78/formula1-datasets) |
 | Lainnya | Sumber data relevan (berita, standings, jadwal, dll) |
 
 ---
@@ -54,4 +54,4 @@ Aplikasi **PitTalk** merupakan sebuah platform komunitas berbasis web yang berfo
 ---
 
 ## 🌐 Link Deployment (PWS)
-👉 [PitTalk - Pacil Web Service](https://ammar-muhammad41-pittalk.pbp.cs.ui.ac.id)
+👉 [PitTalk](https://ammar-muhammad41-pittalk.pbp.cs.ui.ac.id)
