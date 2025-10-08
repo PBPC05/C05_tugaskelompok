@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'news',
     'user',
     'prediction',
-    'history'
+    'history',
+    'admins'
 ]
 
 MIDDLEWARE = [
