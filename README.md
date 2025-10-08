@@ -41,7 +41,11 @@ Aplikasi **PitTalk** merupakan sebuah platform komunitas berbasis web yang berfo
 ## 📊 Dataset
 | Sumber Dataset | Link |
 |----------------|------|
-| Formula1 Datasets (GitHub) | [Link Datasets](https://github.com/toUpperCase78/formula1-datasets) |
+| Formula1 Datasets (GitHub) | [Link Datasets F1](https://github.com/toUpperCase78/formula1-datasets) |
+| Driver | [Link Datasets Driver](https://www.kaggle.com/datasets/petalme/f1-drivers-dataset) |
+| Race Result (1950 - 2024) | [Link Datasets Race Result](https://www.kaggle.com/datasets/lakshayjain611/f1-races-results-dataset-1950-to-2024) |
+| GrandPrix | [Link Datasets GrandPrix](https://www.kaggle.com/datasets/harshitstark/f1-grandprix-datavault) |
+| World Championships | [Link Datasets World Championships](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) |
 | Lainnya | Sumber data relevan (berita, standings, jadwal, dll) |
 
 ---

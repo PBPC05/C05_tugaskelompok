@@ -21,5 +21,4 @@ git commit -m "Add: feat <short-name>"
 git push origin feat/<short-name>
 
 4. Open Pull Request into dev
-5. PR must be reviewed before merging, merged branch will be deleted.
-6. If there is no issues, dev can be merged into main
+5. If there is no issues, dev can be merged into main
