@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 # Create your models here.
 class Forums(models.Model):
@@ -20,8 +21,28 @@ class Forums(models.Model):
         self.forums_views += 1
         self.save()
 
+    def increment_likes(self):
+        self.forums_likes += 1
+        self.save()
+    
+    def increment_replies_counts(self):
+        self.forums_replies_counts += 1
+        self.save()
+
+    def is_hot_True(self):
+        self.is_hot = True
+        self.save()
+
+    def is_hot_False(self):
+        self.is_hot = False
+        self.save()
+
+    def get_duration_since_created(self):
+        datetimenow = datetime.datetime.now()
+        return self.created_at - datetimenow
+
 class ForumsReplies(models.Model):
-    forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forums")
+    forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="replies")
     # user
     replies_content = models.TextField()
     forums_replies_likes = models.PositiveIntegerField(default=0)
