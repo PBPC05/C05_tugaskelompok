@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'information',
     'news',
     'user',
-    'prediction'
+    'prediction',
+    'history'
 ]
 
 MIDDLEWARE = [
