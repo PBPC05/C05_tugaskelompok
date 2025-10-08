@@ -1,6 +1,22 @@
-<h1>Main</h1>
-<a href="forums/">forums</a>
-<a href="information/">information</a>
-<a href="news/">news</a>
-<a href="prediction/">prediction</a>
-<a href="user/">user</a>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>PitTalk</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-red-200 min-h-screen w-full">
+
+    <h1>Main</h1>
+    <a href="forums/">forums</a>
+    <a href="information/">information</a>
+    <a href="news/">news</a>
+    <a href="prediction/">prediction</a>
+    <a href="user/">user</a>
+</div>
+
+
+{% endblock content %}
