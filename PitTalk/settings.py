@@ -45,11 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'forums',
-    'information',
-    'news',
-    'user',
-    'prediction'
+    'apps.forums',
+    'apps.information',
+    'apps.news',
+    'apps.user',
+    'apps.prediction',
+    'apps.history',
+    'apps.admins'
 ]
 
 MIDDLEWARE = [
