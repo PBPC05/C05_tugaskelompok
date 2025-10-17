@@ -5,6 +5,7 @@ import uuid
 class News(models.Model):
     CATEGORY_CHOICES = {
         'f1': 'Formula 1/FIA',
+        'championship': 'Championship',
         'team': 'Team',
         'driver': 'Driver',
         'constructor': 'Constructor',
