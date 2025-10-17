@@ -1,115 +1,24 @@
-:root {
-  --color-bg: #110000;
-  --color-text: #e6e6e6;
-  --color-primary: #ff80ab;
-  --color-secondary: #ffe4ec;
-  --font-main: 'Poppins', sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap');
+
+* {
+    font-family: "Inter", "Arial", sans-serif;
 }
 
-body {
-  background-color: var(--color-bg) !important;
-  color: var(--color-text);
-  font-family: var(--font-main);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  margin: 0;
-  padding: 0;
+.news-content {
+    font-family: "Inclusive Sans", "Inter", "Arial", sans-serif;
 }
 
-.container {
-  max-width: 72rem; 
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+select, option {
+    width: 20%;
 }
 
-h1 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 1.5rem;
-}
-h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #ffb6c1;
-  margin-bottom: 1rem;
-}
-h3 {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #ccc;
-  margin-bottom: 0.75rem;
-}
-p {
-  font-size: 1rem;
-  line-height: 1.75;
-  color: #e6e6e6;
-  margin-bottom: 1rem;
-}
+#hero-image {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/news-hero-bg.jpg);
+    height: 50%;
 
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: color 0.2s ease-in-out;
-}
-a:hover {
-  color: #ffb3cc;
-}
-
-.btn {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  background-color: var(--color-primary);
-  color: white;
-  transition: background-color 0.2s ease-in-out;
-}
-.btn:hover {
-  background-color: #ff5f9e;
-}
-
-.card {
-  background-color: #1a0000;
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  padding: 1.25rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-}
-.navbar a {
-  font-weight: 500;
-  color: #f0f0f0;
-  transition: color 0.2s ease;
-}
-.navbar a:hover {
-  color: var(--color-primary);
-}
-
-@media (max-width: 640px) {
-  h1 {
-    font-size: 1.875rem;
-  }
-  h2 {
-    font-size: 1.25rem;
-  }
-  .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
 }
