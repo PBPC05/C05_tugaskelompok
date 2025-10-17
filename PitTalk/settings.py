@@ -44,13 +44,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'main',
     'forums',
     'information',
     'news',
     'user',
     'prediction',
-    'history'
+    'history',
 ]
 
 MIDDLEWARE = [
