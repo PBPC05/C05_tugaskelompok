@@ -7,7 +7,7 @@
 
 {% block content %}
 {% include 'navbar.html' %}
-<div class="bg-gradient-to-b from-red-700 via-red-900 to-black min-h-screen py-20">
+<div class="bg-gradient-to-b from-red-700 via-red-900 to-black min-h-screen py-10">
     <div class="max-w-3xl mx-auto">
         <div class="mb-6">
             <a href="{% url 'news:show_main' %}" class="text-white hover:text-gray-500 font-medium transition-colors">
@@ -72,7 +72,7 @@
                     <div class="flex flex-col sm:flex-row gap-4 p-6 border-t border-gray-200 rounded-b">
                         <button type="button" id="cancelButton"
                             class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">Cancel</button>
-                        <button type="submit" id="submitNews" form="newsForm"
+                        <button type="button" id="submitNews" form="newsForm"
                             class="order-1 sm:order-2 flex-1 bg-red-700 text-white px-6 py-3 rounded-md font-medium hover:bg-red-900 transition-colors">Publish
                             News</button>
                     </div>
@@ -81,24 +81,4 @@
 
     </div>
 </div>
-
-<script>
-    async function addNewsEntry() {
-        await fetch("{% url 'news:create_news_ajax' %}", {
-            method: "POST",
-            body: new FormData(document.querySelector("#newsForm")),
-        })
-
-        document.getElementById("newsForm").reset();
-
-        document.dispatchEvent(new CustomEvent('newsAdded'));
-
-        return false;
-    }
-
-    document.getElementById("newsForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        addNewsEntry();
-    });
-</script>
 {% endblock content %}
