@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>{{ news.title }} - PitTalk</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="bg-neutral-900 w-full pt-16 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Back Navigation -->
+        <div class="mb-6">
+            <a href="{% url 'news:show_main' %}" class="text-white hover:text-gray-400 font-medium transition-colors">
+                ← Back to Main Page
+            </a>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state">
+            <article class="flex flex-col md:flex-row bg-gray-500 rounded-sm my-10 divide-x-4 overflow-hidden animate-pulse">
+                <div class="min-w-full py-20"></div>
+            </article>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
+            <div class="w-16 h-16 mx-auto mb-4">
+                <div class="text-5xl">⚠️</div>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load news</h3>
+            <p class="text-gray-500">Please try again later.</p>
+        </div>
+
+        <!-- Article Content -->
+        <article id="article-content" class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden">
+
+            <!-- Header -->
+            <div class="p-6 sm:p-8">
+                <div id="badges-container" class="flex flex-wrap items-center gap-2 mb-4">
+                    <!-- Dynamic badges will be inserted here -->
+                </div>
+
+                <h1 id="article-title" class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-4">
+                    <!-- Title will be inserted here -->
+                </h1>
+            </div>
+
+            <!-- Featured Image -->
+            <div id="featured-image-container" class="px-6 sm:px-8 hidden">
+                <img id="featured-image" src="" alt="" class="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg">
+            </div>
+
+            <div class="border-t border-gray-200 p-6 sm:p-8">
+                <div id="article-info-container">
+                    <div>
+                        <div id="article-info" class="flex flex-col text-center gap-4 lg:text-left sm:flex-row items-center sm:justify-between text-gray-700">
+                            <div id="author-info" class="flex flex-row items-center gap-2">
+                                <!-- Author profile picture will be inserted here -->
+                            </div>
+
+                            <div id="article-stats">
+                                <!-- Article statistics will be inserted here (time, views, comments) -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 sm:p-8">
+                <div class="prose prose-lg max-w-none">
+                    <div id="article-content-text" class="text-black leading-relaxed whitespace-pre-line text-base sm:text-lg">
+                        <!-- Content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+
+<script>
+    // Configuration
+    const NEWS_ID = "{{ news.id }}";
+    const NEWS_DETAIL_ENDPOINT = `{% url 'news:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
+
+    // DOM Elements
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const articleContent = document.getElementById('article-content');
+    const badgesContainer = document.getElementById('badges-container');
+    const articleTitle = document.getElementById('article-title');
+    const articleAuthor = document.getElementById('author-info');
+    const articleStats = document.getElementById('article-stats');
+    const featuredImageContainer = document.getElementById('featured-image-container');
+    const featuredImage = document.getElementById('featured-image');
+    const articleContentText = document.getElementById('article-content-text');
+
+    // Show/hide page sections
+    function showState(state) {
+        loadingState.classList.toggle('hidden', state !== 'loading');
+        errorState.classList.toggle('hidden', state !== 'error');
+        articleContent.classList.toggle('hidden', state !== 'ready');
+    }
+
+    // Get readable category name
+    function getCategoryLabel(categoryCode) {
+        const categoryMapping = {
+            f1: 'Formula 1/FIA',
+            championship: 'Championship',
+            team: 'Team',
+            driver: 'Driver',
+            constructor: 'Constructor',
+            race: 'Race',
+            analysis: 'Analysis',
+            history: 'F1 History',
+            fanbase: 'F1 Fanbase',
+            exclusive: 'Exclusive',
+            other: 'Other',
+        };
+        return categoryMapping[categoryCode] || categoryCode;
+    }
+
+// Render article content
+    function renderArticle(news) {
+        // Set title
+        articleTitle.textContent = news.title;
+        document.title = `${news.title} - PitTalk`;
+
+        // Set badges
+        badgesContainer.innerHTML = '';
+
+        // Category badge
+        const categoryBadge = document.createElement('span');
+        categoryBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-orange-600 text-white';
+        categoryBadge.textContent = getCategoryLabel(news.category);
+        badgesContainer.appendChild(categoryBadge);
+
+        // Featured badge
+        if (news.is_featured) {
+            const featuredBadge = document.createElement('span');
+            featuredBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-600 text-white';
+            featuredBadge.textContent = '★ Featured';
+            badgesContainer.appendChild(featuredBadge);
+        }
+
+        // Hot badge
+        if (news.is_news_hot) {
+            const hotBadge = document.createElement('span');
+            hotBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-800 text-white';
+            hotBadge.textContent = 'Hot';
+            badgesContainer.appendChild(hotBadge);
+        }
+
+        // Set author image
+        const authorImage = document.createElement("img");
+        authorImage.className = "aspect-square bg-white max-w-[50px] border border-black rounded-lg";
+        authorImage.src = "{% static 'image/default-user.png' %}"; // add actual image later once login finalized
+        articleAuthor.appendChild(authorImage);
+
+        // Set author name
+        const authorNameContainer = document.createElement("p");
+        authorNameContainer.textContent = "Author: Anonymous"; // add actual name later once login finalized
+        articleAuthor.appendChild(authorNameContainer);
+
+        // Set date, views, comments
+        const formattedDate = new Date(news.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        articleStats.textContent = formattedDate + " | " + `${news.news_views} views` + " | " + `Comment Count`;
+
+        // Set featured image
+        if (news.thumbnail) {
+            featuredImage.src = news.thumbnail;
+            featuredImage.alt = news.title;
+            featuredImageContainer.classList.remove('hidden');
+        } else {
+            featuredImage.src = "{% static 'image/not_available.png' %}";
+            featuredImage.alt = news.title;
+            featuredImageContainer.classList.remove('hidden');
+        }
+
+        // Set content
+        articleContentText.textContent = news.content;
+    }
+
+    // Fetch news detail
+    async function loadNewsDetail() {
+        try {
+            showState('loading');
+
+            const response = await fetch(NEWS_DETAIL_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch news detail');
+            }
+
+            const newsData = await response.json();
+            renderArticle(newsData);
+            showState('ready');
+        } catch (error) {
+            console.error('Error loading news detail:', error);
+            showState('error');
+        }
+    }
+
+    // Initialize page
+    loadNewsDetail();
+</script>
+
+{% endblock content %}
