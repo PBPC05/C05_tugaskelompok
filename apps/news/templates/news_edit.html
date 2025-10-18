@@ -131,7 +131,7 @@
         })
 
         document.querySelector('#editForm').reset();
-        document.dispatchEvent(new CustomEvent('productEdited'));
+        document.dispatchEvent(new CustomEvent('newsEdited'));
 
         if (response.ok) {
             window.location.href = "{% url 'news:show_main' %}";
