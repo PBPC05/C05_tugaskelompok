@@ -9,7 +9,7 @@
 {% block content %}
 {% include 'navbar.html' %}
 <div class="bg-neutral-900 pt-10 text-white min-h-screen">
-    <header id="hero-image">
+    <header id="hero-image-news">
         <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
             <h1 class="text-5xl font-bold">PitTalk News</h1>
             <h2 class="text-lg font-semibold">Latest news and updates about F1 races, cars, and drivers</h2>
@@ -17,10 +17,10 @@
     </header>
 
     <div class="p-10">
-        <div id="filter" class="flex flex-auto my-5 mx-10 gap-2 min-w-full">
+        <div id="filter" class="flex flex-auto my-5 mx-10 gap-4 min-w-full">
             <label class="p-1">Filter by category...</label>
-            <select name="category" class="p-1 text-black">
-                <option value="" selected>All Categories</option>
+            <select id="filter-selector" name="category" class="p-1 text-black">
+                <option value="all" selected>All Categories</option>
                 <option value="f1">Formula 1/FIA</option>
                 <option value="championship">Championship</option>
                 <option value="team">Team</option>
@@ -33,10 +33,14 @@
                 <option value="exclusive">Exclusive</option>
                 <option value="other">Other</option>
             </select>
+            <button id="filter-start" type="button" class="px-2 py-0.5 bg-red-700 hover:bg-red-900 transition-colors rounded-md">Apply Filter</button>
         </div>
 
-        <div id="create-button">
-            <a href="{% url 'news:create_news' %}">New Article</a>
+        <div id="create-button" class="flex flex-col align-center my-10 text-center">
+            <div class="p-5">
+                <a href="{% url 'news:create_news' %}" class="font-bold text-xl p-5 border border-black bg-orange-600 hover:bg-orange-800 transition-colors">New Article</a>
+            </div>
+            <p class="text-lg font-bold">Welcome Author. Contribute to PitTalk News Here</p>
         </div>
 
         <!-- Loading State -->
@@ -58,7 +62,7 @@
                 <img src="{% static 'image/not_available.png' %}" alt="No news available" class="w-full h-full object-contain">
             </div>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No news found</h3>
-            <a href="{% url 'news:create_news' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+            <a href="{% url 'news:create_news' %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-green-700 transition-colors">
                 Create News
             </a>
         </div>
@@ -76,6 +80,7 @@
     const errorMessage = document.getElementById('error');
     const emptyStateDisplay = document.getElementById('empty');
     const newsGridContainer = document.getElementById('grid');
+    const filterSelector = document.getElementById('filter-selector');
 
     // State Variables
     let activeFilter = 'all';
@@ -197,10 +202,9 @@
 
     // Filter and display news
     function filterAndDisplayNews() {
-
         const filteredNews = activeFilter === 'all'
-            ? allNewsData.reverse()
-            : allNewsData;
+            ? allNewsData
+            : allNewsData.filter(news => news.category === activeFilter);
 
         if (filteredNews.length === 0) {
             displayPageSection({ showEmpty: true });
@@ -225,12 +229,25 @@
 
             const newsData = await response.json();
             allNewsData = newsData || [];
+            allNewsData.sort(compare)
 
             filterAndDisplayNews();
         } catch (error) {
             console.error('Error loading news:', error);
             displayPageSection({ showError: true });
         }
+    }
+
+    // Sorting function to ensure news is sorted by newest
+    function compare(a, b) {
+        // a and b are News objects
+        if (a.created_at > b.created_at) {
+            return -1;
+        }
+        if (a.created_at < b.created_at) {
+            return 1;
+        }
+        return 0;
     }
 
     // Event handlers
@@ -252,9 +269,22 @@
     // Start application
     initializeNewsPage();
 
+    // Event listeners
     document.addEventListener('newsAdded', function () {
         fetchNewsFromServer();
     });
+
+    document.addEventListener('newsEdited', function () {
+        fetchNewsFromServer();
+    })
+
+    function handleFiltering() {
+        console.log(filterSelector.value);
+        activeFilter = filterSelector.value;
+        filterAndDisplayNews();
+    }
+
+    document.getElementById('filter-start').addEventListener('click', handleFiltering);
 </script>
 
 {% endblock content %}
