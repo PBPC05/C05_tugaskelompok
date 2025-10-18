@@ -46,12 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'main',
-    'forums',
-    'information',
-    'news',
-    'user',
-    'prediction',
-    'history',
+    'apps.forums',
+    'apps.information',
+    'apps.news',
+    'apps.user',
+    'apps.prediction',
+    'apps.history',
 ]
 
 MIDDLEWARE = [
