@@ -8,68 +8,89 @@
 
 {% block content %}
 {% include 'navbar.html' %}
-<div class="bg-neutral-900 pt-10 text-white min-h-screen">
-    <header id="hero-image-news">
-        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
-            <h1 class="text-5xl font-bold">PitTalk News</h1>
-            <h2 class="text-lg font-semibold">Latest news and updates about F1 races, cars, and drivers</h2>
-        </div>
-    </header>
+<div class="bg-neutral-950 text-white min-h-screen font-inter">
+  <!-- HERO SECTION -->
+  <header id="hero-image-news" class="relative bg-[url('{% static 'image/news-hero-bg.jpg' %}')] bg-cover bg-center after:absolute after:inset-0 after:bg-black/5">
+    <div class="relative px-6 py-32 sm:py-40 max-w-4xl mx-auto text-center sm:text-left">
+      <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight text-white drop-shadow-lg">
+        PitTalk News
+      </h1>
+      <h2 class="text-lg sm:text-xl font-medium text-gray-200 mt-4">
+        Latest insights, race highlights, and stories from the world of Formula&nbsp;1
+      </h2>
+    </div>
+  </header>
 
-    <div class="p-10">
-        <div id="filter" class="flex flex-auto my-5 mx-10 gap-4 min-w-full">
-            <label class="p-1">Filter by category...</label>
-            <select id="filter-selector" name="category" class="p-1 text-black">
-                <option value="all" selected>All Categories</option>
-                <option value="f1">Formula 1/FIA</option>
-                <option value="championship">Championship</option>
-                <option value="team">Team</option>
-                <option value="driver">Driver</option>
-                <option value="constructor">Constructor</option>
-                <option value="race">Race</option>
-                <option value="analysis">Analysis</option>
-                <option value="history">F1 History</option>
-                <option value="fanbase">F1 Fanbase</option>
-                <option value="exclusive">Exclusive</option>
-                <option value="other">Other</option>
-            </select>
-            <button id="filter-start" type="button" class="px-2 py-0.5 bg-red-700 hover:bg-red-900 transition-colors rounded-md">Apply Filter</button>
-        </div>
+  <!-- MAIN CONTENT -->
+  <main class="px-6 sm:px-10 lg:px-16 py-12 max-w-6xl mx-auto">
 
-        <div id="create-button" class="flex flex-col align-center my-10 text-center">
-            <div class="p-5">
-                <a href="{% url 'news:create_news' %}" class="font-bold text-xl p-5 border border-black bg-orange-600 hover:bg-orange-800 transition-colors">New Article</a>
-            </div>
-            <p class="text-lg font-bold">Welcome Author. Contribute to PitTalk News Here</p>
-        </div>
+    <!-- FILTER BAR -->
+    <section id="filter" class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 mb-10">
+      <label for="filter-selector" class="text-gray-300 font-medium">Filter by category:</label>
+      <select id="filter-selector" name="category" 
+              class="p-2 rounded-md text-black bg-gray-100 border border-gray-300 focus:ring-2 focus:ring-red-600 focus:outline-none transition-all duration-200">
+        <option value="all" selected>All Categories</option>
+        <option value="f1">Formula 1 / FIA</option>
+        <option value="championship">Championship</option>
+        <option value="team">Team</option>
+        <option value="driver">Driver</option>
+        <option value="constructor">Constructor</option>
+        <option value="race">Race</option>
+        <option value="analysis">Analysis</option>
+        <option value="history">F1 History</option>
+        <option value="fanbase">F1 Fanbase</option>
+        <option value="exclusive">Exclusive</option>
+        <option value="other">Other</option>
+      </select>
+      <button id="filter-start" 
+              class="px-5 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 rounded-md font-semibold shadow-md transition-all duration-200">
+        Apply Filter
+      </button>
+    </section>
 
-        <!-- Loading State -->
-        <div id="loading" class="hidden">
-            <article class="flex flex-col md:flex-row bg-gray-500 rounded-sm my-10 divide-x-4 overflow-hidden animate-pulse">
-                <div class="min-w-full py-20"></div>
-            </article>
-        </div>
+    <!-- AUTHOR CTA -->
+    <section id="create-button" class="text-center my-16 py-4">
+      <a href="{% url 'news:create_news' %}" 
+         class="inline-block text-xl font-bold py-3 px-8 rounded-md bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 border border-orange-400/30 shadow-lg transition-all duration-300">
+        ✏️ New Article
+      </a>
+      <p class="mt-4 text-white text-lg font-medium">Welcome, Author. Share your voice with the PitTalk community.</p>
+    </section>
 
-        <!-- Error State -->
-        <div id="error" class="hidden"></div>
-
-        <!-- News Grid -->
-        <div id="grid" class="hidden"></div>
-
-        <!-- Empty State -->
-        <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-            <div class="w-32 h-32 mx-auto mb-4">
-                <img src="{% static 'image/not_available.png' %}" alt="No news available" class="w-full h-full object-contain">
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No news found</h3>
-            <a href="{% url 'news:create_news' %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                Create News
-            </a>
-        </div>
-
+    <!-- LOADING STATE -->
+    <div id="loading" class="hidden">
+      <article class="flex flex-col bg-gray-700/50 rounded-xl my-10 animate-pulse overflow-hidden shadow-md">
+        <div class="min-w-full py-24"></div>
+      </article>
     </div>
 
+    <!-- ERROR STATE -->
+    <div id="error" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+      <div class="text-6xl mb-4">⚠️</div>
+      <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load news</h3>
+      <p class="text-gray-400">Please try again later.</p>
+    </div>
+
+    <!-- NEWS GRID -->
+    <section id="grid" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Articles will load here dynamically -->
+    </section>
+
+    <!-- EMPTY STATE -->
+    <section id="empty" class="bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center hidden shadow-md">
+      <div class="w-32 h-32 mx-auto mb-6">
+        <img src="{% static 'image/not_available.png' %}" alt="No news available" class="w-full h-full object-contain opacity-80">
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-3">No news found</h3>
+      <p class="text-gray-400 mb-6">It looks like there are no recent articles in this category.</p>
+      <a href="{% url 'news:create_news' %}" 
+         class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
+        📰 Create News
+      </a>
+    </section>
+  </main>
 </div>
+
 
 <script>
     const NEWS_API_ENDPOINT = "{% url 'news:show_json' %}";
@@ -136,12 +157,14 @@
             month: 'long',
             day: 'numeric'
         }));
-        const newsViews = DOMPurify.sanitize(item.news_views) || 0;
+        const newsViews = (DOMPurify.sanitize(item.news_views) || 0) == 1 ? (DOMPurify.sanitize(item.news_views) || 0) + " view" : (DOMPurify.sanitize(item.news_views) || 0) + " views";
+        const newsComments = (DOMPurify.sanitize(item.news_comments) || 0) == 1 ? (DOMPurify.sanitize(item.news_comments) || 0) + " comment" : (DOMPurify.sanitize(item.news_comments1) || 0) + " comments";
+
         const isFeatured = item.is_featured;
         const isHot = newsViews > 200;
 
         const thumbnailHtml = DOMPurify.sanitize(
-            item.thumbnail ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover'>` : `<img src='${noImage}' alt='${title}' class='w-full h-full object-cover'>`
+            item.thumbnail ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full py-1 object-contain'>` : `<img src='${noImage}' alt='${title}' class='w-full h-full object-cover'>`
         );
         const categoryName = DOMPurify.sanitize(getReadableCategoryName(category));
         const categoryLabel = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-orange-600 text-white">${categoryName}</span>`
@@ -155,7 +178,7 @@
         </div>`
 
         const cardHtml = `
-                <div class="max-w-sm h-sm relative overflow-hidden shrink-0 grow-0">
+                <div class="max-w-sm h-sm relative aspect-[16/9] overflow-hidden shrink-0 grow-0">
                     <a href="${linkDetail}">${thumbnailHtml}</a>
                 </div>
                 <div class="p-5 flex flex-col flex-1">
@@ -172,9 +195,9 @@
                     <div class="flex flex-col sm:flex-row items-center text-sm text-gray-400 mb-3">
                         <time>${createdAt}</time>
                         <span class="mx-2">•</span>
-                        <span>${newsViews} views</span>
+                        <span>${newsViews}</span>
                         <span class="mx-2">•</span>
-                        <span>Comment Count</span>
+                        <span>${newsComments}</span>
                     </div>
 
                     <p class="news-content text-black text-sm leading-relaxed line-clamp-3 mb-4">${content}</p>

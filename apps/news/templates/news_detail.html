@@ -7,83 +7,133 @@
 
 {% block content %}
 {% include 'navbar.html' %}
-<div class="bg-neutral-900 w-full pt-16 min-h-screen">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="bg-neutral-950 w-full pt-20 min-h-screen text-gray-100 font-inter">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 
-        <!-- Back Navigation -->
-        <div class="mb-6">
-            <a href="{% url 'news:show_main' %}" class="text-white hover:text-gray-400 font-medium transition-colors">
-                ← Back to Main Page
-            </a>
-        </div>
-
-        <!-- Loading State -->
-        <div id="loading-state">
-            <article class="flex flex-col md:flex-row bg-gray-500 rounded-sm my-10 divide-x-4 overflow-hidden animate-pulse">
-                <div class="min-w-full py-20"></div>
-            </article>
-        </div>
-
-        <!-- Error State -->
-        <div id="error-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-            <div class="w-16 h-16 mx-auto mb-4">
-                <div class="text-5xl">⚠️</div>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load news</h3>
-            <p class="text-gray-500">Please try again later.</p>
-        </div>
-
-        <!-- Article Content -->
-        <article id="article-content" class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden">
-
-            <!-- Header -->
-            <div class="p-6 sm:p-8">
-                <div id="badges-container" class="flex flex-wrap items-center gap-2 mb-4">
-                    <!-- Dynamic badges will be inserted here -->
-                </div>
-
-                <h1 id="article-title" class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-4">
-                    <!-- Title will be inserted here -->
-                </h1>
-            </div>
-
-            <!-- Featured Image -->
-            <div id="featured-image-container" class="px-6 sm:px-8 hidden">
-                <img id="featured-image" src="" alt="" class="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg">
-            </div>
-
-            <div class="border-t border-gray-200 p-6 sm:p-8">
-                <div id="article-info-container">
-                    <div>
-                        <div id="article-info" class="flex flex-col text-center gap-4 lg:text-left sm:flex-row items-center sm:justify-between text-gray-700">
-                            <div id="author-info" class="flex flex-row items-center gap-2">
-                                <!-- Author profile picture will be inserted here -->
-                            </div>
-
-                            <div id="article-stats">
-                                <!-- Article statistics will be inserted here (time, views, comments) -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Content -->
-            <div class="p-6 sm:p-8">
-                <div class="prose prose-lg max-w-none">
-                    <div id="article-content-text" class="text-black leading-relaxed whitespace-pre-line text-base sm:text-lg">
-                        <!-- Content will be inserted here -->
-                    </div>
-                </div>
-            </div>
-        </article>
+    <!-- Back Navigation -->
+    <div class="mb-8">
+      <a href="{% url 'news:show_main' %}" 
+         class="inline-flex items-center text-gray-300 hover:text-white font-medium transition-colors duration-200">
+        ← Back to Main Page
+      </a>
     </div>
+
+    <!-- Loading State -->
+    <div id="loading-state">
+      <article class="flex flex-col bg-gray-700/50 rounded-xl my-10 animate-pulse shadow-lg overflow-hidden">
+        <div class="min-w-full py-32"></div>
+      </article>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="bg-neutral-900 rounded-xl border border-red-400/40 p-12 text-center hidden shadow-lg">
+      <div class="w-16 h-16 mx-auto mb-4 text-5xl">⚠️</div>
+      <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load news</h3>
+      <p class="text-gray-400">Please try again later.</p>
+    </div>
+
+    <!-- Article Content -->
+    <article id="article-content" class="bg-white backdrop-blur-md rounded-xl border border-gray-800 overflow-hidden hidden shadow-lg transition-all duration-300 hover:shadow-red-600/10">
+
+      <!-- Header -->
+      <div class="p-8">
+        <div id="badges-container" class="flex flex-wrap items-center gap-3 mb-6">
+          <!-- Dynamic badges -->
+        </div>
+
+        <h1 id="article-title" class="text-3xl sm:text-4xl font-extrabold text-black leading-tight mb-4 tracking-tight">
+          <!-- Title -->
+        </h1>
+      </div>
+
+      <!-- Featured Image -->
+      <div id="featured-image-container" class="px-8 hidden">
+        <img id="featured-image" src="" alt=""
+             class="py-2 w-full h-72 sm:h-96 object-contain rounded-xl border border-gray-700 shadow-lg">
+      </div>
+
+      <!-- Author & Stats -->
+      <div class="border-t border-gray-800 p-8">
+        <div id="article-info-container">
+          <div id="article-info" class="flex flex-col sm:flex-row justify-between items-center text-gray-400 gap-4 text-sm">
+            <div id="author-info" class="flex items-center gap-3">
+              <!-- Author profile -->
+            </div>
+            <div id="article-stats" class="flex items-center gap-3">
+              <!-- Stats -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="p-8">
+        <div class="prose prose-invert max-w-none leading-relaxed">
+          <div id="article-content-text" class="text-black text-base sm:text-lg whitespace-pre-line">
+            <!-- Content -->
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Comment Form -->
+    <form id="comment-form" name="commentForm" 
+          class="my-12 p-6 bg-white backdrop-blur-sm border border-gray-800 rounded-xl grid grid-cols-8 gap-4 shadow-lg transition-all duration-300 hover:border-gray-700">
+      {% csrf_token %}
+      <div id="user-picture" class="hidden sm:block">
+        <img src="{% static 'image/default-user.png' %}" 
+             class="aspect-square bg-white max-w-[55px] border border-gray-700 rounded-lg">
+      </div>
+      <textarea id="comment-body" name="comment-body" rows="5" 
+                placeholder="Share your thoughts..." 
+                class="col-span-8 sm:col-span-7 bg-white/90 border border-gray-700 focus:ring-1 focus:ring-red-500 p-3 rounded-lg text-black resize-none transition-all duration-200"></textarea>
+
+      <button type="submit" 
+              class="col-span-8 justify-self-end rounded-lg px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 font-semibold text-white shadow-md transition-all duration-200">
+        Post Comment
+      </button>
+    </form>
+
+    <!-- Comment Section -->
+    <div id="comment-section" class="my-12">
+      <!-- Comment Count -->
+      <h1 id="comment-count" class="font-bold text-2xl sm:text-3xl mb-2 text-white tracking-tight">
+        Comments
+      </h1>
+      <hr class="border-gray-700 mb-8">
+
+      <!-- Loading State -->
+      <div id="loading-state-comment">
+        <article class="flex flex-col bg-gray-700/50 rounded-xl my-8 animate-pulse overflow-hidden shadow-lg">
+          <div class="min-w-full py-16"></div>
+        </article>
+      </div>
+
+      <!-- Error State -->
+      <div id="error-state-comment" class="bg-neutral-900 border border-red-400/40 rounded-xl p-12 text-center hidden shadow-lg">
+        <div class="w-16 h-16 mx-auto mb-4 text-5xl">⚠️</div>
+        <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load comments</h3>
+        <p class="text-gray-400">Please try again later.</p>
+      </div>
+
+      <!-- Comments List -->
+      <div id="comment-list" class="hidden"></div>
+
+      <!-- Empty State -->
+      <div id="empty-state-comment" class="bg-neutral-900/80 border border-gray-800 rounded-xl p-12 text-center hidden">
+        <h3 class="text-xl font-bold text-white mb-2">No comments yet</h3>
+        <p class="text-gray-400">Be the first to comment on this article.</p>
+      </div>
+    </div>
+  </div>
 </div>
+
 
 <script>
     // Configuration
     const NEWS_ID = "{{ news.id }}";
     const NEWS_DETAIL_ENDPOINT = `{% url 'news:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
+    const COMMENT_ENDPOINT = `{% url 'news:get_comments_json' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', NEWS_ID);
 
     // DOM Elements
     const loadingState = document.getElementById('loading-state');
@@ -96,6 +146,17 @@
     const featuredImageContainer = document.getElementById('featured-image-container');
     const featuredImage = document.getElementById('featured-image');
     const articleContentText = document.getElementById('article-content-text');
+
+    // DOM Elements - Comment
+    const commentForm = document.getElementById('comment-form');
+    const commentBody = document.getElementById('comment-body');
+    const commentLoading = document.getElementById('loading-state-comment');
+    const commentError = document.getElementById('error-state-comment');
+    const commentEmpty = document.getElementById('empty-state-comment');
+    const commentList = document.getElementById('comment-list');
+
+    // Variables - Comment
+    let commentData = [];
 
     // Show/hide page sections
     function showState(state) {
@@ -122,7 +183,7 @@
         return categoryMapping[categoryCode] || categoryCode;
     }
 
-// Render article content
+    // Render article content
     function renderArticle(news) {
         // Set title
         articleTitle.textContent = news.title;
@@ -172,7 +233,18 @@
             hour: '2-digit',
             minute: '2-digit'
         });
-        articleStats.textContent = formattedDate + " | " + `${news.news_views} views` + " | " + `Comment Count`;
+
+        if (news.news_views == 1) {
+            articleStats.textContent = formattedDate + " | " + `${news.news_views} view`;
+        } else {
+            articleStats.textContent = formattedDate + " | " + `${news.news_views} views`;
+        }
+
+        if (news.news_comments == 1) {
+            articleStats.textContent += " | " + `${news.news_comments} comment`;
+        } else {
+            articleStats.textContent += " | " + `${news.news_comments} comments`;
+        }
 
         // Set featured image
         if (news.thumbnail) {
@@ -211,8 +283,134 @@
         }
     }
 
+    // Add a new comment
+    async function postComment() {
+        const fetchURL = `{% url 'news:post_comment' '00000000-0000-0000-0000-000000000000' %}`.replace("00000000-0000-0000-0000-000000000000", NEWS_ID);
+        const redirectURL = `{% url 'news:show_news_detail' '00000000-0000-0000-0000-000000000000' %}`.replace("00000000-0000-0000-0000-000000000000", NEWS_ID);
+
+        const response = await fetch(fetchURL, {
+            method: "POST",
+            body: new FormData(commentForm)
+        })
+
+        commentForm.reset();
+        document.dispatchEvent(new CustomEvent("commentAdded"));
+
+        if (response.ok) {
+            window.location.href = redirectURL;
+        } else {
+            console.log("Comment failed to post. Try again")
+        }
+
+        return false;
+    }
+
+    // Display section of comment list
+    function displayCommentState({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+        commentLoading.classList.toggle('hidden', !showLoading);
+        commentError.classList.toggle('hidden', !showError);
+        commentEmpty.classList.toggle('hidden', !showEmpty);
+        commentList.classList.toggle('hidden', !showGrid);
+
+        // Add grid classes when showing grid
+        if (showGrid) {
+            commentList.className = 'grid grid-cols-1 gap-6';
+        }
+    }
+
+    // Build comment HTML
+    function buildCommentCard(item) {
+        const article = document.createElement("article");
+        article.className = "p-6 text-black bg-white backdrop-blur-sm border border-gray-800 rounded-xl grid grid-cols-8  shadow-lg transition-all duration-300 hover:border-gray-700";
+
+        const image = "{% static 'image/default-user.png' %}";
+        const username = "Anonymous";
+        const createdAt = DOMPurify.sanitize(new Date(item.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }));
+        const content = DOMPurify.sanitize(item.content);
+
+        const imageHTML = DOMPurify.sanitize(`<img src=${image} class="aspect-square bg-white max-w-[55px] border border-gray-700 rounded-lg row-span-2">`);
+        const header = DOMPurify.sanitize(`<p class="col-span-7"><span class="font-bold">${username}</span> posted at <span class="font-bold">${createdAt}</span></p>`);
+        const contentDisplay = DOMPurify.sanitize(`<p class="py-5 col-span-7 row-span-3">${content}</p>`);
+
+        const cardHTML = `
+            ${imageHTML}
+            ${header}
+            ${contentDisplay}
+        `
+        article.innerHTML = cardHTML;
+        return article;
+    }
+
+    // Fetch comment data
+    async function fetchCommentsFromServer() {
+        try {
+            displayCommentState({ showLoading: true });
+
+            const response = await fetch(COMMENT_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch comments from server');
+            }
+
+            const responseComments = await response.json();
+            commentData = responseComments || [];
+            commentData.sort(compare);
+
+            printComments();
+        } catch (error) {
+            console.error('Error loading comments:', error);
+            displayCommentState({ showError: true });
+        }
+    }
+
+    // Display comments
+    function printComments() {
+        if (commentData.length == 0) {
+            displayCommentState({ showEmpty: true })
+        } else {
+            renderAllComments(commentData);
+            displayCommentState({ showGrid: true })
+        }
+    }
+
+    // Render comments
+    function renderAllComments(comments) {
+        commentList.innerHTML = '';
+        comments.forEach(item => {
+            const cardElement = buildCommentCard(item);
+            commentList.appendChild(cardElement);
+        });
+    }
+
+    // Sorting function to ensure comments are sorted by newest
+    function compare(a, b) {
+        // a and b are News objects
+        if (a.created_at > b.created_at) {
+            return -1;
+        }
+        if (a.created_at < b.created_at) {
+            return 1;
+        }
+        return 0;
+    }
+
+
+    commentForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        postComment();
+    })
+
     // Initialize page
     loadNewsDetail();
+    fetchCommentsFromServer();
 </script>
 
 {% endblock content %}

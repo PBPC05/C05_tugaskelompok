@@ -84,7 +84,7 @@
 
 <script>
     async function addNewsEntry() {
-        await fetch("{% url 'news:create_news_ajax' %}", {
+        const response = await fetch("{% url 'news:create_news_ajax' %}", {
             method: "POST",
             body: new FormData(document.querySelector("#newsForm")),
         })
@@ -92,6 +92,12 @@
         document.getElementById("newsForm").reset();
 
         document.dispatchEvent(new CustomEvent('newsAdded'));
+
+        if (response.ok) {
+            window.location.href = "{% url 'news:show_main' %}";
+        } else {
+            console.log("News creation unsuccessful. Try again")
+        }
 
         return false;
     }
