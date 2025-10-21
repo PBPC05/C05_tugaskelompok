@@ -25,8 +25,16 @@ class Forums(models.Model):
         self.forums_likes += 1
         self.save()
     
+    def decrement_likes(self):
+        self.forums_likes -= 1
+        self.save()
+    
     def increment_replies_counts(self):
         self.forums_replies_counts += 1
+        self.save()
+
+    def decrement_replies_counts(self):
+        self.forums_replies_counts -= 1
         self.save()
 
     def is_hot_True(self):
@@ -42,12 +50,23 @@ class Forums(models.Model):
         return self.created_at - datetimenow
 
 class ForumsReplies(models.Model):
-    forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="replies")
+    forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     replies_content = models.TextField()
     forums_replies_likes = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return super().__str__()
+        return self.replies_content
     
+    def increment_likes(self):
+        self.forums_replies_likes += 1
+        self.save()
+
+    def decrement_likes(self):
+        self.forums_replies_likes -= 1
+        self.save()
+
+    def get_duration_since_created(self):
+        datetimenow = datetime.datetime.now()
+        return self.created_at - datetimenow
