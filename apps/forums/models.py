@@ -5,7 +5,7 @@ import datetime
 # Create your models here.
 class Forums(models.Model):
     forums_id = models.UUIDField(auto_created=True, primary_key=True)
-    # user
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
     forums_views = models.PositiveIntegerField(default=0)
@@ -43,7 +43,7 @@ class Forums(models.Model):
 
 class ForumsReplies(models.Model):
     forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="replies")
-    # user
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     replies_content = models.TextField()
     forums_replies_likes = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
