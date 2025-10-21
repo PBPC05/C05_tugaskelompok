@@ -9,10 +9,6 @@
     font-family: "Inclusive Sans", "Inter", "Arial", sans-serif;
 }
 
-select, option {
-    width: 20%;
-}
-
 #hero-image-news {
     background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/news-hero-bg.jpg);
     height: 50%;
