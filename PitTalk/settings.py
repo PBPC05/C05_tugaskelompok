@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'main',
     'apps.forums',
     'apps.information',
@@ -51,7 +52,6 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.prediction',
     'apps.history',
-    'apps.admins'
 ]
 
 MIDDLEWARE = [

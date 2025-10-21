@@ -33,7 +33,10 @@ class News(models.Model):
     def getUrlTitle(self):
         lowerTitle = self.title.lower()
         urlTitle = lowerTitle.replace(" ", "-")
-        return urlTitle
+        if len(urlTitle > 255):
+            return urlTitle[:255]
+        else:
+            return urlTitle
 
     @property
     def is_news_hot(self):
