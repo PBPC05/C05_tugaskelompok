@@ -6,17 +6,22 @@
 {% endblock meta %}
 
 {% block content %}
-{% include 'navbar.html' %}
-<div class="bg-neutral-950 w-full pt-20 min-h-screen text-gray-100 font-inter">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+<div class="bg-neutral-900 w-full pt-16 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- Back Navigation -->
-    <div class="mb-8">
-      <a href="{% url 'news:show_main' %}" 
-         class="inline-flex items-center text-gray-300 hover:text-white font-medium transition-colors duration-200">
-        ← Back to Main Page
-      </a>
-    </div>
+        <!-- Back Navigation -->
+        <div class="mb-6">
+            <a href="{% url 'news:show_main' %}" class="text-white hover:text-gray-400 font-medium transition-colors">
+                ← Back to Main Page
+            </a>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state">
+            <article class="flex flex-col md:flex-row bg-gray-500 rounded-sm my-10 divide-x-4 overflow-hidden animate-pulse">
+                <div class="min-w-full py-20"></div>
+            </article>
+        </div>
 
     <!-- Loading State -->
     <div id="loading-state">
