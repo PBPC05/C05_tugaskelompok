@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block meta %}
-<title>Create Article - PitTalk</title>
+<title>Edit Article - PitTalk</title>
 {% endblock meta %}
 
 {% block content %}
@@ -17,12 +17,12 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 divide-y-4">
             <!-- Header -->
             <div class="mb-8 text-center">
-                <h1 class="text-2xl font-bold mb-2">Create New Article</h1>
-                <p class="text-lg text-gray-700 font-semibold">Contribute to PitTalk News</p>
+                <h1 class="text-2xl font-bold mb-2">Edit Article</h1>
+                <p class="text-lg text-gray-700 font-semibold">Change information about your published article</p>
             </div>
 
             <!-- Form -->
-            <form id="newsForm" method="post" class="space-y-6">
+            <form id="editForm" method="post" class="space-y-6">
                 {% csrf_token %}
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-black">Title</label>
@@ -71,9 +71,8 @@
                     <div class="flex flex-col sm:flex-row gap-4 p-6 border-t border-gray-200 rounded-b">
                         <button type="button" id="cancelButton"
                             class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">Cancel</button>
-                        <button type="submit" id="submitNews" form="newsForm"
-                            class="order-1 sm:order-2 flex-1 bg-red-700 text-white px-6 py-3 rounded-md font-medium hover:bg-red-900 transition-colors">Publish
-                            News</button>
+                        <button type="submit" id="submitNews" form="editForm"
+                            class="order-1 sm:order-2 flex-1 bg-red-700 text-white px-6 py-3 rounded-md font-medium hover:bg-red-900 transition-colors">Confirm Edit</button>
                     </div>
             </form>
         </div>
@@ -82,28 +81,73 @@
 </div>
 
 <script>
-    async function addNewsEntry() {
-        const response = await fetch("{% url 'news:create_news_ajax' %}", {
+    var newsId = 0;
+
+    function populateFields(news) {
+        console.log("Fields populated");
+
+        const newsTitle = document.getElementById("title");
+        const newsContent = document.getElementById("content");
+        const newsCategory = document.getElementById("category");
+        const newsThumbnail = document.getElementById("thumbnail");
+        const newsFeatured = document.getElementById("is_featured");
+
+        // fill fields with existing data
+        newsTitle.value = news.title;
+        newsContent.value = news.content;
+        newsCategory.value = news.category;
+        newsThumbnail.value = news.thumbnail;
+        newsFeatured.checked = news.is_featured;
+    }
+
+    async function getExistingObjData(news_id) {
+        console.log("Function called");
+
+        try {
+            const DETAIL_ENDPOINT = `{% url 'news:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', news_id);
+            const response = await fetch(DETAIL_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch news detail');
+            }
+
+            newsId = news_id;
+            const newsData = await response.json();
+            populateFields(newsData);
+        } catch (error) {
+            console.error("Error loading object detail: " + error);
+        }
+    }
+
+    async function editNewsEntry() {
+        var fetchUrl = "{% url 'news:edit_news_ajax' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', newsId);
+
+        const response = await fetch(fetchUrl, {
             method: "POST",
-            body: new FormData(document.querySelector("#newsForm")),
+            body: new FormData(document.querySelector('#editForm')),
         })
 
-        document.getElementById("newsForm").reset();
-
-        document.dispatchEvent(new CustomEvent('newsAdded'));
+        document.querySelector('#editForm').reset();
+        document.dispatchEvent(new CustomEvent('newsEdited'));
 
         if (response.ok) {
             window.location.href = "{% url 'news:show_main' %}";
         } else {
-            console.log("News creation unsuccessful. Try again")
+            console.log("News edit unsuccessful. Try again")
         }
 
         return false;
     }
 
-    document.getElementById("newsForm").addEventListener("submit", function (e) {
+    document.getElementById("editForm").addEventListener("submit", function(e) {
         e.preventDefault();
-        addNewsEntry();
+        editNewsEntry();
+    })
+
+    document.addEventListener("DOMContentLoaded", function() {
+        getExistingObjData("{{ news_id }}");
     });
 </script>
 {% endblock content %}

@@ -24,6 +24,7 @@ class News(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='update')
     thumbnail = models.URLField(blank=True, null=True)
     news_views = models.PositiveIntegerField(default=0)
+    news_comments = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     is_featured = models.BooleanField(default=False)
 
@@ -33,7 +34,10 @@ class News(models.Model):
     def getUrlTitle(self):
         lowerTitle = self.title.lower()
         urlTitle = lowerTitle.replace(" ", "-")
-        return urlTitle
+        if len(urlTitle > 255):
+            return urlTitle[:255]
+        else:
+            return urlTitle
 
     @property
     def is_news_hot(self):
@@ -43,8 +47,13 @@ class News(models.Model):
         self.news_views += 1
         self.save()
 
+    def increment_comments(self):
+        self.news_comments += 1
+        self.save()
+
 class Comment(models.Model):
     # user
-    news_id = models.ForeignKey(News, on_delete=models.CASCADE, related_name="comments")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name="comments")
     created_at = models.DateTimeField(auto_now_add=True)
     content = models.TextField()

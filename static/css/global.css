@@ -9,13 +9,18 @@
     font-family: "Inclusive Sans", "Inter", "Arial", sans-serif;
 }
 
-select, option {
-    width: 20%;
-}
-
-#hero-image {
+#hero-image-news {
     background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/news-hero-bg.jpg);
     height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#create-button {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/news-hero-bg.jpg);
 
     background-position: center;
     background-repeat: no-repeat;
