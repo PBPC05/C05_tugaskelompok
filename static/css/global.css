@@ -19,6 +19,16 @@
     position: relative;
 }
 
+#hero-image-prediction {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/prediction-hero-bg.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
 #create-button {
     background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/news-hero-bg.jpg);
 
