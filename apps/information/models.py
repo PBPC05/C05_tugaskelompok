@@ -5,7 +5,7 @@ from django.utils.text import slugify
 # Create your models here.
 class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    full_name = models.CharField(max_length=150, blank=True)
+    full_name = models.CharField(max_length=250)
     base = models.CharField(max_length=100, blank=True)
     team_chief = models.CharField(max_length=100, blank=True)
     technical_chief = models.CharField(max_length=100, blank=True)
@@ -17,8 +17,9 @@ class Team(models.Model):
     fastest_laps = models.PositiveIntegerField(default=0)
     highest_race_finish = models.CharField(max_length=20, blank=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
+    color = models.CharField(max_length=7)
 
-    team_logo = models.URLField()
+    team_logo = models.URLField(blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -36,8 +37,8 @@ class Driver(models.Model):
     number = models.PositiveIntegerField(unique=True, db_index=True)
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="drivers")
 
-    number_image = models.URLField()
-    driver_image = models.URLField()
+    number_image = models.URLField(blank=True)
+    driver_image = models.URLField(blank=True)
 
     abbreviation = models.CharField(max_length=8, blank=True)
     country = models.CharField(max_length=80, blank=True)
@@ -66,10 +67,11 @@ class Driver(models.Model):
     
 class Circuit(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    long_name = models.CharField(max_length=250)
     country = models.CharField(max_length=80, blank=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
 
-    circuit_image = models.URLField()
+    circuit_image = models.URLField(blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -89,8 +91,6 @@ class Race(models.Model):
     circuit = models.ForeignKey(Circuit, on_delete=models.PROTECT, related_name="races")
     date = models.DateField(null=True, blank=True)
     slug = models.SlugField(max_length=140, unique=True, blank=True)
-
-    race_image = models.URLField()
 
     class Meta:
         unique_together = ("season", "round_number")
@@ -167,3 +167,4 @@ class ConstructorStanding(models.Model):
 
     def __str__(self):
         return f"{self.season} - {self.position}. {self.team}"
+

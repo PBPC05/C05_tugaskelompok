@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block meta %}
+<title>Drivers</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-neutral-900 pt-10 text-white min-h-screen">
+    <header id="hero-image-drivers">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+            <h1 class="text-5xl font-bold">2025 Drivers</h1>
+            <h2 class="text-lg font-semibold">See All F1 2025 Drivers.</h2>
+        </div>
+    </header>
+</div>
+{% endblock %}
