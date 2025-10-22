@@ -106,3 +106,74 @@ def import_races_csv():
                     'date': datetime.strptime(row['date'], '%Y-%m-%d').date() if row['date'] else None,
                 }
             )
+
+def import_drivers_csv():
+    """Import drivers from CSV file."""
+    with open('apps/information/csv/Formula1_2025season_drivers.csv', 'r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            team = Team.objects.get(name=row['Team'])
+            Driver.objects.get_or_create(
+                full_name=row['Driver'],
+                defaults={
+                    'number': int(row['No']),
+                    'team': team,
+                    'abbreviation': row['Abbreviation'],
+                    'country': row['Country'],
+                    'podiums': int(row['Podiums']),
+                    'points': float(row['Points']),
+                    'grands_prix_entered': int(row['Grands Prix Entered']),
+                    'world_championships': int(row['World Championships']),
+                    'highest_race_finish': row['Highest Race Finish'],
+                    'highest_grid_position': row['Highest Grid Position'],
+                    'date_of_birth': datetime.strptime(row['Date of Birth'], '%d/%m/%Y').date() if row['Date of Birth'] else None,
+                    'place_of_birth': row['Place of Birth'],
+                }
+            )
+
+def import_teams_csv():
+    """Import teams from CSV file."""
+    with open('apps/information/csv/Formula1_2025season_teams.csv', 'r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            Team.objects.get_or_create(
+                name=row['Team'],
+                defaults={
+                    'full_name': row['Full Team Name'],
+                    'base': row['Base'],
+                    'team_chief': row['Team Chief'],
+                    'technical_chief': row['Technical Chief'],
+                    'chassis': row['Chassis'],
+                    'power_unit': row['Power Unit'],
+                    'first_team_entry': int(row['First Team Entry']) if row['First Team Entry'] else None,
+                    'world_championships': int(row['World Championships']),
+                    'highest_race_finish': row['Highest Race Finish'],
+                    'pole_positions': int(row['Pole Positions']),
+                    'fastest_laps': int(row['Fastest Laps']),
+                    'color': row['Color'],
+                }
+            )
+
+def import_raceresult_csv():
+    """Import race results from CSV file."""
+    with open('apps/information/csv/Formula1_2025Season_RaceResults.csv', 'r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            race = Race.objects.get(name=row['Track'])
+            driver = Driver.objects.get(number=int(row['No']))
+            team = Team.objects.get(name=row['Team'])
+            DriverRaceResult.objects.get_or_create(
+                race=race,
+                driver=driver,
+                defaults={
+                    'team': team,
+                    'grid_position': int(row['Starting Grid']) if row['Starting Grid'] else None,
+                    'finish_position': int(row['Position']) if row['Position'].isdigit() else None,
+                    'status': row['Position'] if not row['Position'].isdigit() else 'FINISHED',
+                    'points_awarded': float(row['Points']),
+                    'fastest_lap': row['Set Fastest Lap'] == 'Yes',
+                    'laps': int(row['Laps']) if row['Laps'] else None,
+                    'time_text': row['Time/Retired'],
+                }
+            )
+
