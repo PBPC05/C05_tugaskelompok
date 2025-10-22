@@ -15,7 +15,7 @@
         </div>
     </header>
 
-    <div class="p-10 mb-10">
+    <div class="px-10 pt-10 pb-20">
         <div id="filter" class="flex flex-auto my-5 mx-auto gap-4 w-fit">
             <label class="p-1">Filter by category...</label>
             <select id="filter-selector" name="category" class="p-1 text-black">
@@ -35,9 +35,9 @@
             <button id="filter-start" type="button" class="px-2 py-0.5 bg-red-700 hover:bg-red-900 transition-colors rounded-md">Apply Filter</button>
         </div>
 
-        <div id="create-button" class="flex flex-col align-center my-10 text-center">
+        <div id="create-button" class="flex flex-col align-center my-10 text-center rounded-md">
             <div class="p-5">
-                <a href="{% url 'news:create_news' %}" class="font-bold text-xl p-5 border border-black bg-orange-600 hover:bg-orange-800 transition-colors">New Article</a>
+                <a href="{% url 'news:create_news' %}" class="font-bold text-xl p-5 rounded-md bg-orange-600 hover:bg-orange-800 transition-colors">New Article</a>
             </div>
             <p class="text-lg font-bold">Welcome Author. Contribute to PitTalk News Here</p>
         </div>
@@ -62,11 +62,11 @@
         </section>
 
         <!-- EMPTY STATE -->
-        <section id="empty" class="bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center hidden shadow-md">
+        <section id="empty" class="bg-white text-black border border-gray-800 rounded-xl p-12 text-center hidden shadow-md">
             <div class="w-32 h-32 mx-auto mb-6">
                 <img src="{% static 'image/not_available.png' %}" alt="No news available" class="w-full h-full object-contain opacity-80">
             </div>
-            <h3 class="text-2xl font-bold text-white mb-3">No news found</h3>
+            <h3 class="text-2xl font-bold mb-3">No news found</h3>
             <p class="text-gray-400 mb-6">It looks like there are no recent articles in this category.</p>
             <a href="{% url 'news:create_news' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
                 📰 Create News
