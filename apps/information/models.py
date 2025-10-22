@@ -17,7 +17,7 @@ class Team(models.Model):
     fastest_laps = models.PositiveIntegerField(default=0)
     highest_race_finish = models.CharField(max_length=20, blank=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
-    color = models.CharField(max_length=7)
+    color = models.CharField(max_length=100, blank=True)
 
     team_logo = models.URLField(blank=True)
 
