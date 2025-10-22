@@ -18,6 +18,4 @@ urlpatterns = [
     path('api/standings/constructors/<int:season>/', show_constructor_standings_json, name='show_constructor_standings_json'),
     path('api/schedule/<int:season>/', show_schedule_json, name='show_schedule_json'),
     path('api/raceresult/delete/<int:pk>/', raceresult_delete_ajax, name='raceresult_delete_ajax'),
-    path('import/circuits/', import_circuits, name='import_circuits'),
-    path('import/races/', import_races, name='import_races'),
 ]

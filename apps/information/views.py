@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from .forms import DriverEditableForm, TeamEditableForm, RaceResultAppendForm
 from .models import Driver, Team, DriverRaceResult, DriverStanding, ConstructorStanding, Circuit, Race
-from .csvio import export_drivers_csv, export_teams_csv, append_raceresult_csv, import_circuits_csv, import_races_csv
+from .csvio import export_drivers_csv, export_teams_csv, append_raceresult_csv, import_circuits_csv, import_races_csv, import_drivers_csv, import_teams_csv, import_raceresult_csv
 from .standings import driver_standings, constructor_standings
 
 @login_required
@@ -20,7 +20,7 @@ def driver_update_ajax(request, pk):
 
 @login_required
 @require_POST
-def team_update_ajax(request, pk): #komen filler aja buat push
+def team_update_ajax(request, pk):
     obj = get_object_or_404(Team, pk=pk)
     form = TeamEditableForm(request.POST, instance=obj)
     if form.is_valid():
@@ -158,13 +158,3 @@ def show_schedule_json(request, season=2025):
         } for r in Race.objects.filter(season=season).order_by('round_number')
     ]
     return JsonResponse({"season": season, "data": data})
-
-@login_required
-def import_circuits(request):
-    import_circuits_csv()
-    return JsonResponse({"ok": True})
-
-@login_required
-def import_races(request):
-    import_races_csv()
-    return JsonResponse({"ok": True})
