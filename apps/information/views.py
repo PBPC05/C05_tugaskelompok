@@ -20,7 +20,7 @@ def driver_update_ajax(request, pk):
 
 @login_required
 @require_POST
-def team_update_ajax(request, pk):
+def team_update_ajax(request, pk): #komen filler aja buat push
     obj = get_object_or_404(Team, pk=pk)
     form = TeamEditableForm(request.POST, instance=obj)
     if form.is_valid():
