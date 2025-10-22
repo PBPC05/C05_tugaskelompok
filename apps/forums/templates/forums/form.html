@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-neutral-950 text-white py-12 px-4">
+  <div class="w-full max-w-2xl bg-neutral-900 p-8 rounded-2xl shadow-xl border border-neutral-800">
+    <h1 class="text-3xl font-bold mb-6 text-center text-red-400">{{ action }} Forum</h1>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm font-semibold mb-2 text-gray-300">Title</label>
+        <input type="text" name="title" value="{{ form.title.value|default:'' }}" 
+          class="w-full p-3 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400" 
+          placeholder="Enter forum title">
+        {% if form.title.errors %}
+          <p class="text-red-400 text-sm mt-1">{{ form.title.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-2 text-gray-300">Content</label>
+        <textarea name="content" rows="6"
+          class="w-full p-3 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400 resize-y"
+          placeholder="Write your forum content here...">{{ form.content.value|default:'' }}</textarea>
+        {% if form.content.errors %}
+          <p class="text-red-400 text-sm mt-1">{{ form.content.errors }}</p>
+        {% endif %}
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4">
+        <a href="{% url 'forums:list' %}" class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-all">
+          Cancel
+        </a>
+        <button type="submit" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-all">
+          {{ action }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  input[type="text"],
+  textarea {
+    @apply w-full p-3 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-400;
+  }
+  textarea {
+    @apply min-h-[200px] resize-y;
+  }
+</style>
+{% endblock content %}
