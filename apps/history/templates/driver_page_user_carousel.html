@@ -8,18 +8,21 @@
 {% endblock meta %}
 
 {% block content %}
+{% include "navbar.html" %}
 <!-- Include Flowbite JS  - Buat pake carousel buatan flowbite nya -->
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
 
-<div class="min-h-screen bg-black text-gray-100 py-8 px-4">
+<div class="min-h-screen bg-black text-gray-100 py-20 px-4">
   <!-- Header Section -->
-  <div class="max-w-6xl mx-auto mb-8">
-    <h1 class="text-3xl font-bold text-center mb-2">🏎️ Driver History</h1>
-    <p class="text-gray-400 text-center">Explore the latest F1 driver updates and historical data</p>
-  </div>
+  <header id="hero-image-history-driver">
+    <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+        <h1 class="text-5xl font-bold">Driver History</h1>
+        <h2 class="text-lg font-semibold">Explore the latest F1 driver updates and historical data</h2>
+    </div>
+  </header>
 
   <!-- Latest Driver Carousel - Aku batesin carouselnya nampilin 3 item doang -->
-  <section class="max-w-4xl mx-auto mb-12">
+  <section class="max-w-4xl mx-auto mb-12 py-5">
     <h2 class="text-2xl font-semibold text-center mb-6">
       Latest Driver Updates 
       <span class="block text-sm font-normal text-gray-400 mt-1">Showing latest 3 drivers</span>
@@ -28,7 +31,7 @@
     <!-- Carousel Container -->
     <div id="driver-carousel" class="relative w-full" data-carousel="slide">
       <!-- Carousel Wrapper -->
-      <div class="relative h-84 overflow-hidden rounded-xl md:h-96 border-4 border-red-900/30 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl">
+      <div class="relative h-96 overflow-y-auto overflow-x-hidden border-4 border-red-900/30 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl">
         {% for driver in newest_drivers|slice:":3" %}  <!-- BATAS NYA: 3 ITEM AJAA -->
         <!-- Carousel Item -->
         <div class="{% if forloop.first %}block{% else %}hidden{% endif %} duration-1000 ease-in-out" data-carousel-item>

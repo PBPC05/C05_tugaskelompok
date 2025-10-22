@@ -39,7 +39,6 @@ def driver_admin_page(request):
 
 # CREATE (AJAX)
 @csrf_exempt
-@csrf_exempt
 def add_driver(request):
     if request.method == 'POST':
         data = json.loads(request.body)

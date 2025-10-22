@@ -2,11 +2,20 @@
 {% block title %}Driver History{% endblock %}
 
 {% block content %}
+{% include "navbar.html" %}
 <!-- INI PAGE BUAT ADMIN NYA GITU -->
  
-<div class="min-h-screen bg-black text-gray-100 py-10 px-6">
+<div class="min-h-screen bg-black text-gray-100 py-20 px-6">
+    <!-- Header Section -->
+    <header id="hero-image-history-driver">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+            <h1 class="text-5xl font-bold">Driver History</h1>
+            <h2 class="text-lg font-semibold">Explore the latest F1 driver updates and historical data</h2>
+        </div>
+    </header>
+
     <!-- Newest Driver Update Section -->
-    <div class="max-w-5xl mx-auto mb-10">
+    <div class="max-w-5xl mx-auto mb-10 py-5">
         <h1 class="text-4xl font-bold mb-6 text-center">🏁 Newest Driver Update</h1>
 
         <!-- Newest Driver Card -->
