@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block meta %}
+<title>{{ forum.title }} - PitTalk Forums</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-neutral-900 text-white min-h-screen py-10">
+  <div class="max-w-4xl mx-auto p-6 bg-neutral-800 rounded-xl">
+    <header class="mb-4">
+      <h1 class="text-3xl font-bold text-white">{{ forum.title }}</h1>
+      <div class="text-sm text-gray-400">
+        by {{ forum.user.username if forum.user }} • {{ forum.created_at|naturaltime }} • {{ forum.forums_views }} views • {{ forum.forums_likes }} likes
+      </div>
+    </header>
+
+    <forum class="prose prose-invert mb-6">
+      {{ forum.content|linebreaks }}
+    </forum>
+
+    <div class="flex items-center gap-3 mb-6">
+      {% if user.is_authenticated %}
+      <button id="like-btn" class="px-3 py-1 bg-red-600 rounded-md">Like (<span id="like-count">{{ forum.forums_likes }}</span>)</button>
+
+      {% if user == forum.user %}
+      <a href="{% url 'forums:edit_forum' forum.forums_id %}" class="px-3 py-1 bg-gray-200 text-black rounded-md">Edit</a>
+      <form id="delete-form" action="{% url 'forums:delete_forum' forum.forums_id %}" method="post" class="inline-block">
+        {% csrf_token %}
+        <button type="submit" class="px-3 py-1 bg-red-800 rounded-md" onclick="return confirm('Delete this forum?')">Delete</button>
+      </form>
+      {% endif %}
+
+      {% else %}
+      <a href="{% url 'login' %}?next={% url 'forums:show_forum_detail' forum.forums_id %}" class="px-3 py-1 bg-orange-600 rounded-md">Login to interact</a>
+      {% endif %}
+    </div>
+
+    <hr class="border-gray-700 mb-6">
+
+    <section id="replies">
+      <h2 class="text-xl font-semibold mb-3">Replies ({{ forum.forums_replies_counts }})</h2>
+
+      {% if user.is_authenticated %}
+      <form id="reply-form" class="mb-6">
+        {% csrf_token %}
+        {{ reply_form.replies_content }}
+        <div class="mt-2">
+          <button type="submit" class="px-4 py-2 bg-red-600 rounded-md">Post Reply</button>
+        </div>
+      </form>
+      {% else %}
+      <p class="text-gray-400">Login to post a reply.</p>
+      {% endif %}
+
+      <div id="replies-list">
+        {% for r in replies %}
+        <div class="mb-4 p-4 bg-neutral-900 border border-gray-800 rounded">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-semibold">{{ r.user.username if r.user }}</div>
+              <div class="text-gray-400 text-sm">{{ r.created_at|naturaltime }}</div>
+            </div>
+            <div class="text-sm">
+              <span id="reply-like-{{ r.id }}">{{ r.forums_replies_likes }}</span> ❤
+              {% if user.is_authenticated %}
+                <button data-reply-id="{{ r.id }}" class="reply-like-btn ml-3 px-2 py-1 bg-gray-200 text-black rounded text-xs">Like</button>
+                {% if user == r.user or user == forum.user %}
+                <button data-reply-id="{{ r.id }}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 rounded text-xs">Delete</button>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="mt-2">
+            {{ r.replies_content|linebreaks }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+<script>
+const forumId = "{{ forum.forums_id }}";
+const likeBtn = document.getElementById('like-btn');
+const likeCountEl = document.getElementById('like-count');
+const replyForm = document.getElementById('reply-form');
+const repliesList = document.getElementById('replies-list');
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+      const cookie = c.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+if (likeBtn) {
+  likeBtn.addEventListener('click', async () => {
+    const action = 'like';
+    const res = await fetch("{% url 'forums:like_forum' forum.forums_id %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'},
+      body: new URLSearchParams({action})
+    });
+    const data = await res.json();
+    likeCountEl.textContent = data.forums_likes;
+  });
+}
+
+if (replyForm) {
+  replyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(replyForm);
+    const res = await fetch("{% url 'forums:create_reply' forum.forums_id %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'},
+      body: formData
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const div = document.createElement('div');
+      div.className = 'mb-4 p-4 bg-neutral-900 border border-gray-800 rounded';
+      div.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div><div class="font-semibold">${DOMPurify.sanitize(data.user || '')}</div><div class="text-gray-400 text-sm">${new Date(data.created_at).toLocaleString()}</div></div>
+          <div class="text-sm"><span id="reply-like-${data.id}">${data.forums_replies_likes}</span> ❤ <button data-reply-id="${data.id}" class="reply-like-btn ml-3 px-2 py-1 bg-gray-200 text-black rounded text-xs">Like</button> <button data-reply-id="${data.id}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 rounded text-xs">Delete</button></div>
+        </div>
+        <div class="mt-2">${DOMPurify.sanitize(data.replies_content)}</div>
+      `;
+      repliesList.prepend(div);
+      replyForm.reset();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + JSON.stringify(err));
+    }
+  });
+}
+
+document.addEventListener('click', async (e) => {
+  if (e.target.matches('.reply-like-btn')) {
+    const id = e.target.dataset.replyId;
+    const res = await fetch(`/forums/reply/${id}/like/`, {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'},
+      body: new URLSearchParams({action: 'like'})
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const el = document.getElementById(`reply-like-${id}`);
+      if (el) el.textContent = data.forums_replies_likes;
+    }
+  }
+  if (e.target.matches('.reply-delete-btn')) {
+    if (!confirm('Delete reply?')) return;
+    const id = e.target.dataset.replyId;
+    const res = await fetch(`/forums/reply/${id}/delete/`, {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'}
+    });
+    if (res.ok) {
+      e.target.closest('.mb-4').remove();
+    } else {
+      alert('Failed to delete');
+    }
+  }
+});
+</script>
+{% endblock content %}
