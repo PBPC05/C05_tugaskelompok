@@ -66,9 +66,33 @@
             </a>
         </div>
 
+    <!-- ERROR STATE -->
+    <div id="error" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+      <div class="text-6xl mb-4">⚠️</div>
+      <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load news</h3>
+      <p class="text-gray-400">Please try again later.</p>
     </div>
 
+    <!-- NEWS GRID -->
+    <section id="grid" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Articles will load here dynamically -->
+    </section>
+
+    <!-- EMPTY STATE -->
+    <section id="empty" class="bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center hidden shadow-md">
+      <div class="w-32 h-32 mx-auto mb-6">
+        <img src="{% static 'image/not_available.png' %}" alt="No news available" class="w-full h-full object-contain opacity-80">
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-3">No news found</h3>
+      <p class="text-gray-400 mb-6">It looks like there are no recent articles in this category.</p>
+      <a href="{% url 'news:create_news' %}" 
+         class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
+        📰 Create News
+      </a>
+    </section>
+  </main>
 </div>
+
 
 <script>
     const NEWS_API_ENDPOINT = "{% url 'news:show_json' %}";
@@ -135,12 +159,14 @@
             month: 'long',
             day: 'numeric'
         }));
-        const newsViews = DOMPurify.sanitize(item.news_views) || 0;
+        const newsViews = (DOMPurify.sanitize(item.news_views) || 0) == 1 ? (DOMPurify.sanitize(item.news_views) || 0) + " view" : (DOMPurify.sanitize(item.news_views) || 0) + " views";
+        const newsComments = (DOMPurify.sanitize(item.news_comments) || 0) == 1 ? (DOMPurify.sanitize(item.news_comments) || 0) + " comment" : (DOMPurify.sanitize(item.news_comments1) || 0) + " comments";
+
         const isFeatured = item.is_featured;
         const isHot = newsViews > 200;
 
         const thumbnailHtml = DOMPurify.sanitize(
-            item.thumbnail ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full object-cover'>` : `<img src='${noImage}' alt='${title}' class='w-full h-full object-cover'>`
+            item.thumbnail ? `<img src='${thumbnail}' alt='${title}' class='w-full h-full py-1 object-contain'>` : `<img src='${noImage}' alt='${title}' class='w-full h-full object-cover'>`
         );
         const categoryName = DOMPurify.sanitize(getReadableCategoryName(category));
         const categoryLabel = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-orange-600 text-white">${categoryName}</span>`
@@ -154,7 +180,7 @@
         </div>`
 
         const cardHtml = `
-                <div class="max-w-sm h-sm relative overflow-hidden shrink-0 grow-0">
+                <div class="max-w-sm h-sm relative aspect-[16/9] overflow-hidden shrink-0 grow-0">
                     <a href="${linkDetail}">${thumbnailHtml}</a>
                 </div>
                 <div class="p-5 flex flex-col flex-1">
@@ -171,9 +197,9 @@
                     <div class="flex flex-col sm:flex-row items-center text-sm text-gray-400 mb-3">
                         <time>${createdAt}</time>
                         <span class="mx-2">•</span>
-                        <span>${newsViews} views</span>
+                        <span>${newsViews}</span>
                         <span class="mx-2">•</span>
-                        <span>Comment Count</span>
+                        <span>${newsComments}</span>
                     </div>
 
                     <p class="news-content text-black text-sm leading-relaxed line-clamp-3 mb-4">${content}</p>
