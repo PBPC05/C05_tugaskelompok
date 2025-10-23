@@ -33,6 +33,7 @@ def post_vote(request):
         vote.save()
 
         request.session['user_has_voted'] = True
+        request.session.save()
 
         return JsonResponse({"success": True})
     except Exception as e:
