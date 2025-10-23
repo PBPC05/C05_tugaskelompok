@@ -144,7 +144,7 @@
         const fastestLapIcon = item.fastest_lap ? getFastestLapIcon() : '';
         
         const positionText = item.position ? `${item.position}` : item.status;
-        const positionClass = item.position ? 'text-white' : 'text-red-400'; // Beri warna pada DNF/DQ
+        const positionClass = item.position ? 'text-white' : 'text-red-400';
 
         const pointsText = item.points > 0 ? `${item.points} PTS` : (item.status === 'FINISHED' ? '0 PTS' : '—');
         
