@@ -49,10 +49,10 @@
         <!-- Add New Driver Form -->
         <div class="bg-gray-900 mt-8 p-6 rounded-2xl border border-gray-700 shadow-lg">
             <h3 class="text-xl font-semibold mb-4 text-white flex items-center">
-            <svg class="w-6 h-6 mr-2 fill-red" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 mr-2 fill-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M11 17h2v-4h4v-2h-4V7h-2v4H7v2h4v4Zm1 5q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Z"/>
             </svg>
-            Add / Edit Driver
+            Add Driver
             </h3>
             <form action="#" method="POST" enctype="multipart/form-data" class="space-y-4">
                 {% csrf_token %}
@@ -100,7 +100,7 @@
                         <td class="py-3 px-4">
                             <button 
                                 class="text-blue-400 hover:text-blue-500 font-medium"
-                                onclick="openEditModal('{{ d.id }}', '{{ d.driver_name }}', '{{ d.nationality }}', '{{ d.car }}', '{{ d.points }}', '{{ d.podiums }}', '{{ d.year }}')">
+                                onclick="openEditModal('{{ d.id }}', '{{ d.driver_name }}', '{{ d.nationality }}', '{{ d.car }}', '{{ d.points }}', '{{ d.podiums }}', '{{ d.year }}', '{{ d.image_url }}')">
                                 Edit
                             </button>
                             <span class="mx-2 text-gray-600">|</span>
@@ -125,28 +125,32 @@
   <div class="bg-gray-900 text-white p-6 rounded-2xl w-[400px] shadow-lg">
     <h2 class="text-xl font-bold mb-4">Edit Driver</h2>
     <form id="editDriverForm">
-      {% csrf_token %}
-      <input type="hidden" id="editDriverId" name="id">
+        {% csrf_token %}
+        <input type="hidden" id="editDriverId" name="id">
 
-      <label class="block mb-2 text-sm">Driver Name</label>
-      <input type="text" id="editDriverName" name="driver_name" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+        <label class="block mb-2 text-sm">Driver Name</label>
+        <input type="text" id="editDriverName" name="driver_name" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
 
-      <label class="block mb-2 text-sm">Nationality</label>
-      <input type="text" id="editDriverNationality" name="nationality" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+        <label class="block mb-2 text-sm">Nationality</label>
+        <input type="text" id="editDriverNationality" name="nationality" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
 
-      <label class="block mb-2 text-sm">Car</label>
-      <input type="text" id="editDriverCar" name="car" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+        <label class="block mb-2 text-sm">Car</label>
+        <input type="text" id="editDriverCar" name="car" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
 
-      <label class="block mb-2 text-sm">Points</label>
-      <input type="number" id="editDriverPoints" name="points" step="0.1" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+        <label class="block mb-2 text-sm">Points</label>
+        <input type="number" id="editDriverPoints" name="points" step="0.1" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
 
-      <label class="block mb-2 text-sm">Podiums</label>
-      <input type="number" id="editDriverPodiums" name="podiums" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+        <label class="block mb-2 text-sm">Podiums</label>
+        <input type="number" id="editDriverPodiums" name="podiums" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
 
-      <label class="block mb-2 text-sm">Year</label>
-      <input type="number" id="editDriverYear" name="year" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700">
+        <label class="block mb-2 text-sm">Year</label>
+        <input type="number" id="editDriverYear" name="year" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700">
 
-      <div class="flex justify-end space-x-3">
+        <label class="block mb-2 text-sm">Image URL</label>
+        <input type="url" id="editDriverImage" name="image_url" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700" placeholder="Image URL (optional)">
+
+        <div class="flex justify-end space-x-3">
+
         <button type="button" onclick="closeEditModal()" class="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded">Cancel</button>
         <button type="submit" class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded">Save</button>
       </div>
@@ -197,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Modal Edit
-function openEditModal(id, name, nationality, car, points, podiums, year) {
+function openEditModal(id, name, nationality, car, points, podiums, year, image_url) {
   document.getElementById('editDriverModal').classList.remove('hidden');
   document.getElementById('editDriverId').value = id;
   document.getElementById('editDriverName').value = name;
@@ -206,6 +210,7 @@ function openEditModal(id, name, nationality, car, points, podiums, year) {
   document.getElementById('editDriverPoints').value = points;
   document.getElementById('editDriverPodiums').value = podiums;
   document.getElementById('editDriverYear').value = year;
+  document.getElementById('editDriverImage').value = image_url || '';
 }
 
 function closeEditModal() {
@@ -224,6 +229,7 @@ document.getElementById('editDriverForm').addEventListener('submit', async (e) =
     points: document.getElementById('editDriverPoints').value,
     podiums: document.getElementById('editDriverPodiums').value,
     year: document.getElementById('editDriverYear').value,
+    image_url: document.getElementById('editDriverImage').value,
   };
 
   const response = await fetch(`/history/driver/edit/${id}/`, {
