@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block meta %}
+<title>Schedule</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-neutral-900 pt-10 text-white min-h-screen">
+    <header id="hero-image-schedule">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+            <h1 class="text-5xl font-bold">2025 Race Calendar</h1>
+            <h2 class="text-lg font-semibold">All Grand Prix dates, circuits, and start times, stay ahead of the season.</h2>
+        </div>
+    </header>
+
+    <!-- Konten utama -->
+    <div class="max-w-4xl mx-auto px-5 md:px-10 pt-10 pb-20">
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50 mx-auto"></div>
+            <p class="mt-4 text-gray-300">Loading 2025 Calendar...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load schedule</h3>
+            <p class="text-gray-400">Please try again later.</p>
+        </div>
+
+        <div id="schedule-container" class="hidden">
+            
+            <div id="next-race-container" class="mb-12">
+                
+            </div>
+
+            <div class="relative mb-8">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-white/10"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-neutral-900 px-3 text-sm font-medium text-gray-400">Full Calendar</span>
+                </div>
+            </div>
+            
+            <div id="all-races-list" class="flex flex-col gap-3">
+                
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const SCHEDULE_API_ENDPOINT = "{% url 'information:show_schedule_json'  %}";
+
+    // DOM Elements
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error');
+    const scheduleContainer = document.getElementById('schedule-container');
+    const nextRaceContainer = document.getElementById('next-race-container');
+    const allRacesList = document.getElementById('all-races-list');
+
+    // State
+    let allRacesData = [];
+    let nextRaceIndex = -1;
+
+    function displayPageSection({ showLoading = false, showError = false, showGrid = false }) {
+        loading.classList.toggle('hidden', !showLoading);
+        errorMessage.classList.toggle('hidden', !showError);
+        scheduleContainer.classList.toggle('hidden', !showGrid);
+    }
+
+    function formatRaceDate(dateString) {
+        const dateObj = new Date(dateString + 'T00:00:00Z'); 
+        const month = dateObj.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase();
+        const day = dateObj.toLocaleDateString('en-US', { day: '2-digit', timeZone: 'UTC' });
+        return { month, day };
+    }
+
+    function getRaceStatus(dateString) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const raceDate = new Date(dateString + 'T00:00:00Z');
+        
+        if (raceDate < today) {
+            return 'completed';
+        }
+        return 'upcoming';
+    }
+
+
+    function renderNextRaceCard(raceItem) {
+        if (!raceItem) {
+            nextRaceContainer.innerHTML = `
+                <div class="bg-neutral-800 border border-white/10 rounded-3xl p-6 text-center">
+                    <h2 class="text-2xl font-bold text-white">Season 2025 Concluded</h2>
+                    <p class="text-gray-300 mt-2">Thank you for watching! See you next season.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const { month, day } = formatRaceDate(raceItem.date);
+        
+        const dayInt = parseInt(day, 10);
+        const startDate = (dayInt - 2).toString().padStart(2, '0');
+
+        nextRaceContainer.innerHTML = `
+            <a href="${raceItem.url}" class="block bg-neutral-800 border border-white/20 rounded-3xl p-6 hover:bg-neutral-700 transition-colors duration-200">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <!-- Kiri: Info Kapan -->
+                    <div class="flex-shrink-0 text-center md:text-left">
+                        <p class="text-sm font-bold text-red-400 tracking-wider">NEXT RACE</p>
+                        <div class="text-4xl font-extrabold text-white mt-1">${startDate}-${day} ${month}</div>
+                        <p class="text-lg text-gray-300">Round ${raceItem.round_number}</p>
+                    </div>
+                    
+                    <!-- Kanan: Info Apa -->
+                    <div class="flex-grow text-center md:text-right">
+                        <h2 class="text-3xl font-bold text-white">${raceItem.name}</h2>
+                        <p class="text-xl text-gray-300">${raceItem.circuit}</p>
+                    </div>
+                    
+                    <!-- Ikon Panah (hanya di mobile) -->
+                    <div class="md:hidden text-center text-white/50 mt-2">
+                        <span>View Details &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    function renderAllRacesList(races) {
+        allRacesList.innerHTML = '';
+
+        races.forEach((item, index) => {
+            const { month, day } = formatRaceDate(item.date);
+            const status = getRaceStatus(item.date);
+            const isNextRace = (index === nextRaceIndex);
+
+            let itemClasses = "block bg-neutral-800 border border-white/10 rounded-2xl p-4 transition-all duration-200";
+            let statusBadge = "";
+
+            if (status === 'completed') {
+                itemClasses += " opacity-60 hover:opacity-100 hover:bg-neutral-700";
+                statusBadge = `<span class="text-xs font-bold text-gray-400">COMPLETED</span>`;
+            } else {
+                itemClasses += " hover:bg-neutral-700";
+            }
+
+            if (isNextRace) {
+                itemClasses += " border-white/30";
+                statusBadge = `<span class="text-xs font-bold text-red-400">NEXT RACE</span>`;
+            }
+
+            const raceElement = document.createElement('a');
+            raceElement.href = item.url;
+            raceElement.className = itemClasses;
+            
+            raceElement.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <!-- Tanggal -->
+                    <div class="flex-shrink-0 w-12 text-center border-r border-white/10 pr-4">
+                        <div class="text-xs font-bold text-gray-300">${month}</div>
+                        <div class="text-2xl font-extrabold text-white">${day}</div>
+                    </div>
+                    
+                    <!-- Info Balapan -->
+                    <div class="flex-grow">
+                        <p class="text-xs text-gray-400">Round ${item.round_number}</p>
+                        <h3 class="text-lg font-bold text-white">${item.name}</h3>
+                        <p class="text-sm text-gray-300">${item.circuit}</p>
+                    </div>
+                    
+                    <!-- Status & Panah -->
+                    <div class="flex-shrink-0 text-right">
+                        ${statusBadge}
+                        <svg class="w-5 h-5 text-white/30 inline-block ml-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                </div>
+            `;
+            allRacesList.appendChild(raceElement);
+        });
+    }
+
+    function processAndDisplaySchedule(races) {
+        allRacesData = races;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let nextRace = null;
+        for (let i = 0; i < races.length; i++) {
+            const raceDate = new Date(races[i].date + 'T00:00:00Z');
+            if (raceDate >= today) {
+                nextRace = races[i];
+                nextRaceIndex = i; 
+                break;
+            }
+        }
+        
+        renderNextRaceCard(nextRace);
+        renderAllRacesList(races);
+        displayPageSection({ showGrid: true });
+    }
+
+    async function fetchScheduleFromServer() {
+        try {
+            displayPageSection({ showLoading: true });
+
+            const response = await fetch(SCHEDULE_API_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch data from server');
+            }
+
+            const scheduleData = await response.json();
+            
+            if (scheduleData && scheduleData.data) {
+                processAndDisplaySchedule(scheduleData.data);
+            } else {
+                throw new Error('Invalid data structure from server');
+            }
+
+        } catch (error) {
+            console.error('Error loading schedule:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    function initializeSchedulePage() {
+        fetchScheduleFromServer();
+    }
+
+    initializeSchedulePage();
+</script>
+{% endblock %}
