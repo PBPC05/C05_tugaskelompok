@@ -7,6 +7,8 @@
 
 {% block content %}
 {% include 'prediction_modal.html' %}
+<script src=" https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js "></script>
+
 <div class="bg-neutral-900 pt-10 text-white min-h-screen">
     <header id="hero-image-prediction">
         <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
@@ -35,13 +37,30 @@
                 </article>
             </div>
 
+            <!-- Error State -->
+            <div id="error-driver" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load votes</h3>
+                <p class="text-gray-400">Please try again later.</p>
+            </div>
+
             <!-- Empty State -->
             <section id="empty-driver" class="bg-white text-black border border-gray-800 rounded-xl p-12 text-center shadow-md">
                 <h3 class="text-2xl font-bold mb-3">No votes yet</h3>
                 <p class="text-gray-400 mb-6">Be the first to vote for your favorite driver.</p>
                 <button onclick=showModal() class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
                     ⬆️ Vote Now
-                </a>
+                    </a>
+            </section>
+
+            <!-- Real State -->
+            <section id="display-driver" class="bg-white text-black border border-gray-800 rounded-xl p-12 text-center shadow-md hidden">
+                <div class="max-w-xl mx-auto">
+                    <canvas id="driver-chart"></canvas>    
+                </div>
+                <button onclick=showModal() class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
+                    ⬆️ Vote Now
+                    </a>
             </section>
         </section>
 
@@ -58,16 +77,206 @@
                 </article>
             </div>
 
+            <!-- Error State -->
+            <div id="error-team" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load votes</h3>
+                <p class="text-gray-400">Please try again later.</p>
+            </div>
+
             <!-- Empty State -->
             <section id="empty-team" class="bg-white text-black border border-gray-800 rounded-xl p-12 text-center shadow-md">
                 <h3 class="text-2xl font-bold mb-3">No votes yet</h3>
                 <p class="text-gray-400 mb-6">Be the first to vote for your favorite team.</p>
-                <button onclick=showModal()  class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
+                <button onclick=showModal() class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
                     ⬆️ Vote Now
-                </a>
+                    </a>
+            </section>
+
+            <!-- Real State -->
+            <section id="display-team" class="bg-white text-black border border-gray-800 rounded-xl p-12 text-center shadow-md hidden">
+                <div class="max-w-xl mx-auto">
+                    <canvas id="team-chart"></canvas>    
+                </div>
+                <button onclick=showModal() class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
+                    ⬆️ Vote Now
+                    </a>
             </section>
         </section>
     </main>
 </div>
+
+<script>
+    const VOTES_API = "{% url 'prediction:get_votes_json' %}";
+
+    const driverLoading = document.getElementById("loading-driver");
+    const teamLoading = document.getElementById("loading-team");
+    const driverError = document.getElementById("error-driver");
+    const teamError = document.getElementById("error-team");
+    const driverEmpty = document.getElementById("empty-driver");
+    const teamEmpty = document.getElementById("empty-team");
+    const driverDisplay = document.getElementById("display-driver");
+    const teamDisplay = document.getElementById("display-team");
+
+    let driverChartItem;
+    let teamChartItem;
+
+    var votesData = [];
+
+    // Show/hide page sections
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showDisplay = false }) {
+        driverLoading.classList.toggle('hidden', !showLoading);
+        driverError.classList.toggle('hidden', !showError);
+        driverEmpty.classList.toggle('hidden', !showEmpty);
+        driverDisplay.classList.toggle('hidden', !showDisplay);
+
+        teamLoading.classList.toggle('hidden', !showLoading);
+        teamError.classList.toggle('hidden', !showError);
+        teamEmpty.classList.toggle('hidden', !showEmpty);
+        teamDisplay.classList.toggle('hidden', !showDisplay);
+    }
+
+    function displayTeamSection({ showLoading = false, showError = false, showEmpty = false, showDisplay = false }) {
+        teamLoading.classList.toggle('hidden', !showLoading);
+        teamError.classList.toggle('hidden', !showError);
+        teamEmpty.classList.toggle('hidden', !showEmpty);
+        teamDisplay.classList.toggle('hidden', !showDisplay);
+    }
+
+    function displayDriverSection({ showLoading = false, showError = false, showEmpty = false, showDisplay = false }) {
+        driverLoading.classList.toggle('hidden', !showLoading);
+        driverError.classList.toggle('hidden', !showError);
+        driverEmpty.classList.toggle('hidden', !showEmpty);
+        driverDisplay.classList.toggle('hidden', !showDisplay);
+    }
+
+    async function getVotesFromServer() {
+        try {
+            displayPageSection({ showLoading: true });
+
+            const response = await fetch(VOTES_API, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch news data from server');
+            }
+
+            const data = await response.json();
+            votesData = data || [];
+
+            filterAndDisplayVotes();
+        } catch (error) {
+            console.log("Error loading votes: " + error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    function filterAndDisplayVotes() {
+        const driverVotes = votesData.filter(vote => vote.vote_type === "driver");
+        const teamVotes = votesData.filter(vote => vote.vote_type === "team");
+
+        var isDriverEmpty = (driverVotes.length == 0);
+        var isTeamEmpty = (teamVotes.length == 0);
+
+        if (isDriverEmpty) {
+            displayDriverSection({ showEmpty: true });
+        } else if (!isDriverEmpty) {
+            displayDriverSection({ showDisplay: true });
+            displayDriverVotes(driverVotes);
+        }
+
+        if (isTeamEmpty) {
+            displayTeamSection({ showEmpty: true });
+        } else if (!isTeamEmpty) {
+            displayTeamSection({ showDisplay: true });
+            displayTeamVotes(teamVotes);
+        }
+    }
+
+    function displayDriverVotes(driverVotes) {
+        const frequencies = driverVotes.reduce((acc, driver) => {
+            var key = driver.content;
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+        }, {});
+
+        const labels = Object.keys(frequencies);
+        const data = Object.values(frequencies);
+
+        if (driverChartItem) {
+            driverChartItem.data.labels = labels;
+            driverChartItem.data.datasets[0].data = data;
+            driverChartItem.update();
+        } else {
+            driverChartItem = new Chart(document.getElementById("driver-chart"), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Votes",
+                            data: data,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'left'
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    function displayTeamVotes(teamVotes) {
+        const frequencies = teamVotes.reduce((acc, team) => {
+            var key = team.content;
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+        }, {});
+
+        const labels = Object.keys(frequencies);
+        const data = Object.values(frequencies);
+
+        if (teamChartItem) {
+            teamChartItem.data.labels = labels;
+            teamChartItem.data.datasets[0].data = data;
+            teamChartItem.update();
+        } else {
+            teamChartItem = new Chart(document.getElementById("team-chart"), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Votes",
+                            data: data,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'left'
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    document.addEventListener("votePosted", async function() {
+        const response = await fetch("{% url 'prediction:get_votes_json' %}");
+        votesData = await response.json();
+        filterAndDisplayVotes();
+    });
+
+    getVotesFromServer();
+</script>
 
 {% endblock %}

@@ -5,37 +5,35 @@ from django.views.decorators.http import require_POST
 
 # Create your views here.
 def show_main(request):
-
     return render(request, "prediction_main.html")
 
 def get_votes_json(request):
-    try:
-        votes_list = PredictionVote.objects.all()
-        data = [
-            {
-                'type': vote.type,
-                'race': vote.race,
-                'content': vote.content
-            }
-            for vote in votes_list
-        ]
+    votes_list = PredictionVote.objects.all()
+    data = [
+        {
+            'vote_type': vote.vote_type,
+            'race': vote.race,
+            'content': vote.content
+        }
+        for vote in votes_list
+    ]
 
-        return JsonResponse(data, safe=False)
-    except:
-        print("Error")
+    return JsonResponse(data, safe=False)
 
 @require_POST
 def post_vote(request):
-    type = request.POST.get("type")
-    race = request.POST.get("race")
-    content = request.POST.get("type")
+    try:
+        vote_type = request.POST.get("vote_type")
+        race = request.POST.get("race")
+        content = request.POST.get("content")
 
-    vote = PredictionVote(
-        type = type,
-        race = race,
-        content = content,
-    )
-    vote.save()
+        vote = PredictionVote(
+            vote_type = vote_type,
+            race = race,
+            content = content,
+        )
+        vote.save()
 
-    response = redirect('prediction_main.html')
-    return response
+        return JsonResponse({"success": True})
+    except Exception as e:
+        print(e)
