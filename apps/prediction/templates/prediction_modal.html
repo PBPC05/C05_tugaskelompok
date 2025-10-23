@@ -173,6 +173,8 @@
         sessionStorage.setItem('user_has_voted', true);
         document.dispatchEvent(new CustomEvent('votePosted'));
 
+        window.location.href = "{% url 'prediction:show_main' %}"
+
         return false;
     }
 

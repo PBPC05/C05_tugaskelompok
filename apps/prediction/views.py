@@ -3,6 +3,7 @@ from apps.prediction.models import PredictionVote
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST
 from django.core import serializers
+from django.contrib.auth.decorators import login_required
 import json
 
 # Create your views here.
@@ -17,6 +18,7 @@ def get_votes_json(request):
     return JsonResponse(data, safe=False)
 
 @require_POST
+@login_required
 def post_vote(request):
     try:
         user = request.user
