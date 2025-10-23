@@ -170,6 +170,7 @@
         hideModal();
 
         // Dispatch custom event to notify main.html about new data
+        sessionStorage.setItem('user_has_voted', true);
         document.dispatchEvent(new CustomEvent('votePosted'));
 
         return false;
