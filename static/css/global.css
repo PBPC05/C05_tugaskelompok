@@ -37,3 +37,23 @@
     background-size: cover;
     position: relative;
 }
+
+#hero-image-history-driver {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/history-driver-hero-bg.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#hero-image-history-winner {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/history-winner-hero-bg.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
