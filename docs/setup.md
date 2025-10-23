@@ -15,10 +15,5 @@ pip install -r requirements.txt
 
 ### 5. Copy .gitignore.example → .gitignore and update values
 
-### 6. Run migrations
-python manage.py migrate
-
-### 7. Start server
+### 6. Start server
 python manage.py runserver
-
-### 8. use your own .env.prod (optional)

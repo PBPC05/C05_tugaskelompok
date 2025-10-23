@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import user_passes_test, login_required
 from apps.authentication.models import UserProfile, BanHistory
-
+from django.http import Http404
 
 def register(request):
     if request.user.is_authenticated:
@@ -202,3 +202,26 @@ def ban_user(request, user_id):
     
     user_to_ban.save()
     return redirect('authentication:manage_users')
+
+def view_profile(request, username):
+    """View another user's public profile."""
+    user = get_object_or_404(User, username=username)
+    
+    # Optionally: prevent showing banned users
+    if not user.is_active and not request.user.is_superuser:
+        raise Http404("This profile is not available.")
+    
+    try:
+        profile = user.profile
+    except UserProfile.DoesNotExist:
+        profile = None
+
+    context = {
+        'profile_user': user,
+        'profile': profile,
+        'threads_count': 0,  # TODO: Replace with actual stats later
+        'votes_count': 0,
+        'comments_count': 0,
+        'is_owner': request.user == user,  # for conditional buttons
+    }
+    return render(request, 'view_profile.html', context)

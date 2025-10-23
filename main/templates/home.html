@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>PitTalk</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-neutral-900 pt-10 text-white min-h-screen">
+
+  <header id="hero-image-main">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white py-24">
+            <h1 class="text-5xl font-bold">Welcome to PitTalk</h1>
+            <h2 class="text-lg font-semibold">The one-stop-shop for the Formula 1 community</h2>
+        </div>
+    </header>
+
+    <div class="p-10">
+  <!-- Featured Articles -->
+  <section>
+    <h2 class="text-3xl font-bold mb-6">Featured Articles</h2>
+    <div class="relative flex overflow-x-auto gap-6 scrollbar-hide py-4">
+      {% for article in featured_articles %}
+      <div class="min-w-[320px] max-w-sm bg-white text-black rounded-xl shadow-lg flex-shrink-0">
+        <img src="{{ article.thumbnail|default:'https://via.placeholder.com/320x180' }}" alt="{{ article.title }}" class="w-full h-48 object-cover rounded-t-xl">
+        <div class="p-4">
+          <h3 class="font-bold text-lg mb-1 truncate-1">{{ article.title }}</h3>
+          <p class="text-gray-500 text-xs mb-2">
+            {{ article.created_at|date:"F j, Y" }}
+          </p>
+          <p class="text-sm truncate-1">{{ article.content }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="mt-16">
+    <h2 class="text-3xl font-bold mb-6">Latest Forum Posts</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for forum in latest_forums %}
+      <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col p-5">
+        <div class="flex flex-col flex-1 overflow-hidden">
+          <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-1 line-clamp-1">
+            <a href="{% url 'forums:show_forum_detail' forum.forums_id %}" class="truncate-1 hover:text-red-700 transition-colors duration-200">{{ forum.title }}</a>
+          </h3>
+          <p class="text-sm text-gray-500 mb-3">{{ forum.user.username|default:"Anonymous" }}</p>
+          <p class="text-gray-700 text-sm mt-4 truncate-1">{{ forum.content }}</p>
+        </div>
+        <div class="flex items-center justify-between text-xs md:text-sm text-gray-400 mt-4">
+          <span>{{ forum.created_at|date:"F j, Y" }}</span>
+          <span>{{ forum.forums_replies_counts }} replies</span>
+        </div>
+        <a href="{% url 'forums:show_forum_detail' forum.forums_id %}" class="mt-2 text-red-600 hover:text-red-800 font-medium text-sm md:text-base">Read more →</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+</div>  
+
+<style>
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+{% endblock content %}

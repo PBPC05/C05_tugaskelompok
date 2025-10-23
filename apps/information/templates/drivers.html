@@ -13,8 +13,176 @@
     <header id="hero-image-drivers">
         <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
             <h1 class="text-5xl font-bold">2025 Drivers</h1>
-            <h2 class="text-lg font-semibold">See All F1 2025 Drivers.</h2>
+            <h2 class="text-lg font-semibold">Explore every driver’s profile, stats, and story from the 2025 F1 season.</h2>
         </div>
     </header>
+
+    <div class="px-10 pt-10 pb-20">
+
+        <div class="mb-10 max-w-lg mx-auto">
+            <input type="text" id="search-input" 
+                   placeholder="Search by driver name..."
+                   class="w-full px-5 py-3 bg-neutral-800 border border-white/20 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50">
+        </div>
+        <div id="loading" class="hidden">
+            <article class="flex flex-col md:flex-row bg-gray-500 rounded-sm my-10 divide-x-4 overflow-hidden animate-pulse">
+                <div class="min-w-full py-20"></div>
+            </article>
+        </div>
+
+        <div id="error" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load drivers</h3>
+            <p class="text-gray-400">Please try again later.</p>
+        </div>
+
+        <section id="grid" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+        </section>
+    </div>
 </div>
+
+<script>
+    const DRIVERS_API_ENDPOINT = "{% url 'information:show_drivers_json' %}";
+
+    // DOM Elements
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error');
+    const DriversGridContainer = document.getElementById('grid');
+    const searchInput = document.getElementById('search-input');
+
+    // State Variables
+    let allDriversData = [];
+    let currentSearchTerm = '';
+
+    // Show/hide page sections
+    function displayPageSection({ showLoading = false, showError = false, showGrid = false }) {
+        loading.classList.toggle('hidden', !showLoading);
+        errorMessage.classList.toggle('hidden', !showError);
+        DriversGridContainer.classList.toggle('hidden', !showGrid);
+
+        if (showGrid) {
+            DriversGridContainer.className = 'grid md:grid-cols-2 gap-8';
+        }
+    }
+
+    function normalizeHexColor(c) {
+        if (!c) return '#111827';
+        return c.replace(/^##+/, '#');
+    }
+
+    function buildDriversCardElement(item) {
+        const link = document.createElement('a');
+        link.href = item.url || '#';
+        link.className =
+            'relative block overflow-hidden rounded-3xl border border-white/10 ' +
+            'bg-white/5 hover:bg-white/10 transition ' +
+            'min-h-[220px] md:min-h-[260px]';
+
+        const tint = document.createElement('div');
+        tint.className = 'absolute inset-0 opacity-25';
+        tint.style.background = normalizeHexColor(item.color);
+        link.appendChild(tint);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'relative z-10 flex items-stretch h-full p-6';
+        link.appendChild(wrap);
+
+        const left = document.createElement('div');
+        left.className = 'flex-1 flex flex-col';
+        wrap.appendChild(left);
+
+        const name = document.createElement('h3');
+        name.className = 'text-2xl font-bold';
+        name.textContent = item.full_name || 'Unknown Driver';
+        left.appendChild(name);
+
+        const team = document.createElement('p');
+        team.className = 'mt-1 text-sm text-gray-300';
+        team.textContent = item.team || '—';
+        left.appendChild(team);
+
+        if (item.number_image) {
+            const numImg = document.createElement('img');
+            numImg.src = item.number_image;
+            numImg.alt = `${item.full_name} number`;
+            numImg.className = 'mt-auto pt-4 h-24 md:h-32 w-auto object-contain object-left-bottom';
+            left.appendChild(numImg);
+        }
+
+        const right = document.createElement('div');
+        right.className = 'relative w-40 sm:w-56 ml-4 overflow-hidden';
+        wrap.appendChild(right);
+
+        if (item.driver_image) {
+            const drv = document.createElement('img');
+            drv.src = item.driver_image;
+            drv.alt = item.full_name || 'Driver';
+            drv.className =
+            'absolute right-0 top-0 w-full h-auto max-w-none';
+            right.appendChild(drv);
+        }
+
+        return link;
+    }
+
+    function renderAllDriversCards(driversItems) {
+        DriversGridContainer.innerHTML = '';
+        driversItems.forEach(driverItem => {
+            const cardElement = buildDriversCardElement(driverItem);
+            DriversGridContainer.appendChild(cardElement);
+        });
+    }
+
+    function filterAndDisplayDrivers() {
+        const searchTerm = currentSearchTerm.toLowerCase().trim();
+        let driversToDisplay = [];
+
+        if (searchTerm === '') {
+            driversToDisplay = allDriversData;
+        } else {
+            driversToDisplay = allDriversData.filter(driver => {
+                const fullName = (driver.full_name || '').toLowerCase();
+                return fullName.includes(searchTerm);
+            });
+        }
+
+        renderAllDriversCards(driversToDisplay);
+        displayPageSection({ showGrid: true });
+    }
+
+    async function fetchDriversFromServer() {
+        try {
+            displayPageSection({ showLoading: true });
+
+            const response = await fetch(DRIVERS_API_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch data from server');
+            }
+
+            const driversData = await response.json();
+            allDriversData = driversData || [];
+
+            filterAndDisplayDrivers();
+        } catch (error) {
+            console.error('Error loading drivers:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    // Initialize page
+    function initializeDriversPage() {
+        searchInput.addEventListener('input', (e) => {
+            currentSearchTerm = e.target.value;
+            filterAndDisplayDrivers();
+        });
+        fetchDriversFromServer();
+    }
+
+    // Start application
+    initializeDriversPage();
+</script>
 {% endblock %}
