@@ -13,6 +13,8 @@ class Forums(models.Model):
     forums_replies_counts = models.PositiveIntegerField(default=0)
     is_hot = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.title
@@ -50,7 +52,7 @@ class Forums(models.Model):
         return self.created_at - datetimenow
 
 class ForumsReplies(models.Model):
-    forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
+    forums = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     replies_content = models.TextField()
     forums_replies_likes = models.PositiveIntegerField(default=0)
