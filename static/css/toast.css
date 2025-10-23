@@ -1,0 +1,102 @@
+/* Toast Notification Styles */
+.toast-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-icon {
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+/* Success Toast */
+.toast-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.toast-success .toast-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Error Toast */
+.toast-error {
+    background-color: #ef4444;
+    color: white;
+}
+
+.toast-error .toast-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Warning Toast */
+.toast-warning {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.toast-warning .toast-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Info Toast */
+.toast-info {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.toast-info .toast-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    .toast-notification {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+/* Hidden Django messages container */
+.django-message {
+    display: none;
+}
