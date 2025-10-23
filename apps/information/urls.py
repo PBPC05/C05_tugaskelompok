@@ -19,4 +19,11 @@ urlpatterns = [
     path('api/standings/constructors/2025/', show_constructor_standings_json, name='show_constructor_standings_json'),
     path('api/schedule/2025/', show_schedule_json, name='show_schedule_json'),
     path("api/races/<slug:slug>/", show_races_json_detail, name="show_races_json_detail"),
+    path('admin/drivers/', manage_driver, name='manage_driver'),
+    path('driver/<int:pk>/update/ajax/', driver_update_ajax, name='driver_update_ajax'),
+    path('admin/teams/', manage_teams, name='manage_teams'),
+    path('team/<int:pk>/update/ajax/', team_update_ajax, name='team_update_ajax'),
+    path('admin/results/', manage_results, name='manage_results'),
+    path('result/append/ajax/', raceresult_append_ajax, name='raceresult_append_ajax'),
+    path('result/<int:pk>/delete/ajax/', raceresult_delete_ajax, name='raceresult_delete_ajax')
 ]
