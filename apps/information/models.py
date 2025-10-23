@@ -19,7 +19,7 @@ class Team(models.Model):
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     color = models.CharField(max_length=100, blank=True)
 
-    team_logo = models.URLField(blank=True)
+    team_logo = models.URLField(blank=True, max_length=1024)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -37,8 +37,8 @@ class Driver(models.Model):
     number = models.PositiveIntegerField(unique=True, db_index=True)
     team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="drivers", null=True, blank=True)
 
-    number_image = models.URLField(blank=True)
-    driver_image = models.URLField(blank=True)
+    number_image = models.URLField(blank=True, max_length=1024)
+    driver_image = models.URLField(blank=True, max_length=1024)
 
     abbreviation = models.CharField(max_length=8, blank=True)
     country = models.CharField(max_length=80, blank=True)
@@ -108,11 +108,10 @@ class Race(models.Model):
 class DriverRaceResult(models.Model):
     STATUS = [
         ("FINISHED", "Finished"),
-        ("RET", "Retired"),
-        ("DNF", "DNF"),
-        ("DSQ", "Disqualified"),
+        ("DQ", "Disqualified"),
         ("DNS", "DNS"),
         ("WD",  "Withdrawn"),
+        ('NC', 'Not Classified')
     ]
 
     race   = models.ForeignKey(Race,   on_delete=models.CASCADE, related_name="driver_results")

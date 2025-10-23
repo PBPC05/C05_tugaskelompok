@@ -1,14 +1,15 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from .forms import DriverEditableForm, TeamEditableForm, RaceResultAppendForm
 from .models import Driver, Team, DriverRaceResult, Race
 from .standings import driver_standings, constructor_standings
-from django.db.models import F
+from django.db.models import F, Prefetch
 
 @login_required
 @require_POST
+@user_passes_test(lambda u: u.is_superuser)
 def driver_update_ajax(request, pk):
     obj = get_object_or_404(Driver, pk=pk)
     form = DriverEditableForm(request.POST, instance=obj)
@@ -19,6 +20,7 @@ def driver_update_ajax(request, pk):
 
 @login_required
 @require_POST
+@user_passes_test(lambda u: u.is_superuser)
 def team_update_ajax(request, pk):
     obj = get_object_or_404(Team, pk=pk)
     form = TeamEditableForm(request.POST, instance=obj)
@@ -29,6 +31,7 @@ def team_update_ajax(request, pk):
 
 @login_required
 @require_POST
+@user_passes_test(lambda u: u.is_superuser)
 def raceresult_append_ajax(request):
     form = RaceResultAppendForm(request.POST)
     if form.is_valid():
@@ -42,6 +45,54 @@ def raceresult_delete_ajax(request, pk):
     obj = get_object_or_404(DriverRaceResult, pk=pk)
     obj.delete()
     return JsonResponse({"ok": True})
+
+@user_passes_test(lambda u: u.is_superuser)
+def manage_results(request):
+    races_with_results = Race.objects.prefetch_related(
+        Prefetch(
+            'driver_results',
+            queryset=DriverRaceResult.objects.select_related('driver', 'team').order_by(
+                F('finish_position').asc(nulls_last=True), 'status'
+            ),
+            to_attr='results_list'
+        )
+    ).order_by('-date', '-round_number')
+
+    total_results = DriverRaceResult.objects.count()
+    append_form = RaceResultAppendForm()
+
+    return render(request, "manage_results.html", {
+        'races_data': races_with_results,
+        'total_results': total_results,
+        'append_form': append_form
+    })
+
+@user_passes_test(lambda u: u.is_superuser)
+def manage_driver(request):
+    drivers_qs = Driver.objects.select_related('team').order_by('team__name', 'full_name')
+    total_drivers = drivers_qs.count()
+    form = DriverEditableForm()
+
+    return render(request, "manage_drivers.html", { 
+        'drivers': drivers_qs,
+        'edit_form': form,
+        'total_drivers': total_drivers
+    })
+
+@user_passes_test(lambda u: u.is_superuser)
+def manage_teams(request):
+    teams_qs = (
+        Team.objects
+        .order_by("name")
+    )
+    total_teams = teams_qs.count()
+    form = TeamEditableForm()
+
+    return render(request, "manage_teams.html", {
+        "teams": teams_qs,
+        "edit_form": form,
+        "total_teams": total_teams,
+    })
 
 def teams_json(request):
     data = [{"name": t.name, "url": t.get_absolute_url()} for t in Team.objects.all()]
