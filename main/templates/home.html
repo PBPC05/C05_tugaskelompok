@@ -20,21 +20,11 @@
   <section>
     <h2 class="text-3xl font-bold mb-6">Featured Articles</h2>
     <div class="relative flex overflow-x-auto gap-6 scrollbar-hide py-4">
-      {% for article in featured_articles %}
-      <div class="min-w-[320px] max-w-sm bg-white text-black rounded-xl shadow-lg flex-shrink-0">
-        <img src="{{ article.thumbnail|default:'https://via.placeholder.com/320x180' }}" alt="{{ article.title }}" class="w-full h-48 object-cover rounded-t-xl">
-        <div class="p-4">
-          <h3 class="font-bold text-lg mb-1 truncate-1">{{ article.title }}</h3>
-          <p class="text-gray-500 text-xs mb-2">
-            {{ article.created_at|date:"F j, Y" }}
-          </p>
-          <p class="text-sm truncate-1">{{ article.content }}</p>
-        </div>
-      </div>
-      {% endfor %}
+      <!-- article -->
     </div>
   </section>
 
+  <!-- Latest Forums -->
   <section class="mt-16">
     <h2 class="text-3xl font-bold mb-6">Latest Forum Posts</h2>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
