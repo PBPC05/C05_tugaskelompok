@@ -87,7 +87,7 @@ def forum_detail_json(request, pk):
     }
     return JsonResponse(data)
 
-# @login_required
+@login_required
 def forums_create_view(request):
     if request.method == "POST":
         form = ForumsForm(request.POST)
@@ -100,7 +100,7 @@ def forums_create_view(request):
         form = ForumsForm()
     return render(request, "forums/form.html", {"form": form, "action": "Create"})
 
-# @login_required
+@login_required
 def forums_edit_view(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
     if forum.user != request.user:
@@ -114,7 +114,7 @@ def forums_edit_view(request, pk):
         form = ForumsForm(instance=forum)
     return render(request, "forums/form.html", {"form": form, "action": "Edit", "forum": forum})
 
-# @login_required
+@login_required
 @require_POST
 def forums_delete_view(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
@@ -123,7 +123,7 @@ def forums_delete_view(request, pk):
     forum.delete()
     return redirect('forums:list')
 
-# @login_required
+@login_required
 @require_POST
 def forum_like_toggle(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
@@ -136,7 +136,7 @@ def forum_like_toggle(request, pk):
         return HttpResponseBadRequest("Invalid action")
     return JsonResponse({"forums_likes": forum.forums_likes})
 
-# @login_required
+@login_required
 @require_POST
 def reply_like_toggle(request, reply_id):
     reply = get_object_or_404(ForumsReplies, pk=reply_id)
@@ -149,7 +149,7 @@ def reply_like_toggle(request, reply_id):
         return HttpResponseBadRequest("Invalid action")
     return JsonResponse({"forums_replies_likes": reply.forums_replies_likes})
 
-# @login_required
+@login_required
 @require_POST
 def create_reply(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
@@ -171,7 +171,7 @@ def create_reply(request, pk):
     else:
         return JsonResponse({"errors": form.errors}, status=400)
 
-# @login_required
+@login_required
 @require_POST
 def delete_reply(request, reply_id):
     reply = get_object_or_404(ForumsReplies, pk=reply_id)
