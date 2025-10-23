@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Driver History{% endblock %}
+
+{% block meta %}
+<link rel="stylesheet" href="{% static 'history/css/driver_user.css' %}">
+{% endblock meta %}
+
+{% block content %}
+{% include "navbar.html" %}
+<!-- Include Flowbite JS  - Buat pake carousel buatan flowbite nya -->
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
+
+<div class="min-h-screen bg-black text-gray-100 py-20 px-4">
+  <!-- Header Section -->
+  <header id="hero-image-history-driver">
+    <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+        <h1 class="text-5xl font-bold">Driver History</h1>
+        <h2 class="text-lg font-semibold">Explore the latest F1 driver updates and historical data</h2>
+    </div>
+  </header>
+
+  <!-- Latest Driver Carousel - Aku batesin carouselnya nampilin 3 item doang -->
+  <section class="max-w-4xl mx-auto mb-12 py-5">
+    <h2 class="text-2xl font-semibold text-center mb-6">
+      Latest Driver Updates 
+      <span class="block text-sm font-normal text-gray-400 mt-1">Showing latest 3 drivers</span>
+    </h2>
+    
+    <!-- Carousel Container -->
+    <div id="driver-carousel" class="relative w-full" data-carousel="slide">
+      <!-- Carousel Wrapper -->
+      <div class="relative h-96 overflow-y-auto overflow-x-hidden border-4 border-red-900/30 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl">
+        {% for driver in newest_drivers|slice:":3" %}  <!-- BATAS NYA: 3 ITEM AJAA -->
+        <!-- Carousel Item -->
+        <div class="{% if forloop.first %}block{% else %}hidden{% endif %} duration-1000 ease-in-out" data-carousel-item>
+          <div class="flex flex-col md:flex-row items-center h-full p-6 md:p-8">
+            <!-- Driver Image pake border merah -->
+            <div class="w-full md:w-2/5 flex justify-center mb-6 md:mb-0">
+              {% if driver.image_url %}
+                <div class="relative">
+                  <img src="{{ driver.image_url }}" alt="{{ driver.driver_name }}" 
+                       class="rounded-lg object-cover w-52 h-52 md:w-60 md:h-60 border-2 border-red-500/80 shadow-lg">
+                  <div class="absolute -inset-1 bg-red-500/20 rounded-lg blur-sm -z-10"></div>
+                </div>
+              {% else %}
+                <div class="w-52 h-52 md:w-60 md:h-60 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 border-2 border-red-500/30 relative">
+                  <div class="absolute -inset-1 bg-red-500/10 rounded-lg blur-sm -z-10"></div>
+                  No Image
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Driver Information -->
+            <div class="w-full md:w-3/5 text-center md:text-left">
+              <h3 class="text-2xl font-bold text-white mb-4">{{ driver.driver_name }}</h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <p class="text-gray-400 text-sm">Nationality</p>
+                  <p class="font-medium">{{ driver.nationality }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-400 text-sm">Car</p>
+                  <p class="font-medium">{{ driver.car }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-400 text-sm">Points</p>
+                  <p class="font-medium text-yellow-400">{{ driver.points }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-400 text-sm">Podiums</p>
+                  <p class="font-medium text-yellow-400">{{ driver.podiums }}</p>
+                </div>
+                <div class="md:col-span-2">
+                  <p class="text-gray-400 text-sm">Season</p>
+                  <p class="font-medium">{{ driver.year }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <!-- Empty State -->
+        <div class="flex items-center justify-center h-full bg-gray-900 rounded-lg">
+          <div class="text-center p-6">
+            <div class="text-4xl mb-2">🏎️</div>
+            <p class="text-gray-400">No new drivers added yet</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Carousel Indicators - Cuman muncul kalo ada lebih dari 1 item -->
+       <!-- Tombol indikator buat slide nyaa (buat yg nunjukin jumlah slide yang ada) -->
+      {% if newest_drivers|slice:":3"|length > 1 %}
+      <div class="absolute z-30 flex -translate-x-1/2 bottom-4 left-1/2 space-x-2">
+        {% for driver in newest_drivers|slice:":3" %}
+        <button type="button" class="w-2 h-2 rounded-full bg-gray-600" 
+                aria-current="{{ forloop.first|yesno:'true,false' }}" 
+                aria-label="Slide {{ forloop.counter }}" 
+                data-carousel-slide-to="{{ forloop.counter0 }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <!-- Carousel Controls - Cuman muncul kalo ada lebih dari 1 item  -->
+      <!-- Tombol navigasi sblmnya dan stlhnya (nunjukin btn slide ke kiri atau ke kanan) -->
+      {% if newest_drivers|slice:":3"|length > 1 %}
+      <button type="button" class="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group" data-carousel-prev>
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 group-hover:bg-gray-600">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </span>
+      </button>
+      <button type="button" class="absolute top-0 right-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group" data-carousel-next>
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 group-hover:bg-gray-600">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </span>
+      </button>
+      {% endif %}
+    </div>
+
+    <!-- Info jumlah driver di carousel -->
+    <div class="text-center mt-4">
+      <p class="text-gray-500 text-sm">
+        Showing {{ newest_drivers|slice:":3"|length }} of {{ newest_drivers|length }} recent drivers
+        {% if newest_drivers|length > 3 %}
+        • <span class="text-red-400">View all in table below</span>
+        {% endif %}
+      </p>
+    </div>
+  </section>
+
+  <!-- Driver History Table -->
+  <section class="max-w-6xl mx-auto">
+    <h2 class="text-2xl font-semibold text-center mb-6">
+      Driver History
+      <span class="block text-sm font-normal text-gray-400 mt-1">Complete driver database ({{ drivers|length }} drivers)</span>
+    </h2>
+    
+    <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <!-- Table Header -->
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">#</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Driver</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Nationality</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Car</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Points</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Podiums</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Year</th>
+            </tr>
+          </thead>
+          
+          <!-- Table Body -->
+          <tbody>
+            {% for d in drivers %}
+            <tr class="border-t border-gray-800 hover:bg-gray-850 transition-colors">
+              <td class="py-3 px-4">{{ forloop.counter }}</td>
+              <td class="py-3 px-4 font-medium">
+                {{ d.driver_name }}
+                <!-- Tampilin badge "NEW" utk driver yang ada di carousel (3 driver2 yg plg baru di add) -->
+                {% for newest in newest_drivers|slice:":3" %}
+                  {% if newest.id == d.id %}
+                    <span class="ml-2 px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-full border border-red-500/30">NEW</span>
+                  {% endif %}
+                {% endfor %}
+              </td>
+              <td class="py-3 px-4">{{ d.nationality }}</td>
+              <td class="py-3 px-4">{{ d.car }}</td>
+              <td class="py-3 px-4 text-yellow-400">{{ d.points }}</td>
+              <td class="py-3 px-4 text-yellow-400">{{ d.podiums }}</td>
+              <td class="py-3 px-4">{{ d.year }}</td>
+            </tr>
+            {% empty %}
+            <!-- Empty Table State -->
+            <tr>
+              <td colspan="7" class="py-8 text-center text-gray-500">
+                <div class="flex flex-col items-center">
+                  <span class="text-3xl mb-2">🏎️</span>
+                  <p>No driver data available</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

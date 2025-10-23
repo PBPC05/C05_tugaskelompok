@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Grand Prix Winner History{% endblock %}
+
+{% block content %}
+{% include "navbar.html" %}
+<!-- Include Flowbite JS  - Buat pake carousel buatan flowbite nya -->
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
+
+<div class="min-h-screen bg-black text-gray-100 py-20 px-4">
+
+  <!-- Header Section -->
+  <header id="hero-image-history-winner">
+    <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+      <h1 class="text-5xl font-bold">Grand Prix History</h1>
+      <h2 class="text-lg font-semibold">Explore Formula 1 Grand Prix winners across seasons</h2>
+    </div>
+  </header>
+
+  <!-- Latest Winner Carousel - Aku batesin carouselnya nampilin 3 item doang -->
+  <section class="max-w-4xl mx-auto mb-12 py-5">
+    <h2 class="text-2xl font-semibold text-center mb-6">
+      Latest Grand Prix Winners Update
+      <span class="block text-sm font-normal text-gray-400 mt-1">Showing latest 3 winners update</span>
+    </h2>
+    
+    <!-- Carousel Container -->
+    <div id="winner-carousel" class="relative w-full" data-carousel="slide">
+      <!-- Carousel Wrapper -->
+      <div class="relative h-96 overflow-y-auto overflow-x-hidden border-4 border-red-900/30 bg-gradient-to-br from-gray-900 to-gray-800 shadow-2xl">
+        {% for w in newest_winners|slice:":3" %}
+        <!-- Carousel Item -->
+        <div class="{% if forloop.first %}block{% else %}hidden{% endif %} duration-1000 ease-in-out" data-carousel-item>
+          <div class="flex flex-col md:flex-row items-center h-full p-6 md:p-8">
+            
+            <!-- Winner Image pake border merah -->
+            <div class="w-full md:w-2/5 flex justify-center mb-6 md:mb-0">
+              {% if w.image_url %}
+              <div class="relative">
+                <img src="{{ w.image_url }}" alt="{{ w.winner }}"
+                     class="rounded-lg object-cover w-52 h-52 md:w-60 md:h-60 border-2 border-red-500/80 shadow-lg">
+                <div class="absolute -inset-1 bg-red-500/20 rounded-lg blur-sm -z-10"></div>
+              </div>
+              {% else %}
+              <div class="w-52 h-52 md:w-60 md:h-60 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 border-2 border-red-500/30 relative">
+                <div class="absolute -inset-1 bg-red-500/10 rounded-lg blur-sm -z-10"></div>
+                No Image
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Winner Info -->
+            <div class="w-full md:w-3/5 text-center md:text-left">
+              <h3 class="text-2xl font-bold text-white mb-4">{{ w.winner }}</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <p class="text-gray-400 text-sm">Grand Prix</p>
+                  <p class="font-medium">{{ w.grand_prix }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-400 text-sm">Car</p>
+                  <p class="font-medium">{{ w.car }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-400 text-sm">Date</p>
+                  <p class="font-medium">{{ w.date }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-400 text-sm">Laps</p>
+                  <p class="font-medium text-yellow-400">{{ w.laps }}</p>
+                </div>
+                <div class="md:col-span-2">
+                  <p class="text-gray-400 text-sm">Time</p>
+                  <p class="font-medium">{{ w.time }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <!-- Empty State -->
+        <div class="flex items-center justify-center h-full bg-gray-900 rounded-lg">
+          <div class="text-center p-6">
+            <div class="text-4xl mb-2">🏁</div>
+            <p class="text-gray-400">No recent winners yet</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Carousel Indicators - Cuman muncul kalo ada lebih dari 1 item -->
+       <!-- Tombol indikator buat slide nyaa (buat yg nunjukin jumlah slide yang ada) -->
+      {% if newest_winners|slice:":3"|length > 1 %}
+      <div class="absolute z-30 flex -translate-x-1/2 bottom-4 left-1/2 space-x-2">
+        {% for w in newest_winners|slice:":3" %}
+        <button type="button" class="w-2 h-2 rounded-full bg-gray-600"
+                aria-current="{{ forloop.first|yesno:'true,false' }}"
+                aria-label="Slide {{ forloop.counter }}"
+                data-carousel-slide-to="{{ forloop.counter0 }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Carousel Controls - Cuman muncul kalo ada lebih dari 1 item  -->
+      <!-- Tombol navigasi sblmnya dan stlhnya (nunjukin btn slide ke kiri atau ke kanan) -->
+      {% if newest_winners|slice:":3"|length > 1 %}
+      <button type="button" class="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group" data-carousel-prev>
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 group-hover:bg-gray-600">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </span>
+      </button>
+      <button type="button" class="absolute top-0 right-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group" data-carousel-next>
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 group-hover:bg-gray-600">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </span>
+      </button>
+      {% endif %}
+    </div>
+
+    <!-- Info jumlah winner di carousel-->
+    <div class="text-center mt-4">
+      <p class="text-gray-500 text-sm">
+        Showing {{ newest_winners|slice:":3"|length }} of {{ newest_winners|length }} recent winners
+        {% if newest_winners|length > 3 %}
+        • <span class="text-red-400">View all in table below</span>
+        {% endif %}
+      </p>
+    </div>
+  </section>
+
+  <!-- Winner History Table -->
+  <section class="max-w-6xl mx-auto">
+    <h2 class="text-2xl font-semibold text-center mb-6">
+      Grand Prix Winner History
+      <span class="block text-sm font-normal text-gray-400 mt-1">
+        Complete race database ({{ winners|length }} winners)
+      </span>
+    </h2>
+
+    <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <!-- Table Header -->
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">#</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Grand Prix</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Date</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Winner</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Car</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Laps</th>
+              <th class="py-3 px-4 text-left font-medium text-gray-300">Time</th>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody>
+            {% for w in winners %}
+            <tr class="border-t border-gray-800 hover:bg-gray-850 transition-colors">
+              <td class="py-3 px-4">{{ forloop.counter }}</td>
+              <td class="py-3 px-4 font-medium text-yellow-200">{{ w.grand_prix }}</td>
+              <td class="py-3 px-4 text-yellow-300">{{ w.date }}</td>
+              <td class="py-3 px-4 text-yellow-400">{{ w.winner }}
+                <!-- Tampilin badge "NEW" utk winner yang ada di carousel (3 winner2 yg plg baru di add) -->
+                {% for newest in newest_winners|slice:":3" %}
+                  {% if newest.id == w.id %}
+                    <span class="ml-2 px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-full border border-red-500/30">NEW</span>
+                  {% endif %}
+                {% endfor %}
+              </td>
+              <td class="py-3 px-4">{{ w.car }}</td>
+              <td class="py-3 px-4">{{ w.laps }}</td>
+              <td class="py-3 px-4">{{ w.time }}</td>
+            </tr>
+            {% empty %}
+            <!-- Empty Table State -->
+            <tr>
+              <td colspan="7" class="py-8 text-center text-gray-500">
+                <div class="flex flex-col items-center">
+                  <span class="text-3xl mb-2">🏁</span>
+                  <p>No winner data available</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
