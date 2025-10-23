@@ -8,9 +8,11 @@ urlpatterns = [
     path('<uuid:news_id>/', show_news_detail, name='show_news_detail'),
     path('create-news/', show_news_create, name='create_news'),
     path('create-news/post', create_news, name='create_news_ajax'),
-    path('<uuid:news_id>/edit', show_news_edit, name='edit_news'),
-    path('<uuid:news_id>/edit/post', edit_news_ajax, name='edit_news_ajax'),
-    path('<uuid:news_id>/delete', delete_news, name='delete_news'),
+    path('<str:news_id>/edit', show_news_edit, name='edit_news'),
+    path('<str:news_id>/edit/post', edit_news_ajax, name='edit_news_ajax'),
+    path('<str:news_id>/delete', delete_news, name='delete_news'),
+    path('<str:news_id>/comment', post_comment, name='post_comment'),
     path('json/', show_json, name='show_json'),
-    path('json/<uuid:news_id>', show_json_by_id, name='show_json_by_id')
+    path('json/<str:news_id>', show_json_by_id, name='show_json_by_id'),
+    path('json/<str:news_id>/comments', get_comments_json, name='get_comments_json'),
 ]

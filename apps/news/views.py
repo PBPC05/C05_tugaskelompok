@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
-from apps.news.models import News
+from apps.news.models import News, Comment
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+
+import uuid
 
 # Create your views here.
 def show_main(request):
@@ -77,22 +79,26 @@ def delete_news(request, news_id):
     return HttpResponseRedirect(reverse('news:show_main'))
 
 def show_json(request):
-    news_list = News.objects.all()
-    data = [
-        {
-            'id': str(news.id),
-            'title': news.title,
-            'content': news.content,
-            'category': news.category,
-            'thumbnail': news.thumbnail,
-            'news_views': news.news_views,
-            'created_at': news.created_at.isoformat() if news.created_at else None,
-            'is_featured': news.is_featured,
-        }
-        for news in news_list
-    ]
+    try:
+        news_list = News.objects.all()
+        data = [
+            {
+                'id': str(news.id),
+                'title': news.title,
+                'content': news.content,
+                'category': news.category,
+                'thumbnail': news.thumbnail,
+                'news_views': news.news_views,
+                'news_comments': news.news_comments,
+                'created_at': news.created_at.isoformat() if news.created_at else None,
+                'is_featured': news.is_featured,
+            }
+            for news in news_list
+        ]
 
-    return JsonResponse(data, safe=False)
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        print("Error")
 
 def show_json_by_id(request, news_id):
     try:
@@ -104,9 +110,45 @@ def show_json_by_id(request, news_id):
             'category': news.category,
             'thumbnail': news.thumbnail,
             'news_views': news.news_views,
+            'news_comments': news.news_comments,
             'created_at': news.created_at.isoformat() if news.created_at else None,
             'is_featured': news.is_featured,
         }
         return JsonResponse(data)
     except News.DoesNotExist:
         return JsonResponse({'detail': 'Not found'}, status=404)
+    
+@require_POST
+def post_comment(request, news_id):
+    comment_news = get_object_or_404(News, pk=news_id)
+    comment_news.increment_comments()
+    content = request.POST.get("comment-body")
+
+    comment = Comment(
+        news = comment_news,
+        content = content
+    )
+    comment.save()
+
+    response = redirect('news:show_news_detail', news_id=news_id)
+    response.status_code = 201
+    return response 
+
+def get_comments_json(request, news_id):
+    news = get_object_or_404(News, id=news_id)
+    comments = Comment.objects.filter(news_id=news).order_by("-created_at")
+
+    data = [
+        {
+            # validasi UUID tapi fallback ke string biasa
+            "id": str(uuid.UUID(str(comment.id))) if isinstance(comment.id, uuid.UUID) or str(comment.id).count('-') == 4 else str(comment.id),
+            "author": getattr(comment, "author_name", None) or (
+                comment.author.username if getattr(comment, "author", None) else "Anonymous"
+            ),
+            "content": getattr(comment, "body", "") or getattr(comment, "content", ""),
+            "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for comment in comments
+    ]
+
+    return JsonResponse(data, safe=False)
