@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django_countries',
     'main',
     'apps.forums',
     'apps.information',
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.prediction',
     'apps.history',
+    'apps.authentication',
 ]
 
 MIDDLEWARE = [

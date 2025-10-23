@@ -27,5 +27,5 @@ urlpatterns = [
     path('prediction/', include('apps.prediction.urls')),
     path('user/', include('apps.user.urls')),
     path('history/', include('apps.history.urls')),
-    path("login/", lambda request: HttpResponse("Login page coming soon!"), name="login"),
+    path('auth/', include('apps.authentication.urls')), 
 ]
