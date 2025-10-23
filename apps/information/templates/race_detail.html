@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block meta %}
+<title>Race Result</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-neutral-900 pt-10 text-white min-h-screen">
+    
+    <!-- Konten Utama --><div class="max-w-6xl mx-auto px-5 md:px-10 pt-10 pb-20">
+
+        <!-- Loading State --><div id="loading" class="text-center py-40">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white/50 mx-auto"></div>
+            <p class="mt-6 text-lg text-gray-300">Loading Race Results...</p>
+        </div>
+
+        <!-- Error State --><div id="error" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-3xl shadow-lg">
+            <div class="text-7xl mb-4">⚠️</div>
+            <h3 class="text-2xl font-semibold text-red-300 mb-2">Failed to load race data</h3>
+            <p id="error-message-detail" class="text-lg text-gray-400">The requested race could not be found. Please try again later.</p>
+        </div>
+
+        <!-- Kontainer Detail Balapan (Hidden by default) --><div id="race-detail-container" class="hidden">
+
+            <!-- 1. HERO SECTION (Info Balapan) --><div id="race-hero-container" class="mb-12">
+                <!-- Konten hero akan di-generate oleh JS --></div>
+
+            <!-- ===== TAMBAHKAN DIV PEMBUNGKUS INI ===== -->
+            <div id="results-content" class_="hidden">
+                <!-- 2. PODIUM GRID (P1-P3) --><h2 class="text-3xl font-bold text-white mb-6">Podium</h2>
+                <div id="podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12">
+                    <!-- Kartu podium akan di-generate oleh JS --></div>
+
+                <!-- 3. FULL RESULTS LIST (P4+) --><h2 class="text-3xl font-bold text-white mb-6">Full Results</h2>
+                <div id="results-list-container" class="bg-neutral-800 border border-white/10 rounded-3xl overflow-hidden">
+                    <!-- Baris hasil akan di-generate oleh JS --></div>
+            </div>
+            <!-- ======================================= -->
+
+            <!-- ===== TAMBAHKAN BLOK "NO RESULTS" INI ===== -->
+            <div id="no-results-message" class="hidden text-center bg-neutral-800 border border-white/10 rounded-3xl p-10">
+                <div class="text-6xl mb-4">🏁</div>
+                <h3 class="text-2xl font-semibold text-white">Race Not Yet Run</h3>
+                <p class="text-lg text-gray-400 mt-2">The results for this Grand Prix are not yet available. Please check back after the race.</p>
+            </div>
+            <!-- ========================================= -->
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 1. Ambil slug dari Django context
+    const raceSlug = "{{ race_slug|default:'default-slug'|safe }}"; 
+    // 2. Ganti URL endpoint
+    const RACE_API_ENDPOINT = `{% url 'information:show_races_json_detail' 'default-slug' %}`.replace('default-slug', raceSlug);
+
+    // --- DOM Elements ---
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error');
+    const errorMessageDetail = document.getElementById('error-message-detail');
+    const container = document.getElementById('race-detail-container');
+    const heroContainer = document.getElementById('race-hero-container');
+    const podiumContainer = document.getElementById('podium-container');
+    const resultsListContainer = document.getElementById('results-list-container');
+    // --- TAMBAHKAN INI ---
+    const resultsContent = document.getElementById('results-content');
+    const noResultsMessage = document.getElementById('no-results-message');
+    // ---------------------
+
+    // --- Helper Utilities ---
+    function getHigherResImageUrl(url, height = 800) {
+        if (!url) return '';
+        return url.replace(/,(h_\d+|w_\d+)/g, `,h_${height}`);
+    }
+
+    function normalizeHexColor(c) {
+        if (!c) return '#111827';
+        return c.replace(/^##+/, '#');
+    }
+
+    // --- Render Functions ---
+
+    /**
+     * Membuat Hero Section untuk Info Balapan
+     */
+    function renderHero(item) {
+        heroContainer.innerHTML = `
+            <div class="border-b border-white/10 pb-6">
+                <p class="text-base font-semibold text-gray-400">${item.circuit} // Round ${item.round}</p>
+                <h1 class="text-5xl md:text-7xl font-extrabold text-white mt-1">${item.name}</h1>
+                <p class="text-2xl font-semibold text-white/80 mt-2">${item.date}</p>
+            </div>
+        `;
+    }
+
+    /**
+     * SVG Ikon untuk Fastest Lap
+     */
+    function getFastestLapIcon() {
+        return `
+            <svg class="w-5 h-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+        `;
+    }
+
+    /**
+     * Membuat 1 Kartu Podium (P1, P2, P3)
+     */
+    function createPodiumCard(item) {
+        const teamColor = normalizeHexColor(item.team.color);
+        const fastestLapIcon = item.fastest_lap ? getFastestLapIcon() : '';
+        const positionClass = item.position === 1 ? 'md:col-span-3' : (item.position === 2 ? 'md:col-span-2' : 'md:col-span-1');
+        
+        // P1 dibuat lebih menonjol
+        if (item.position === 1) {
+             return `
+                <a href="${item.driver.url}" class="block bg-neutral-800 border-2 rounded-3xl p-6 transition hover:bg-neutral-700/80" style="border-color: ${teamColor};">
+                    <div class="flex justify-between items-start">
+                        <span class="text-5xl font-extrabold text-white">P${item.position}</span>
+                        ${fastestLapIcon}
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-3xl font-bold text-white">${item.driver.full_name}</h3>
+                        <p class="text-lg font-medium text-gray-300">${item.team.name}</p>
+                    </div>
+                    <div class="mt-6 border-t border-white/10 pt-4">
+                        <p class="text-sm text-gray-400">Time</p>
+                        <p class="text-lg font-semibold text-white">${item.time_text}</p>
+                        <p class="text-sm text-gray-400 mt-2">Points</p>
+                        <p class="text-lg font-semibold text-white">${item.points} PTS</p>
+                    </div>
+                </a>
+             `;
+        }
+        
+        // P2 dan P3
+        return `
+            <a href="${item.driver.url}" class="block bg-neutral-800 border border-white/10 rounded-3xl p-6 transition hover:bg-neutral-700/80">
+                <div class="flex justify-between items-start">
+                    <span class="text-3xl font-extrabold text-white">P${item.position}</span>
+                    ${fastestLapIcon}
+                </div>
+                <div class="mt-3">
+                    <h3 class="text-xl font-bold text-white">${item.driver.full_name}</h3>
+                    <p class="text-base font-medium text-gray-300">${item.team.name}</p>
+                </div>
+                <div class="mt-4 border-t border-white/10 pt-3">
+                    <p class="text-sm text-gray-400">Time</p>
+                    <p class="text-base font-semibold text-white">${item.time_text}</p>
+                    <p class="text-sm text-gray-400 mt-2">Points</p>
+                    <p class="text-base font-semibold text-white">${item.points} PTS</p>
+                </div>
+            </a>
+        `;
+    }
+
+    /**
+     * Membuat 1 Baris Hasil Balapan (P4+)
+     */
+    function createResultRow(item) {
+        const teamColor = normalizeHexColor(item.team.color);
+        const fastestLapIcon = item.fastest_lap ? getFastestLapIcon() : '';
+        
+        // Tampilkan P4, P5, ... atau status DNF, DQ
+        const positionText = item.position ? `${item.position}` : item.status;
+        const positionClass = item.position ? 'text-white' : 'text-red-400'; // Beri warna pada DNF/DQ
+        
+        // Tampilkan poin atau strip
+        const pointsText = item.points > 0 ? `${item.points} PTS` : (item.status === 'FINISHED' ? '0 PTS' : '—');
+        
+        return `
+            <a href="${item.driver.url}" class="block border-b border-white/10 last:border-b-0 transition hover:bg-white/5">
+                <div class="grid grid-cols-12 items-center gap-4 px-6 py-4">
+                    
+                    <!-- Posisi -->
+                    <div class="col-span-1 text-center">
+                        <span class="text-lg font-bold ${positionClass}" style="border-left-color: ${teamColor};">${positionText}</span>
+                    </div>
+                    
+                    <!-- Garis Warna Tim -->
+                    <div class="col-span-1 flex justify-center">
+                         <div class="w-1 h-10 rounded-full" style="background-color: ${teamColor};"></div>
+                    </div>
+
+                    <!-- Nama Driver & Tim -->
+                    <div class="col-span-5">
+                        <p class="text-lg font-semibold text-white">${item.driver.full_name}</p>
+                        <p class="text-sm text-gray-400">${item.team.name}</p>
+                    </div>
+
+                    <!-- Waktu / Status -->
+                    <div class="col-span-3 text-right">
+                        <p class="text-sm font-medium text-gray-200">${item.time_text}</p>
+                    </div>
+
+                    <!-- Poin -->
+                    <div class="col-span-1 text-right">
+                        <p class="text-sm font-bold text-white">${pointsText}</p>
+                    </div>
+                    
+                    <!-- Fastest Lap -->
+                    <div class="col-span-1 text-right">
+                        ${fastestLapIcon}
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    /**
+     * Merender semua detail ke halaman
+     */
+    function renderRaceDetail(item) {
+        // Set judul halaman
+        document.title = `${item.name} | 2025 Results`;
+
+        // 1. Render Hero (Selalu tampilkan)
+        renderHero(item);
+
+        // --- UBAH LOGIKA DI SINI ---
+        // Cek apakah balapan sudah ada hasil (berdasarkan flag dari JSON)
+        if (item.has_results === true && item.results && item.results.length > 0) {
+            // JIKA ADA HASIL: Tampilkan Podium & List
+            
+            // Pisahkan data
+            const podium = item.results.slice(0, 3);
+            const restOfField = item.results.slice(3);
+
+            // 2. Render Podium
+            podiumContainer.innerHTML = '';
+            podium.forEach(result => {
+                podiumContainer.innerHTML += createPodiumCard(result);
+            });
+
+            // 3. Render Sisa Hasil
+            resultsListContainer.innerHTML = '';
+            restOfField.forEach(result => {
+                resultsListContainer.innerHTML += createResultRow(result);
+            });
+            
+            // Tampilkan kontainer hasil, sembunyikan pesan "belum balapan"
+            resultsContent.classList.remove('hidden');
+            noResultsMessage.classList.add('hidden');
+
+        } else {
+            // JIKA TIDAK ADA HASIL: Sembunyikan kontainer hasil, tampilkan pesan
+            resultsContent.classList.add('hidden');
+            noResultsMessage.classList.remove('hidden');
+        }
+        // --- BATAS PERUBAHAN ---
+        
+        // Tampilkan konten utama (selalu)
+        loading.classList.add('hidden');
+        errorMessage.classList.add('hidden');
+        container.classList.remove('hidden');
+    }
+
+    /**
+     * Ambil data dari server
+     */
+    async function fetchRaceData() {
+        if (raceSlug === 'default-slug') {
+            loading.classList.add('hidden');
+            errorMessage.classList.remove('hidden');
+            errorMessageDetail.textContent = "No race specified. The URL seems to be missing the race's slug.";
+            return;
+        }
+
+        try {
+            const response = await fetch(RACE_API_ENDPOINT, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    errorMessageDetail.textContent = `Race with slug "${raceSlug}" not found. Check the URL or slug.`;
+                }
+                throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+            }
+
+            const raceData = await response.json();
+            
+            // --- UBAH LOGIKA CHECK INI ---
+            // Kita anggap valid jika ada nama & flag 'has_results'
+            // 'results' boleh kosong jika balapan belum terjadi
+            if (raceData && raceData.name && typeof raceData.has_results !== 'undefined') {
+                renderRaceDetail(raceData);
+            } else {
+                throw new Error('Invalid data structure received from server');
+            }
+            // --- BATAS PERUBAHAN ---
+
+        } catch (error) {
+            console.error('Error loading race data:', error);
+            loading.classList.add('hidden');
+            errorMessage.classList.remove('hidden');
+        }
+    }
+
+    // --- Mulai Aplikasi ---
+    fetchRaceData();
+
+</script>
+{% endblock %}
+
