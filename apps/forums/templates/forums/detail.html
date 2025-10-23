@@ -21,7 +21,10 @@
         <span>
           by 
           {% if forum.user %}
-            <span class="text-gray-200 font-medium">{{ forum.user.username }}</span>
+            <a href="{% url 'authentication:view_profile' forum.user.username %}"
+             class="text-gray-200 font-medium hover:text-red-400 transition">
+             {{ forum.user.username }}
+          </a>
           {% else %}
             <span class="italic">Anonymous</span>
           {% endif %}
