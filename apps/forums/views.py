@@ -16,12 +16,21 @@ def forums_list_view(request):
 def forums_list_json(request):
     q = request.GET.get('q', '').strip()
     page = int(request.GET.get('page', 1))
-    page_size = int(request.GET.get('page_size', 20))
+    page_size = int(request.GET.get('page_size', 9))
+    filter_type = request.GET.get('filter', 'latest') 
 
-    qs = Forums.objects.all().order_by('-created_at')
+    qs = Forums.objects.all()
 
     if q:
         qs = qs.filter(title__icontains=q)
+
+    if filter_type == 'latest':
+        qs = qs.order_by('-created_at')
+    elif filter_type == 'oldest':
+        qs = qs.order_by('created_at')
+    elif filter_type == 'hot':
+        one_week_ago = timezone.now() - timezone.timedelta(days=7)
+        qs = qs.filter(created_at__gte=one_week_ago).order_by('-forums_views')
 
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
@@ -35,8 +44,8 @@ def forums_list_json(request):
             "thumbnail": None,
             "category": "forum",
             "created_at": forum.created_at.isoformat(),
-            "news_views": forum.forums_views,
-            "news_comments": forum.forums_replies_counts,
+            "forums_views": forum.forums_views,
+            "forums_replies_counts": forum.forums_replies_counts,
             "is_featured": forum.is_hot,
             "author": forum.user.username if forum.user else None,
         })
