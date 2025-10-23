@@ -20,7 +20,7 @@ def driver_user_page(request):
 
 # Utk penggunaan @login_required aku ganti pakai request.user.is_authenticated, biar user yg gk login gk error saat mau masuk ke page ini
 def driver_admin_page(request):
-    # Jika belum login, arahkan ke halaman user biasa
+    # Kalo belum login, bakal diarahin ke halaman user biasa
     if not request.user.is_authenticated:
         return redirect('history:driver_user_page')
     
