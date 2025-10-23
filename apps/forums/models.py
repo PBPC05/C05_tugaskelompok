@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime, uuid
+import uuid
+from django.utils import timezone
 
 # Create your models here.
 class Forums(models.Model):
@@ -9,7 +10,7 @@ class Forums(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
     forums_views = models.PositiveIntegerField(default=0)
-    forums_likes = models.PositiveIntegerField(default=0)
+    forums_likes = models.ManyToManyField(User, related_name="liked_forums", blank=True)
     forums_replies_counts = models.PositiveIntegerField(default=0)
     is_hot = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,57 +19,40 @@ class Forums(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     def increment_views(self):
         self.forums_views += 1
         self.save()
 
-    def increment_likes(self):
-        self.forums_likes += 1
-        self.save()
+    def user_has_liked(self, user):
+        return self.forums_likes.filter(id=user.id).exists()
     
-    def decrement_likes(self):
-        self.forums_likes -= 1
-        self.save()
-    
-    def increment_replies_counts(self):
-        self.forums_replies_counts += 1
-        self.save()
-
-    def decrement_replies_counts(self):
-        self.forums_replies_counts -= 1
-        self.save()
-
-    def is_hot_True(self):
-        self.is_hot = True
-        self.save()
-
-    def is_hot_False(self):
-        self.is_hot = False
-        self.save()
-
     def get_duration_since_created(self):
-        datetimenow = datetime.datetime.now()
-        return self.created_at - datetimenow
+        return self.created_at - timezone.now()
 
 class ForumsReplies(models.Model):
     forums = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     replies_content = models.TextField()
-    forums_replies_likes = models.PositiveIntegerField(default=0)
+    forums_replies_likes = models.ManyToManyField(User, related_name="liked_replies", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.replies_content
-    
-    def increment_likes(self):
-        self.forums_replies_likes += 1
-        self.save()
 
-    def decrement_likes(self):
-        self.forums_replies_likes -= 1
-        self.save()
+    def user_has_liked(self, user):
+        return self.forums_replies_likes.filter(id=user.id).exists()
 
     def get_duration_since_created(self):
-        datetimenow = datetime.datetime.now()
-        return self.created_at - datetimenow
+        return self.created_at - timezone.now()
+    
+class ForumView(models.Model):
+    forum = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="views")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('forum', 'user') 
+
+    def __str__(self):
+        return f"{self.user.username} viewed {self.forum.title}"

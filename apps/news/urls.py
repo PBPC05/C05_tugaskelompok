@@ -15,4 +15,5 @@ urlpatterns = [
     path('json/', show_json, name='show_json'),
     path('json/<str:news_id>', show_json_by_id, name='show_json_by_id'),
     path('json/<str:news_id>/comments', get_comments_json, name='get_comments_json'),
+    path('<str:news_id>/comment/<str:comment_id>/delete', delete_comment, name='delete_comment'),
 ]

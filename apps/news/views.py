@@ -4,6 +4,7 @@ from django.urls import reverse
 from apps.news.models import News, Comment
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+from django.contrib.auth.decorators import login_required
 
 import uuid
 
@@ -24,10 +25,12 @@ def show_news_detail(request, news_id):
 
     return render(request, 'news_detail.html', context)
 
+@login_required(login_url="/auth/login/")
 def show_news_create(request):
     return render(request, "news_create.html")
 
 @require_POST
+@login_required(login_url="/auth/login/")
 def create_news(request):
     title = strip_tags(request.POST.get("title"))
     content = strip_tags(request.POST.get("content"))
@@ -37,6 +40,7 @@ def create_news(request):
     user = request.user
 
     news = News(
+        user = user,
         title = title,
         content = content,
         category = category,
@@ -49,7 +53,7 @@ def create_news(request):
     response.status_code = 201
     return response 
 
-
+@login_required(login_url="/auth/login/")
 def show_news_edit(request, news_id):
     context = {
         'news_id': news_id
@@ -58,6 +62,7 @@ def show_news_edit(request, news_id):
     return render(request, "news_edit.html", context)
 
 @require_POST
+@login_required(login_url="/auth/login/")
 def edit_news_ajax(request, news_id):
     edited_data = {
         'title': strip_tags(request.POST.get("title")),
@@ -73,6 +78,7 @@ def edit_news_ajax(request, news_id):
     response.status_code = 301
     return response 
 
+@login_required(login_url="/auth/login/")
 def delete_news(request, news_id):
     news = get_object_or_404(News, pk=news_id)
     news.delete()
@@ -83,6 +89,7 @@ def show_json(request):
         news_list = News.objects.all()
         data = [
             {
+                'username': news.user.username if news.user else 'Anonymous',
                 'id': str(news.id),
                 'title': news.title,
                 'content': news.content,
@@ -104,6 +111,7 @@ def show_json_by_id(request, news_id):
     try:
         news = News.objects.get(pk=news_id)
         data = {
+            'username': news.user.username if news.user else 'Anonymous',
             'id': str(news.id),
             'title': news.title,
             'content': news.content,
@@ -119,12 +127,14 @@ def show_json_by_id(request, news_id):
         return JsonResponse({'detail': 'Not found'}, status=404)
     
 @require_POST
+@login_required(login_url="/auth/login/")
 def post_comment(request, news_id):
     comment_news = get_object_or_404(News, pk=news_id)
     comment_news.increment_comments()
     content = request.POST.get("comment-body")
 
     comment = Comment(
+        user = request.user,
         news = comment_news,
         content = content
     )
@@ -142,13 +152,20 @@ def get_comments_json(request, news_id):
         {
             # validasi UUID tapi fallback ke string biasa
             "id": str(uuid.UUID(str(comment.id))) if isinstance(comment.id, uuid.UUID) or str(comment.id).count('-') == 4 else str(comment.id),
-            "author": getattr(comment, "author_name", None) or (
-                comment.author.username if getattr(comment, "author", None) else "Anonymous"
+            "username": getattr(comment, "username", None) or (
+                comment.user.username if comment.user else "Anonymous"
             ),
             "content": getattr(comment, "body", "") or getattr(comment, "content", ""),
             "created_at": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         }
         for comment in comments
     ]
+    print(data)
 
     return JsonResponse(data, safe=False)
+
+def delete_comment(request, comment_id, news_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    comment.delete()
+    response = redirect('news:show_news_detail', news_id=news_id)
+    return response

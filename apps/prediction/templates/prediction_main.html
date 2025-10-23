@@ -148,6 +148,8 @@
 
 <script>
     const VOTES_API = "{% url 'prediction:get_votes_json' %}";
+    const USER_LOGGED_IN = {% if user.is_authenticated %} true {% else %} false {% endif %};
+    console.log(USER_LOGGED_IN);
 
     const driverLoading = document.getElementById("loading-driver");
     const teamLoading = document.getElementById("loading-team");
@@ -213,8 +215,10 @@
     }
 
     function filterAndDisplayVotes() {
-        const hasVoted = sessionStorage.getItem('user_has_voted');
-        console.log(hasVoted);
+        var hasVoted = "{{ user_has_voted }}";
+        if (hasVoted == "None") {
+            hasVoted = false;
+        }
 
         const driverVotes = votesData.filter(vote => vote.vote_type === "driver");
         const teamVotes = votesData.filter(vote => vote.vote_type === "team");
@@ -236,7 +240,7 @@
             displayTeamVotes(teamVotes);
         }
 
-        if (hasVoted) disableVoteButtons();
+        if (hasVoted && USER_LOGGED_IN) disableVoteButtons();
     }
 
     function displayDriverVotes(driverVotes) {
