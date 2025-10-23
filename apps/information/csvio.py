@@ -4,7 +4,7 @@ from .models import Driver, Team, DriverRaceResult, Circuit, Race
 
 def export_drivers_csv():
     """Export all drivers to CSV file."""
-    drivers = Driver.objects.all().order_by('number')
+    drivers = Driver.objects.all().order_by('team.id')
     with open('apps/information/csv/Formula1_2025season_drivers.csv', 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = [
             'Driver', 'Abbreviation', 'No', 'Team', 'Country', 'Podiums', 'Points', 'Grands Prix Entered',
@@ -31,7 +31,7 @@ def export_drivers_csv():
 
 def export_teams_csv():
     """Export all teams to CSV file."""
-    teams = Team.objects.all().order_by('name')
+    teams = Team.objects.all().order_by('id')
     with open('apps/information/csv/Formula1_2025season_teams.csv', 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = [
             'Team', 'Full Team Name', 'Base', 'Team Chief', 'Technical Chief', 'Chassis', 'Power Unit',
@@ -112,7 +112,10 @@ def import_drivers_csv():
     with open('apps/information/csv/Formula1_2025season_drivers.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            team = Team.objects.get(name=row['Team'])
+            team_name = (row.get("Team") or "").strip()
+            team = None
+            if team_name:
+                team = Team.objects.filter(name=team_name).first()
             Driver.objects.get_or_create(
                 full_name=row['Driver'],
                 defaults={
@@ -128,6 +131,8 @@ def import_drivers_csv():
                     'highest_grid_position': row['Highest Grid Position'],
                     'date_of_birth': datetime.strptime(row['Date of Birth'], '%d/%m/%Y').date() if row['Date of Birth'] else None,
                     'place_of_birth': row['Place of Birth'],
+                    'number_image' : row['Number Logo'],
+                    'driver_image' : row['Driver Image']
                 }
             )
 
@@ -151,6 +156,7 @@ def import_teams_csv():
                     'pole_positions': int(row['Pole Positions']),
                     'fastest_laps': int(row['Fastest Laps']),
                     'color': row['Color'],
+                    'team_logo': row['Logo']
                 }
             )
 
@@ -159,7 +165,9 @@ def import_raceresult_csv():
     with open('apps/information/csv/Formula1_2025Season_RaceResults.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            race = Race.objects.get(name=row['Track'])
+            track = (row.get("Track") or "").strip()
+            circuit = Circuit.objects.filter(name=track).first()
+            race = Race.objects.get(circuit=circuit)
             driver = Driver.objects.get(number=int(row['No']))
             team = Team.objects.get(name=row['Team'])
             DriverRaceResult.objects.get_or_create(

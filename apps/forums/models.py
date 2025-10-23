@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
+import datetime, uuid
 
 # Create your models here.
 class Forums(models.Model):
-    forums_id = models.UUIDField(auto_created=True, primary_key=True)
+    forums_id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=255)
     content = models.TextField()

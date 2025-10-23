@@ -1,3 +1,7 @@
 from django.db import models
 
-# Create your models here.
+class PredictionVote(models.Model):
+    # user
+    vote_type = models.CharField(max_length=20, default="driver")
+    race = models.CharField(max_length=255)
+    content = models.CharField(max_length=255)

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Edit User - {{ user.username }}</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="min-h-screen bg-[#15151e] pt-20 pb-10">
+  <div class="container mx-auto px-4 max-w-4xl">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-[#e10600] to-[#ff1e00] rounded-xl shadow-2xl p-6 mb-6">
+      <h1 class="text-3xl font-bold text-white mb-2">Edit User: {{ user.username }}</h1>
+      <p class="text-red-100">Update user information and settings</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-[#1e1e2c] rounded-lg shadow-xl p-8">
+      <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- User Information Section -->
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4 pb-2 border-b-2 border-red-500">User Information</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="username" class="block text-sm font-semibold text-gray-300 mb-2">Username *</label>
+              <input type="text" id="username" name="username" value="{{ user.username }}" required
+                     class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-[#15151e] text-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-semibold text-gray-300 mb-2">Email</label>
+              <input type="email" id="email" name="email" value="{{ user.email }}"
+                     class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-[#15151e] text-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="is_active" name="is_active" {% if user.is_active %}checked{% endif %}
+                     class="w-5 h-5 text-red-600 border-gray-600 bg-gray-800 rounded focus:ring-red-500">
+              <span class="text-sm font-semibold text-gray-300">Active (Uncheck to ban user)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Profile Information Section -->
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4 pb-2 border-b-2 border-red-500">Profile Information</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="phone_number" class="block text-sm font-semibold text-gray-300 mb-2">Phone Number</label>
+              <input type="text" id="phone_number" name="phone_number" value="{{ user.profile.phone_number|default:'' }}"
+                     class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-[#15151e] text-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+            </div>
+
+            <div>
+              <label for="nationality" class="block text-sm font-semibold text-gray-300 mb-2">Nationality</label>
+              <select id="nationality" name="nationality"
+                      class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-[#15151e] text-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition">
+                <option value="">Not Set</option>
+                {% load countries %}
+                {% get_countries as countries %}
+                {% for country in countries %}
+                  <option value="{{ country.code }}" {% if user.profile.nationality.code == country.code %}selected{% endif %}>
+                    {{ country.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label for="address" class="block text-sm font-semibold text-gray-300 mb-2">Address</label>
+            <textarea id="address" name="address" rows="3"
+                      class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-[#15151e] text-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition resize-vertical">{{ user.profile.address|default:'' }}</textarea>
+          </div>
+
+          <div class="mt-4">
+            <label for="bio" class="block text-sm font-semibold text-gray-300 mb-2">Bio</label>
+            <textarea id="bio" name="bio" rows="4"
+                      class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-[#15151e] text-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent transition resize-vertical">{{ user.profile.bio|default:'' }}</textarea>
+          </div>
+        </div>
+
+        <!-- System Information Section -->
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4 pb-2 border-b-2 border-gray-600">System Information</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="bg-[#15151e] p-4 rounded-lg border border-gray-700">
+              <p class="text-gray-400 mb-1">User ID</p>
+              <p class="font-semibold text-gray-200">{{ user.id }}</p>
+            </div>
+            <div class="bg-[#15151e] p-4 rounded-lg border border-gray-700">
+              <p class="text-gray-400 mb-1">Date Joined</p>
+              <p class="font-semibold text-gray-200">{{ user.date_joined|date:"F d, Y H:i" }}</p>
+            </div>
+            <div class="bg-[#15151e] p-4 rounded-lg border border-gray-700">
+              <p class="text-gray-400 mb-1">Last Login</p>
+              <p class="font-semibold text-gray-200">{{ user.last_login|date:"F d, Y H:i"|default:"Never" }}</p>
+            </div>
+            <div class="bg-[#15151e] p-4 rounded-lg border border-gray-700">
+              <p class="text-gray-400 mb-1">Is Superuser</p>
+              <p class="font-semibold {% if user.is_superuser %}text-yellow-400{% else %}text-gray-200{% endif %}">
+                {% if user.is_superuser %}Yes (Admin){% else %}No{% endif %}
+              </p>
+            </div>
+            <div class="bg-[#15151e] p-4 rounded-lg border border-gray-700 md:col-span-2">
+              <p class="text-gray-400 mb-1">Profile Created</p>
+              <p class="font-semibold text-gray-200">{{ user.profile.created_at|date:"F d, Y H:i" }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between pt-6 border-t border-gray-700">
+          <a href="{% url 'authentication:manage_users' %}" 
+             class="inline-flex items-center px-6 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-lg text-gray-300 bg-transparent hover:bg-gray-800 transition-colors">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Cancel
+          </a>
+          
+          <button type="submit" 
+                  class="inline-flex items-center px-6 py-2 bg-gradient-to-r from-[#e10600] to-[#ff1e00] hover:from-[#ff1e00] hover:to-[#e10600] text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

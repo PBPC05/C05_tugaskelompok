@@ -25,7 +25,7 @@
 
     <!-- Loading State -->
     <div id="loading-state">
-      <article class="flex flex-col bg-gray-700/50 rounded-xl my-10 animate-pulse shadow-lg overflow-hidden">
+      <article class="flex flex-col bg-gray-700/50 rounded-xl my-10 animate-pulse shadow-lg overflow-hidden hidden">
         <div class="min-w-full py-32"></div>
       </article>
     </div>
@@ -74,7 +74,7 @@
       <!-- Content -->
       <div class="p-8">
         <div class="prose prose-invert max-w-none leading-relaxed">
-          <div id="article-content-text" class="text-black text-base sm:text-lg whitespace-pre-line">
+          <div id="article-content-text" class="text-black text-base sm:text-lg whitespace-pre-line news-content">
             <!-- Content -->
           </div>
         </div>
@@ -219,7 +219,7 @@
             badgesContainer.appendChild(hotBadge);
         }
 
-        // Set author image
+        // Set author image        
         const authorImage = document.createElement("img");
         authorImage.className = "aspect-square bg-white max-w-[50px] border border-black rounded-lg";
         authorImage.src = "{% static 'image/default-user.png' %}"; // add actual image later once login finalized
@@ -339,7 +339,7 @@
         }));
         const content = DOMPurify.sanitize(item.content);
 
-        const imageHTML = DOMPurify.sanitize(`<img src=${image} class="aspect-square bg-white max-w-[55px] border border-gray-700 rounded-lg row-span-2">`);
+        const imageHTML = DOMPurify.sanitize(`<div class="hidden md:block row-span-2"><img src=${image} class="aspect-square bg-white max-w-[55px] border border-gray-700 rounded-lg"></div>`);
         const header = DOMPurify.sanitize(`<p class="col-span-7"><span class="font-bold">${username}</span> posted at <span class="font-bold">${createdAt}</span></p>`);
         const contentDisplay = DOMPurify.sanitize(`<p class="py-5 col-span-7 row-span-3">${content}</p>`);
 
