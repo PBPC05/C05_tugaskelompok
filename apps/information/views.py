@@ -3,8 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from .forms import DriverEditableForm, TeamEditableForm, RaceResultAppendForm
-from .models import Driver, Team, DriverRaceResult, DriverStanding, ConstructorStanding, Circuit, Race
-from .csvio import export_drivers_csv, export_teams_csv, append_raceresult_csv, import_circuits_csv, import_races_csv, import_drivers_csv, import_teams_csv, import_raceresult_csv
+from .models import Driver, Team, DriverRaceResult, Race
 from .standings import driver_standings, constructor_standings
 
 @login_required
@@ -14,7 +13,6 @@ def driver_update_ajax(request, pk):
     form = DriverEditableForm(request.POST, instance=obj)
     if form.is_valid():
         form.save()
-        export_drivers_csv()
         return JsonResponse({"ok": True})
     return JsonResponse({"ok": False, "errors": form.errors}, status=400)
 
@@ -25,7 +23,6 @@ def team_update_ajax(request, pk):
     form = TeamEditableForm(request.POST, instance=obj)
     if form.is_valid():
         form.save()
-        export_teams_csv()
         return JsonResponse({"ok": True})
     return JsonResponse({"ok": False, "errors": form.errors}, status=400)
 
@@ -34,8 +31,7 @@ def team_update_ajax(request, pk):
 def raceresult_append_ajax(request):
     form = RaceResultAppendForm(request.POST)
     if form.is_valid():
-        rr = form.save()
-        append_raceresult_csv(rr)
+        form.save()
         return JsonResponse({"ok": True})
     return JsonResponse({"ok": False, "errors": form.errors}, status=400)
 
@@ -45,14 +41,6 @@ def raceresult_delete_ajax(request, pk):
     obj = get_object_or_404(DriverRaceResult, pk=pk)
     obj.delete()
     return JsonResponse({"ok": True})
-
-def standings_driver_json(request, season: int):
-    data = [
-        {"driver": d.full_name, "team": d.team.name, "points": d.points or 0, "wins": getattr(d, "wins", 0),
-         "url": d.get_absolute_url()}
-        for d in driver_standings(season)
-    ]
-    return JsonResponse({"season": season, "data": data})
 
 def teams_json(request):
     data = [{"name": t.name, "url": t.get_absolute_url()} for t in Team.objects.all()]
@@ -74,15 +62,20 @@ def team_detail(request, slug):
     team = get_object_or_404(Team, slug=slug)
     return render(request, 'team_detail.html', {'team': team})
 
-def show_driver_standings(request, season=2025):
-    standings = driver_standings(season)
-    return render(request, 'driver_standings.html', {'standings': standings, 'season': season})
-
-def show_constructor_standings(request, season=2025):
-    standings = constructor_standings(season)
-    return render(request, 'constructor_standings.html', {'standings': standings, 'season': season})
+def show_standings(request, season=2025):
+    driver_standings_data = driver_standings(season)
+    constructor_standings_data = constructor_standings(season)
+    return render(request, 'standings.html', {
+        'driver_standings': driver_standings_data,
+        'constructor_standings': constructor_standings_data,
+        'season': season
+    })
 
 def show_drivers_json(request):
+    drivers = (Driver.objects
+               .filter(team__isnull=False)
+               .select_related("team")
+               .order_by("team__id"))
     data = [
         {
             'full_name': d.full_name,
@@ -99,7 +92,7 @@ def show_drivers_json(request):
             'date_of_birth': d.date_of_birth.strftime('%d/%m/%Y') if d.date_of_birth else '',
             'place_of_birth': d.place_of_birth,
             'url': d.get_absolute_url(),
-        } for d in Driver.objects.all().order_by('team')
+        } for d in drivers
     ]
     return JsonResponse(data, safe=False)
 
@@ -120,22 +113,33 @@ def show_teams_json(request):
             'fastest_laps': t.fastest_laps,
             'color': t.color,
             'url': t.get_absolute_url(),
-        } for t in Team.objects.all().order_by('name')
+        } for t in Team.objects.all().order_by('id')
     ]
     return JsonResponse(data, safe=False)
 
-def show_constructor_standings_json(request, season=2025):
-    data = [
-        {"team": t.name, "points": getattr(t, 'points', 0), "wins": getattr(t, 'wins', 0), "url": t.get_absolute_url()}
-        for t in constructor_standings(season)
-    ]
+def show_driver_standings_json(request, season=2025):
+    qs = driver_standings(season)
+    data = [{
+        "driver": d.full_name,
+        "team": d.team.name if d.team_id else "",
+        "points": d.season_points,
+        "wins": d.season_wins,
+        "gp_points": float(d.gp_points),
+        "sprint_points": float(getattr(d, "sprint_points", 0.0)),
+        "url": d.get_absolute_url(),
+    } for d in qs]
     return JsonResponse({"season": season, "data": data})
 
-def show_driver_standings_json(request, season=2025):
-    data = [
-        {"driver": d.full_name, "team": d.team.name, "points": getattr(d, 'points', 0), "wins": getattr(d, 'wins', 0), "url": d.get_absolute_url()}
-        for d in driver_standings(season)
-    ]
+def show_constructor_standings_json(request, season=2025):
+    qs = constructor_standings(season)
+    data = [{
+        "team": t.name,
+        "points": t.season_points,
+        "wins": t.season_wins,
+        "gp_points": float(t.gp_points),
+        "sprint_points": float(getattr(t, "sprint_points", 0.0)),
+        "url": t.get_absolute_url(),
+    } for t in qs]
     return JsonResponse({"season": season, "data": data})
 
 def show_schedule(request, season=2025):
