@@ -10,7 +10,6 @@ import json
 # Create your views here.
 
 # DRIVER HISTORY
-@login_required
 def driver_user_page(request):
     drivers = Driver.objects.all().order_by('year', '-points')
     newest_drivers = Driver.objects.filter(image_url__isnull=False).order_by('-id')[:5]
@@ -73,7 +72,6 @@ def edit_driver(request, driver_id):
 
 
 # WINNER HISTORY
-@login_required
 def winner_user_page(request):
     winners = Winner.objects.all().order_by('date')
     newest_winners = Winner.objects.filter(image_url__isnull=False).order_by('-id')[:5]
