@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
+import datetime, uuid
 
 # Create your models here.
 class Forums(models.Model):
-    forums_id = models.UUIDField(auto_created=True, primary_key=True)
+    forums_id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
@@ -13,6 +13,8 @@ class Forums(models.Model):
     forums_replies_counts = models.PositiveIntegerField(default=0)
     is_hot = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.title
@@ -50,7 +52,7 @@ class Forums(models.Model):
         return self.created_at - datetimenow
 
 class ForumsReplies(models.Model):
-    forums_id = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
+    forums = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     replies_content = models.TextField()
     forums_replies_likes = models.PositiveIntegerField(default=0)

@@ -16,12 +16,21 @@ def forums_list_view(request):
 def forums_list_json(request):
     q = request.GET.get('q', '').strip()
     page = int(request.GET.get('page', 1))
-    page_size = int(request.GET.get('page_size', 20))
+    page_size = int(request.GET.get('page_size', 9))
+    filter_type = request.GET.get('filter', 'latest') 
 
-    qs = Forums.objects.all().order_by('-created_at')
+    qs = Forums.objects.all()
 
     if q:
         qs = qs.filter(title__icontains=q)
+
+    if filter_type == 'latest':
+        qs = qs.order_by('-created_at')
+    elif filter_type == 'oldest':
+        qs = qs.order_by('created_at')
+    elif filter_type == 'hot':
+        one_week_ago = timezone.now() - timezone.timedelta(days=7)
+        qs = qs.filter(created_at__gte=one_week_ago).order_by('-forums_views')
 
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
@@ -35,8 +44,8 @@ def forums_list_json(request):
             "thumbnail": None,
             "category": "forum",
             "created_at": forum.created_at.isoformat(),
-            "news_views": forum.forums_views,
-            "news_comments": forum.forums_replies_counts,
+            "forums_views": forum.forums_views,
+            "forums_replies_counts": forum.forums_replies_counts,
             "is_featured": forum.is_hot,
             "author": forum.user.username if forum.user else None,
         })
@@ -87,7 +96,7 @@ def forum_detail_json(request, pk):
     }
     return JsonResponse(data)
 
-# @login_required
+@login_required
 def forums_create_view(request):
     if request.method == "POST":
         form = ForumsForm(request.POST)
@@ -100,7 +109,7 @@ def forums_create_view(request):
         form = ForumsForm()
     return render(request, "forums/form.html", {"form": form, "action": "Create"})
 
-# @login_required
+@login_required
 def forums_edit_view(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
     if forum.user != request.user:
@@ -114,7 +123,7 @@ def forums_edit_view(request, pk):
         form = ForumsForm(instance=forum)
     return render(request, "forums/form.html", {"form": form, "action": "Edit", "forum": forum})
 
-# @login_required
+@login_required
 @require_POST
 def forums_delete_view(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
@@ -123,7 +132,7 @@ def forums_delete_view(request, pk):
     forum.delete()
     return redirect('forums:list')
 
-# @login_required
+@login_required
 @require_POST
 def forum_like_toggle(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
@@ -136,7 +145,7 @@ def forum_like_toggle(request, pk):
         return HttpResponseBadRequest("Invalid action")
     return JsonResponse({"forums_likes": forum.forums_likes})
 
-# @login_required
+@login_required
 @require_POST
 def reply_like_toggle(request, reply_id):
     reply = get_object_or_404(ForumsReplies, pk=reply_id)
@@ -149,7 +158,7 @@ def reply_like_toggle(request, reply_id):
         return HttpResponseBadRequest("Invalid action")
     return JsonResponse({"forums_replies_likes": reply.forums_replies_likes})
 
-# @login_required
+@login_required
 @require_POST
 def create_reply(request, pk):
     forum = get_object_or_404(Forums, pk=pk)
@@ -171,7 +180,7 @@ def create_reply(request, pk):
     else:
         return JsonResponse({"errors": form.errors}, status=400)
 
-# @login_required
+@login_required
 @require_POST
 def delete_reply(request, reply_id):
     reply = get_object_or_404(ForumsReplies, pk=reply_id)

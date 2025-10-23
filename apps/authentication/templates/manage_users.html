@@ -5,17 +5,17 @@
 {% endblock meta %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 pt-20 pb-10">
+<div class="min-h-screen bg-[#15151e] pt-20 pb-10">
   <div class="container mx-auto px-4 max-w-7xl">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-red-600 to-red-700 rounded-xl shadow-lg p-6 mb-6">
+    <div class="bg-gradient-to-r from-[#e10600] to-[#ff1e00] rounded-xl shadow-2xl p-6 mb-6">
       <h1 class="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
       <p class="text-red-100">Complete Management & Control Panel</p>
     </div>
 
     <!-- Quick Actions - Management Links -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <a href="{% url 'authentication:manage_users' %}" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow p-4 transition">
+      <a href="{% url 'authentication:manage_users' %}" class="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-lg shadow-lg p-4 transition-all transform hover:scale-105">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm opacity-90">User</p>
@@ -27,8 +27,7 @@
         </div>
       </a>
 
-      <!-- Link ke modul information untuk manage drivers -->
-      <a href="/information/admin/drivers/" class="bg-green-500 hover:bg-green-600 text-white rounded-lg shadow p-4 transition">
+      <a href="/information/admin/drivers/" class="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-lg shadow-lg p-4 transition-all transform hover:scale-105">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm opacity-90">Driver</p>
@@ -40,8 +39,7 @@
         </div>
       </a>
 
-      <!-- Link ke modul information untuk manage teams -->
-      <a href="/information/admin/teams/" class="bg-purple-500 hover:bg-purple-600 text-white rounded-lg shadow p-4 transition">
+      <a href="/information/admin/teams/" class="bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white rounded-lg shadow-lg p-4 transition-all transform hover:scale-105">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm opacity-90">Team</p>
@@ -53,8 +51,7 @@
         </div>
       </a>
 
-      <!-- Link untuk manage race results -->
-      <a href="/information/admin/results/" class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow p-4 transition">
+      <a href="/information/admin/results/" class="bg-gradient-to-br from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-white rounded-lg shadow-lg p-4 transition-all transform hover:scale-105">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm opacity-90">Race</p>
@@ -69,132 +66,132 @@
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+      <div class="bg-[#1e1e2c] rounded-lg shadow-xl p-6 border-l-4 border-blue-500">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-10 w-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Total Users</p>
-            <p class="text-2xl font-bold text-gray-900">{{ total_users }}</p>
+            <p class="text-sm font-medium text-gray-400">Total Users</p>
+            <p class="text-2xl font-bold text-white">{{ total_users }}</p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+      <div class="bg-[#1e1e2c] rounded-lg shadow-xl p-6 border-l-4 border-green-500">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-10 w-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Active Users</p>
-            <p class="text-2xl font-bold text-gray-900">{{ active_users }}</p>
+            <p class="text-sm font-medium text-gray-400">Active Users</p>
+            <p class="text-2xl font-bold text-white">{{ active_users }}</p>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+      <div class="bg-[#1e1e2c] rounded-lg shadow-xl p-6 border-l-4 border-red-500">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-10 w-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Banned Users</p>
-            <p class="text-2xl font-bold text-gray-900">{{ banned_users }}</p>
+            <p class="text-sm font-medium text-gray-400">Banned Users</p>
+            <p class="text-2xl font-bold text-white">{{ banned_users }}</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Users Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-bold text-gray-900">User Management</h2>
+    <div class="bg-[#1e1e2c] rounded-lg shadow-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-700">
+        <h2 class="text-xl font-bold text-white">User Management</h2>
       </div>
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-800">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead class="bg-[#15151e]">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Username</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Joined</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Last Login</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Role</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Username</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Joined</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Last Login</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-[#1e1e2c] divide-y divide-gray-700">
             {% for user in users %}
-            <tr class="hover:bg-gray-50 transition-colors {% if not user.is_active %}bg-red-50{% endif %}">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ user.id }}</td>
+            <tr class="hover:bg-[#252537] transition-colors {% if not user.is_active %}bg-red-900/20{% endif %}">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ user.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="h-8 w-8 flex-shrink-0 bg-red-100 rounded-full flex items-center justify-center">
-                    <span class="text-red-700 font-semibold text-sm">{{ user.username|slice:":1"|upper }}</span>
+                  <div class="h-8 w-8 flex-shrink-0 bg-red-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-semibold text-sm">{{ user.username|slice:":1"|upper }}</span>
                   </div>
                   <div class="ml-3">
-                    <div class="text-sm font-medium text-gray-900">{{ user.username }}</div>
+                    <div class="text-sm font-medium text-white">{{ user.username }}</div>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.email|default:"No email" }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ user.email|default:"No email" }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 {% if user.is_active %}
-                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300">Active</span>
                 {% else %}
-                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Banned</span>
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-900/50 text-red-300">Banned</span>
                 {% endif %}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.date_joined|date:"Y-m-d H:i" }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.last_login|date:"Y-m-d H:i"|default:"Never" }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ user.date_joined|date:"Y-m-d H:i" }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ user.last_login|date:"Y-m-d H:i"|default:"Never" }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 {% if user.is_superuser %}
-                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Admin</span>
+                  <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-900/50 text-yellow-300">Admin</span>
                 {% else %}
-                  <span class="text-sm text-gray-500">User</span>
+                  <span class="text-sm text-gray-400">User</span>
                 {% endif %}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                <a href="{% url 'authentication:edit_user' user.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                <a href="{% url 'authentication:edit_user' user.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 transition-colors">
                   Edit
                 </a>
                 
                 {% if not user.is_superuser %}
                   {% if user.is_active %}
                     <a href="{% url 'authentication:ban_user' user.id %}" 
-                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 transition-colors"
+                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-500 transition-colors"
                        onclick="return confirm('Are you sure you want to ban {{ user.username }}?')">
                       Ban
                     </a>
                   {% else %}
                     <a href="{% url 'authentication:ban_user' user.id %}" 
-                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors">
+                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-500 transition-colors">
                       Unban
                     </a>
                   {% endif %}
                   
                   <a href="{% url 'authentication:delete_user' user.id %}" 
-                     class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors"
+                     class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-500 transition-colors"
                      onclick="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone!')">
                     Delete
                   </a>
                 {% else %}
-                  <span class="text-xs text-gray-400 italic">Protected</span>
+                  <span class="text-xs text-gray-500 italic">Protected</span>
                 {% endif %}
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="8" class="px-6 py-10 text-center text-gray-500">
-                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <td colspan="8" class="px-6 py-10 text-center text-gray-400">
+                <svg class="mx-auto h-12 w-12 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <p>No users found.</p>
@@ -208,14 +205,14 @@
 
     <!-- Footer Actions -->
     <div class="mt-6 flex justify-between items-center">
-      <a href="/" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+      <a href="/" class="inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-300 bg-[#1e1e2c] hover:bg-[#252537] transition-colors">
         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Back to Home
       </a>
       
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-gray-400">
         <span class="font-semibold">{{ users|length }}</span> user(s) displayed
       </div>
     </div>
@@ -226,25 +223,25 @@
 {% if messages %}
 <div class="fixed top-20 right-4 z-50 space-y-2">
   {% for message in messages %}
-  <div class="bg-white border-l-4 {% if message.tags == 'error' or message.tags == 'warning' %}border-red-500{% elif message.tags == 'success' %}border-green-500{% else %}border-blue-500{% endif %} rounded-r-lg shadow-lg p-4 max-w-sm animate-slide-in">
+  <div class="bg-[#1e1e2c] border-l-4 {% if message.tags == 'error' or message.tags == 'warning' %}border-red-500{% elif message.tags == 'success' %}border-green-500{% else %}border-blue-500{% endif %} rounded-r-lg shadow-lg p-4 max-w-sm animate-slide-in">
     <div class="flex items-start">
       <div class="flex-shrink-0">
         {% if message.tags == 'success' %}
-          <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
         {% elif message.tags == 'error' or message.tags == 'warning' %}
-          <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         {% else %}
-          <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         {% endif %}
       </div>
       <div class="ml-3">
-        <p class="text-sm text-gray-800">{{ message }}</p>
+        <p class="text-sm text-gray-200">{{ message }}</p>
       </div>
     </div>
   </div>

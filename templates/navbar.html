@@ -18,33 +18,16 @@
 
         <!-- Information Dropdown -->
         <div class="relative group">
-          <a href="/information/" class="text-gray-200 hover:text-white font-medium flex items-center space-x-1 transition-colors">
+          <div class="text-gray-200 hover:text-white font-medium flex items-center space-x-1 transition-colors cursor-pointer">
             <span>Information</span>
             <svg class="w-4 h-4 text-gray-300 group-hover:text-white transition-transform transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-          </a>
+          </div>
       
           <!-- Dropdown Menu -->
           <div class="absolute left-0 top-full mt-0 w-44 bg-[#360000] border border-red-900 rounded-none shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-      
-            {% if user.is_superuser %}
-            <!-- ADMIN (HISTORY) -->
-            <a href="{% url 'history:driver_admin_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition">
-              Driver History (Admin)
-            </a>
-            <a href="{% url 'history:winner_admin_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition">
-              Grand Prix History (Admin)
-            </a>
-            {% else %}
-            <!-- USER (HISTORY) -->
-            <a href="{% url 'history:driver_user_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition">
-              Driver History
-            </a>
-            <a href="{% url 'history:winner_user_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition">
-              Grand Prix History
-            </a>
-            {% endif %}
+
             <a href="/information/drivers/" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition border-b border-white/20">
               Drivers
             </a>
@@ -57,6 +40,38 @@
             <a href="/information/standings/" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition">
               Standings
             </a>
+          </div>
+        </div>
+
+        <!-- History Dropdown -->
+        <div class="relative group">
+          <div class="text-gray-200 hover:text-white font-medium flex items-center space-x-1 transition-colors cursor-pointer">
+            <span>History</span>
+            <svg class="w-4 h-4 text-gray-300 group-hover:text-white transition-transform transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+      
+          <!-- Dropdown Menu -->
+          <div class="absolute left-0 top-full mt-0 w-44 bg-[#360000] border border-red-900 rounded-none shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+      
+            {% if user.is_superuser %}
+            <!-- ADMIN (HISTORY) -->
+            <a href="{% url 'history:driver_admin_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition border-b border-white/20">
+              Driver History (Admin)
+            </a>
+            <a href="{% url 'history:winner_admin_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition border-b border-white/20">
+              Grand Prix History (Admin)
+            </a>
+            {% else %}
+            <!-- USER (HISTORY) -->
+            <a href="{% url 'history:driver_user_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition border-b border-white/20">
+              Driver History
+            </a>
+            <a href="{% url 'history:winner_user_page' %}" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition border-b border-white/20">
+              Grand Prix History
+            </a>
+            {% endif %}
           </div>
         </div>
 
@@ -150,13 +165,25 @@
             </svg>
           </summary>
           <div class="pl-4 mt-1 space-y-1">
-            <a href="/information/history/" class="block text-gray-300 hover:text-white py-1">History</a>
             <!-- Nanti kasih if else gitu untuk identify apakah user nya admin atau user biasa -->
-            <a href="{% url 'history:driver_user_page' %}" class="block text-gray-300 hover:text-white py-1">Driver History</a>
             <a href="/information/drivers/" class="block text-gray-300 hover:text-white py-1">Drivers</a>
             <a href="/information/teams/" class="block text-gray-300 hover:text-white py-1">Teams</a>
             <a href="/information/schedule/" class="block text-gray-300 hover:text-white py-1">Schedule</a>
             <a href="/information/standings/" class="block text-gray-300 hover:text-white py-1">Standings</a>
+          </div>
+        </details>
+
+        <details class="group">
+          <summary class="flex justify-between items-center text-gray-200 hover:text-white font-medium py-2 cursor-pointer">
+            <span>History</span>
+            <svg class="w-4 h-4 transform group-open:rotate-180 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="pl-4 mt-1 space-y-1">
+            <!-- Nanti kasih if else gitu untuk identify apakah user nya admin atau user biasa -->
+            <a href="{% url 'history:driver_user_page' %}" class="block text-gray-300 hover:text-white py-1">Driver History</a>
+            <a href="{% url 'history:winner_user_page' %}" class="block text-gray-300 hover:text-white py-1">Grand Prix History</a>
           </div>
         </details>
 
