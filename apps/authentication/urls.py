@@ -1,7 +1,7 @@
 from django.urls import path
 from apps.authentication.views import register, login_user, logout_user
 from apps.authentication.views import manage_users, edit_user, delete_user, ban_user
-from apps.authentication.views import user_dashboard, edit_profile
+from apps.authentication.views import user_dashboard, edit_profile, view_profile
 
 app_name = 'authentication'
 
@@ -14,6 +14,7 @@ urlpatterns = [
     # User Dashboard & profile
     path('dashboard/', user_dashboard, name='user_dashboard'),
     path('profile/edit/', edit_profile, name='edit_profile'),
+    path('profile/<str:username>/', view_profile, name='view_profile'),
 
     # Admin - User management
     path('manage_users/', manage_users, name='manage_users'),
