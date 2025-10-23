@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% block title %}Grand Prix Winner History{% endblock %}
+
+{% block content %}
+{% include "navbar.html" %}
+
+<div class="min-h-screen bg-black text-gray-100 py-20 px-6">
+    <!-- Header Section -->
+    <header id="hero-image-history-winner">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+            <h1 class="text-5xl font-bold">Grand Prix History</h1>
+            <h2 class="text-lg font-semibold">Explore the latest F1 Grand Prix winners across seasons</h2>
+        </div>
+    </header>
+
+    <!-- Latest Winner Update -->
+    <div class="max-w-5xl mx-auto mb-10 py-5">
+        <h1 class="text-4xl font-bold mb-6 text-center">🏆 Latest Grand Prix Winner Update</h1>
+
+        {% if newest %}
+        <div class="bg-gray-900 rounded-2xl shadow-lg border border-gray-700 overflow-hidden">
+            <div class="grid md:grid-cols-3">
+                <div class="col-span-1 bg-gray-800 flex items-center justify-center">
+                    {% if newest.image_url %}
+                        <img src="{{ newest.image_url }}" alt="{{ newest.winner }}" class="object-cover w-full h-full md:h-64">
+                    {% else %}
+                        <p class="text-gray-500 italic">No image available</p>
+                    {% endif %}
+                </div>
+
+                <div class="col-span-2 p-6">
+                    <h2 class="text-2xl font-semibold text-white mb-3">{{ newest.winner }}</h2>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Car:</span> {{ newest.car }}</p>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Race:</span> {{ newest.grand_prix }}</p>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Laps:</span> {{ newest.laps }}</p>
+                    <p class="text-gray-400"><span class="font-semibold text-gray-200">Date:</span> {{ newest.date }}</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-500 italic text-center">No winner data available</p>
+        {% endif %}
+
+        <!-- Add / Edit Winner Form -->
+        <div class="bg-gray-900 mt-8 p-6 rounded-2xl border border-gray-700 shadow-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white flex items-center">
+                <svg class="w-6 h-6 mr-2 fill-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M11 17h2v-4h4v-2h-4V7h-2v4H7v2h4v4Zm1 5q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Z"/>
+                </svg>
+                Add Winner
+            </h3>
+
+            <form action="#" method="POST" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid md:grid-cols-2 gap-4">
+                    <input type="text" name="winner" placeholder="Winner Name" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                    <input type="text" name="car" placeholder="Car" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                    <input type="text" name="grand_prix" placeholder="Race (Grand Prix) Name" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                    <input type="number" name="laps" step="0.1" placeholder="Laps" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                    <input type="text" name="time" placeholder="Time (e.g., 1:25:13.456)" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                    <input type="date" name="date" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                    <input type="url" name="image_url" placeholder="Image URL (optional)" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:ring-2 focus:ring-yellow-500">
+                </div>
+                <button type="submit" class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 transition rounded-lg text-white font-semibold">Save Winner</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="max-w-6xl mx-auto mb-8 bg-gray-900 border border-gray-800 p-5 rounded-2xl shadow-md">
+    <h3 class="text-lg font-semibold text-gray-100 flex items-center gap-2 mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-yellow-400">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 1010.8 5.2a7.5 7.5 0 005 10.6z" />
+        </svg>
+        Filter Winner Data
+    </h3>
+
+    <div class="flex flex-wrap gap-3 items-center">
+        <select id="winnerFilterType" class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+        <option value="">-- Filter By --</option>
+        <option value="winner">Winner</option>
+        <option value="car">Car</option>
+        <option value="grand_prix">Grand Prix</option>
+        <option value="date">Date</option>
+        </select>
+
+        <input 
+        type="text" 
+        id="winnerFilterInput" 
+        placeholder="Type to filter..." 
+        class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 w-72 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition"
+        >
+
+        <button 
+        id="winnerClearFilter"
+        class="ml-auto px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-medium rounded-lg text-sm transition"
+        >
+        Reset
+        </button>
+    </div>
+    </div>
+
+    <!-- Winner History Table -->
+    <div class="max-w-6xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-700 overflow-hidden">
+        <h2 class="text-2xl font-semibold text-center mt-6 mb-4 text-white">Grand Prix Winner History Table</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-gray-200">
+                <thead class="bg-gray-800 uppercase text-gray-400 text-center">
+                    <tr>
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">Winner</th>
+                        <th class="py-3 px-4">Car</th>
+                        <th class="py-3 px-4">Grand Prix</th>
+                        <th class="py-3 px-4">Laps</th>
+                        <th class="py-3 px-4">Time</th>
+                        <th class="py-3 px-4">Date</th>
+                        <th class="py-3 px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700 text-center">
+                    {% for w in winners %}
+                    <tr class="hover:bg-gray-800 transition">
+                        <td class="py-3 px-4">{{ forloop.counter }}</td>
+                        <td class="py-3 px-4">{{ w.winner }}</td>
+                        <td class="py-3 px-4">{{ w.car }}</td>
+                        <td class="py-3 px-4">{{ w.grand_prix }}</td>
+                        <td class="py-3 px-4">{{ w.laps }}</td>
+                        <td class="py-3 px-4">{{ w.time }}</td>
+                        <td class="py-3 px-4">{{ w.date }}</td>
+                        <td class="py-3 px-4">
+                            <button 
+                                class="text-blue-400 hover:text-blue-500 font-medium"
+                                onclick="openEditModal('{{ w.id }}', '{{ w.winner }}', '{{ w.car }}', '{{ w.grand_prix }}', '{{ w.laps }}', '{{ w.time }}', '{{ w.date }}', '{{ w.image_url }}')">
+                                Edit
+                            </button>
+                            <span class="mx-2 text-gray-600">|</span>
+                            <button type="button" class="delete-btn text-red-400 hover:text-red-500 font-medium" data-id="{{ w.id }}">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-6 text-gray-500 italic">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Winner -->
+<div id="editWinnerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div class="bg-gray-900 text-white p-6 rounded-2xl w-[400px] shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Edit Winner</h2>
+    <form id="editWinnerForm">
+        {% csrf_token %}
+        <input type="hidden" id="editWinnerId" name="id">
+
+        <label class="block mb-2 text-sm">Winner Name</label>
+        <input type="text" id="editWinnerName" name="winner" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Car</label>
+        <input type="text" id="editWinnerCar" name="car" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Race</label>
+        <input type="text" id="editWinnerRace" name="grand_prix" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Laps</label>
+        <input type="number" id="editWinnerLaps" name="laps" step="0.1" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Time</label>
+        <input type="text" id="editWinnerTime" name="time" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Date</label>
+        <input type="date" id="editWinnerDate" name="date" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Image URL</label>
+        <input type="url" id="editWinnerImage" name="image_url" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700" placeholder="Image URL (optional)">
+        <div class="flex justify-end space-x-3">
+
+        <button type="button" onclick="closeEditModal()" class="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded">Cancel</button>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const tableBody = document.querySelector('tbody');
+
+    // ADD WINNER
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(form).entries());
+        const response = await fetch("{% url 'history:add_winner' %}", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Winner added!');
+            location.reload();
+        } else {
+            console.error(data.errors);
+            alert('Failed to add winner');
+        }
+    });
+
+    // DELETE WINNER
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (confirm('Are you sure?')) {
+                const response = await fetch(`/history/winner/delete/${id}/`, { method: 'DELETE' });
+                const data = await response.json();
+                if (data.success) {
+                    btn.closest('tr').remove();
+                }
+            }
+        });
+    });
+});
+
+// MODAL
+function openEditModal(id, winner, car, race, laps, time, date, image_url) {
+  document.getElementById('editWinnerModal').classList.remove('hidden');
+  document.getElementById('editWinnerId').value = id;
+  document.getElementById('editWinnerName').value = winner;
+  document.getElementById('editWinnerCar').value = car;
+  document.getElementById('editWinnerRace').value = race;
+  document.getElementById('editWinnerLaps').value = laps;
+  document.getElementById('editWinnerTime').value = time;
+  document.getElementById('editWinnerDate').value = date;
+  document.getElementById('editWinnerImage').value = image_url || '';
+}
+
+function closeEditModal() {
+  document.getElementById('editWinnerModal').classList.add('hidden');
+}
+
+// SUBMIT EDIT FORM
+document.getElementById('editWinnerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('editWinnerId').value;
+  const formData = {
+    winner: document.getElementById('editWinnerName').value,
+    car: document.getElementById('editWinnerCar').value,
+    grand_prix: document.getElementById('editWinnerRace').value,
+    laps: document.getElementById('editWinnerLaps').value,
+    time: document.getElementById('editWinnerTime').value,
+    date: document.getElementById('editWinnerDate').value,
+    image_url: document.getElementById('editWinnerImage').value,
+  };
+  const response = await fetch(`/history/winner/edit/${id}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const data = await response.json();
+  if (data.success) {
+    alert('Winner updated successfully!');
+    location.reload();
+  } else {
+    console.error(data.errors || data.error);
+    alert('Failed to update winner');
+  }
+});
+
+// Filter
+const winnerFilterType = document.getElementById('winnerFilterType');
+const winnerFilterInput = document.getElementById('winnerFilterInput');
+const winnerRows = document.querySelectorAll('tbody tr');
+
+winnerFilterInput.addEventListener('input', () => {
+  const type = winnerFilterType.value;
+  const query = winnerFilterInput.value.toLowerCase().trim();
+
+  winnerRows.forEach(row => {
+    const cols = {
+      winner: row.children[1].textContent.toLowerCase().trim(),
+      car: row.children[2].textContent.toLowerCase().trim(),
+      grand_prix: row.children[3].textContent.toLowerCase().trim(),
+      date: row.children[6].textContent.toLowerCase().trim(),
+    };
+
+    if (!type || cols[type].includes(query)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+});
+
+// Buat tombol reset di filter
+document.getElementById('winnerClearFilter').addEventListener('click', () => {
+  winnerFilterType.value = '';
+  winnerFilterInput.value = '';
+  document.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+});
+
+</script>
+
+{% endblock %}

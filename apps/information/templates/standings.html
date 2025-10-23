@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block meta %}
+<title>Standings</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="bg-neutral-900 pt-10 text-white min-h-screen">
+    <header id="hero-image-standings">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+            <h1 class="text-5xl font-bold">2025 Standings</h1>
+            <h2 class="text-lg font-semibold">Track the latest points, position changes, and championship battles.</h2>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <div class="max-w-4xl mx-auto px-5 md:px-10 pt-10 pb-20">
+
+        <!-- Navigasi Tab -->
+        <div class="border-b border-white/10 mb-6">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button id="drivers-tab-btn" 
+                        class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg border-red-500 text-white"
+                        aria-current="page">
+                    Drivers
+                </button>
+                <button id="constructors-tab-btn" 
+                        class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg border-transparent text-gray-400 hover:text-white hover:border-gray-300">
+                    Constructors
+                </button>
+            </nav>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white/50 mx-auto"></div>
+            <p class="mt-4 text-gray-300">Loading Standings...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-neutral-900 border border-red-500/40 p-10 text-center rounded-xl shadow-lg">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-lg font-semibold text-red-300 mb-2">Failed to load standings</h3>
+            <p class="text-gray-400">Please try again later.</p>
+        </div>
+        
+        <!-- Kontainer Konten Tab -->
+        <div id="standings-container" class="hidden">
+            
+            <!-- 1. DRIVERS SECTION -->
+            <div id="drivers-section" class="flex flex-col gap-2">
+                
+            </div>
+
+            <!-- 2. CONSTRUCTORS SECTION -->
+            <div id="constructors-section" class="hidden flex flex-col gap-2">
+                
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- API Endpoints ---
+    const DRIVERS_API_ENDPOINT = "{% url 'information:show_driver_standings_json' %}";
+    const CONSTRUCTORS_API_ENDPOINT = "{% url 'information:show_constructor_standings_json' %}";
+
+    // --- DOM Elements ---
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error');
+    const standingsContainer = document.getElementById('standings-container');
+    
+    const driversTabBtn = document.getElementById('drivers-tab-btn');
+    const constructorsTabBtn = document.getElementById('constructors-tab-btn');
+    const driversSection = document.getElementById('drivers-section');
+    const constructorsSection = document.getElementById('constructors-section');
+
+    const TEAM_COLORS = {
+        "McLaren": "#f47500",
+        "Ferrari": "#ED1131",
+        "Red Bull Racing": "#063279",
+        "Mercedes": "#00ad91",
+        "Aston Martin": "#085b3d",
+        "Alpine": "#008fd1",
+        "Haas": "#777b7e",
+        "Racing Bulls": "#4e75dc",
+        "Williams": "#0f42b8",
+        "Kick Sauber": "#03ac0d",
+        "": "#555555"
+    };
+
+    function handleTabClick(activeTab) {
+        if (activeTab === 'drivers') {
+            driversTabBtn.classList.add('border-red-500', 'text-white');
+            driversTabBtn.classList.remove('border-transparent', 'text-gray-400', 'hover:text-white', 'hover:border-gray-300');
+            constructorsTabBtn.classList.add('border-transparent', 'text-gray-400', 'hover:text-white', 'hover:border-gray-300');
+            constructorsTabBtn.classList.remove('border-red-500', 'text-white');
+
+            driversSection.classList.remove('hidden');
+            constructorsSection.classList.add('hidden');
+        } else {
+            constructorsTabBtn.classList.add('border-red-500', 'text-white');
+            constructorsTabBtn.classList.remove('border-transparent', 'text-gray-400', 'hover:text-white', 'hover:border-gray-300');
+            driversTabBtn.classList.add('border-transparent', 'text-gray-400', 'hover:text-white', 'hover:border-gray-300');
+            driversTabBtn.classList.remove('border-red-500', 'text-white');
+
+            constructorsSection.classList.remove('hidden');
+            driversSection.classList.add('hidden');
+        }
+    }
+
+    function createDriverRow(driver, index) {
+        const position = index + 1;
+        const teamColor = TEAM_COLORS[driver.team] || '#555';
+
+        return `
+            <a href="${driver.url}" class="block bg-neutral-800 rounded-lg overflow-hidden hover:bg-neutral-700 transition-colors duration-150">
+                <div class="flex items-center">
+                    <!-- Garis Warna -->
+                    <div class="w-2 h-16" style="background-color: ${teamColor};"></div>
+                    
+                    <!-- Posisi -->
+                    <div class="w-12 text-center flex-shrink-0">
+                        <span class="text-xl font-bold">${position}</span>
+                    </div>
+                    
+                    <!-- Nama & Tim -->
+                    <div class="flex-grow px-4">
+                        <h3 class="text-lg font-bold text-white">${driver.driver}</h3>
+                        <p class="text-sm text-gray-300">${driver.team || 'No Team'}</p>
+                    </div>
+                    
+                    <!-- Poin -->
+                    <div class="w-24 text-right flex-shrink-0">
+                        <span class="text-lg font-extrabold text-white">${driver.points}</span>
+                        <span class="text-xs text-gray-400 block">PTS</span>
+                    </div>
+
+                    <!-- Panah -->
+                    <div class="w-10 text-center text-white/30">
+                        <svg class="w-5 h-5 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    function createConstructorRow(constructor, index) {
+        const position = index + 1;
+        const teamColor = TEAM_COLORS[constructor.team] || '#555';
+
+        return `
+            <a href="${constructor.url}" class="block bg-neutral-800 rounded-lg overflow-hidden hover:bg-neutral-700 transition-colors duration-150">
+                <div class="flex items-center">
+                    <!-- Garis Warna -->
+                    <div class="w-2 h-16" style="background-color: ${teamColor};"></div>
+                    
+                    <!-- Posisi -->
+                    <div class="w-12 text-center flex-shrink-0">
+                        <span class="text-xl font-bold">${position}</span>
+                    </div>
+                    
+                    <!-- Nama Tim -->
+                    <div class="flex-grow px-4">
+                        <h3 class="text-lg font-bold text-white">${constructor.team}</h3>
+                    </div>
+                    
+                    <!-- Poin -->
+                    <div class="w-24 text-right flex-shrink-0">
+                        <span class="text-lg font-extrabold text-white">${constructor.points}</span>
+                        <span class="text-xs text-gray-400 block">PTS</span>
+                    </div>
+
+                    <!-- Panah -->
+                    <div class="w-10 text-center text-white/30">
+                        <svg class="w-5 h-5 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    async function fetchAllStandings() {
+        loading.classList.remove('hidden');
+        errorMessage.classList.add('hidden');
+        standingsContainer.classList.add('hidden');
+
+        try {
+            const [driversResponse, constructorsResponse] = await Promise.all([
+                fetch(DRIVERS_API_ENDPOINT, { headers: { 'Accept': 'application/json' } }),
+                fetch(CONSTRUCTORS_API_ENDPOINT, { headers: { 'Accept': 'application/json' } })
+            ]);
+
+            if (!driversResponse.ok || !constructorsResponse.ok) {
+                throw new Error('Failed to fetch one or more standings from server');
+            }
+
+            const driversData = await driversResponse.json();
+            const constructorsData = await constructorsResponse.json();
+
+            driversSection.innerHTML = driversData.data.map(createDriverRow).join('');
+            constructorsSection.innerHTML = constructorsData.data.map(createConstructorRow).join('');
+
+            loading.classList.add('hidden');
+            standingsContainer.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Error loading standings:', error);
+            loading.classList.add('hidden');
+            errorMessage.classList.remove('hidden');
+        }
+    }
+
+    function initializeStandingsPage() {
+        driversTabBtn.addEventListener('click', () => handleTabClick('drivers'));
+        constructorsTabBtn.addEventListener('click', () => handleTabClick('constructors'));
+
+        fetchAllStandings();
+    }
+
+    initializeStandingsPage();
+</script>
+{% endblock %}

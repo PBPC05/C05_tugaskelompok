@@ -29,6 +29,39 @@
     position: relative;
 }
 
+<<<<<<< HEAD
+=======
+#hero-image-teams {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/header-teams.png);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#hero-image-schedule {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/header-schedule.png);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#hero-image-standings {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/header-standings.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+>>>>>>> 1122d7718758e8bae083ba4b3769de756649c275
 #hero-image-prediction {
     background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/prediction-hero-bg.jpg);
     height: 50%;
@@ -46,4 +79,52 @@
     background-repeat: no-repeat;
     background-size: cover;
     position: relative;
+}
+
+#hero-image-history-driver {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/history-driver-hero-bg.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#hero-image-history-winner {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/history-winner-hero-bg.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#hero-image-main {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/header-main.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+#hero-image-forum {
+    background-image: linear-gradient(to right, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0)), url(../image/header-forum.jpg);
+    height: 50%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.truncate-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

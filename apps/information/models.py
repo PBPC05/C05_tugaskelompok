@@ -17,7 +17,7 @@ class Team(models.Model):
     fastest_laps = models.PositiveIntegerField(default=0)
     highest_race_finish = models.CharField(max_length=20, blank=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
-    color = models.CharField(max_length=7)
+    color = models.CharField(max_length=100, blank=True)
 
     team_logo = models.URLField(blank=True)
 
@@ -30,12 +30,12 @@ class Team(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        return reverse("team_detail", kwargs={"slug": self.slug})
+        return reverse("information:team_detail", kwargs={"slug": self.slug})
     
 class Driver(models.Model):
     full_name = models.CharField(max_length=120, unique=True)
     number = models.PositiveIntegerField(unique=True, db_index=True)
-    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="drivers")
+    team = models.ForeignKey(Team, on_delete=models.PROTECT, related_name="drivers", null=True, blank=True)
 
     number_image = models.URLField(blank=True)
     driver_image = models.URLField(blank=True)
@@ -63,7 +63,7 @@ class Driver(models.Model):
         return self.full_name
     
     def get_absolute_url(self):
-        return reverse("driver_detail", kwargs={"slug": self.slug})
+        return reverse("information:driver_detail", kwargs={"slug": self.slug})
     
 class Circuit(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -71,15 +71,13 @@ class Circuit(models.Model):
     country = models.CharField(max_length=80, blank=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
 
-    circuit_image = models.URLField(blank=True)
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("circuit_detail", kwargs={"slug": self.slug})
+        return reverse("information:circuit_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         return self.name
@@ -102,7 +100,7 @@ class Race(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("race_detail", kwargs={"slug": self.slug})
+        return reverse("information:race_detail", kwargs={"slug": self.slug})
 
     def __str__(self):
         return f"{self.name} {self.season}"
@@ -118,7 +116,7 @@ class DriverRaceResult(models.Model):
     ]
 
     race   = models.ForeignKey(Race,   on_delete=models.CASCADE, related_name="driver_results")
-    driver = models.ForeignKey(Driver, on_delete=models.PROTECT, related_name="race_results")
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name="race_results")
     team   = models.ForeignKey(Team,   on_delete=models.PROTECT, related_name="race_results")
 
     grid_position   = models.PositiveIntegerField(null=True, blank=True)
@@ -138,33 +136,3 @@ class DriverRaceResult(models.Model):
 
     def __str__(self):
         return f"{self.race} - {self.driver} ({self.cell_display()})"
-    
-class DriverStanding(models.Model):
-    season   = models.PositiveIntegerField(db_index=True)
-    driver   = models.ForeignKey("Driver", on_delete=models.CASCADE, related_name="standings")
-    points   = models.FloatField(default=0.0)
-    wins     = models.PositiveIntegerField(default=0)
-    position = models.PositiveIntegerField()
-
-    class Meta:
-        unique_together = ("season", "driver")
-        ordering = ["position"]
-
-    def __str__(self):
-        return f"{self.season} - {self.position}. {self.driver}"
-
-
-class ConstructorStanding(models.Model):
-    season   = models.PositiveIntegerField(db_index=True)
-    team     = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="standings")
-    points   = models.FloatField(default=0.0)
-    wins     = models.PositiveIntegerField(default=0)
-    position = models.PositiveIntegerField()
-
-    class Meta:
-        unique_together = ("season", "team")
-        ordering = ["position"]
-
-    def __str__(self):
-        return f"{self.season} - {self.position}. {self.team}"
-

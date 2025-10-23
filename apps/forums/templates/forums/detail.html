@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block meta %}
+<title>{{ forum.title }} - PitTalk Forums</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-neutral-950 text-white min-h-screen py-20 mt-5">
+  <div class="max-w-3xl mx-auto p-6 bg-neutral-900 rounded-2xl shadow-lg border border-neutral-800">
+    
+    <!-- Forum Header -->
+    <header class="mb-6">
+      <a href="{% url 'forums:list' %}" 
+         class="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-red-400 transition mb-4">
+        ← Back to Forums
+      </a>
+      <h1 class="text-3xl font-bold mb-2">{{ forum.title }}</h1>
+      <div class="text-gray-400 text-sm">
+        <span>
+          by 
+          {% if forum.user %}
+            <a href="{% url 'authentication:view_profile' forum.user.username %}"
+             class="text-gray-200 font-medium hover:text-red-400 transition">
+             {{ forum.user.username }}
+          </a>
+          {% else %}
+            <span class="italic">Anonymous</span>
+          {% endif %}
+        </span>
+        • {{ forum.created_at|naturaltime }}
+        • {{ forum.forums_views }} views
+        • <span id="like-count">{{ forum.forums_likes }}</span> likes
+      </div>
+    </header>
+
+    <!-- Forum Content -->
+    <article class="prose prose-invert mb-8 leading-relaxed">
+      {{ forum.content|linebreaks }}
+    </article>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap items-center gap-3 mb-8">
+      {% if user.is_authenticated %}
+        <button 
+          id="like-btn"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 transition rounded-lg text-sm font-medium">
+          ❤️ Like
+        </button>
+
+        {% if user == forum.user %}
+        <a href="{% url 'forums:edit_forum' forum.forums_id %}" 
+           class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm">Edit</a>
+        <form action="{% url 'forums:delete_forum' forum.forums_id %}" method="post" class="inline-block">
+          {% csrf_token %}
+          <button type="submit" class="px-4 py-2 bg-red-800 hover:bg-red-900 rounded-lg text-sm" 
+                  onclick="return confirm('Delete this forum?')">Delete</button>
+        </form>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'login' %}?next={% url 'forums:show_forum_detail' forum.forums_id %}"
+           class="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm">Login to interact</a>
+      {% endif %}
+    </div>
+
+    <hr class="border-gray-700 mb-6">
+
+    <!-- Replies -->
+    <section id="replies">
+      <h2 class="text-xl font-semibold mb-4">Replies ({{ forum.forums_replies_counts }})</h2>
+
+      {% if user.is_authenticated %}
+      <form id="reply-form" class="mb-6">
+        {% csrf_token %}
+        {{ reply_form.replies_content }}
+        <div class="mt-3">
+          <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm">Post Reply</button>
+        </div>
+      </form>
+      {% else %}
+      <p class="text-gray-400 italic">Login to post a reply.</p>
+      {% endif %}
+
+      <div id="replies-list" class="space-y-4">
+        {% for r in replies %}
+        <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-semibold text-gray-200">
+                {% if r.user %}{{ r.user.username }}{% else %}<i>Anonymous</i>{% endif %}
+              </div>
+              <div class="text-gray-400 text-xs">{{ r.created_at|naturaltime }}</div>
+            </div>
+            <div class="text-sm">
+              <span id="reply-like-{{ r.id }}">{{ r.forums_replies_likes }}</span> ❤️
+              {% if user.is_authenticated %}
+                <button data-reply-id="{{ r.id }}" 
+                        class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
+                        Like
+                </button>
+                {% if user == r.user or user == forum.user %}
+                <button data-reply-id="{{ r.id }}" 
+                        class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
+                        Delete
+                </button>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="mt-2 text-gray-200">
+            {{ r.replies_content|linebreaks }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+<script>
+const forumId = "{{ forum.forums_id }}";
+const likeBtn = document.getElementById('like-btn');
+const likeCountEl = document.getElementById('like-count');
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+      const cookie = c.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+if (likeBtn) {
+  likeBtn.addEventListener('click', async () => {
+    const res = await fetch("{% url 'forums:like_forum' forum.forums_id %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken, 'Accept': 'application/json'}
+    });
+    if (res.ok) {
+      const data = await res.json();
+      likeCountEl.textContent = data.forums_likes;
+      likeBtn.textContent = data.user_has_liked ? '💔 Unlike' : '❤️ Like';
+    }
+  });
+}
+</script>
+{% endblock content %}

@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% block title %}Driver History{% endblock %}
+
+{% block content %}
+{% include "navbar.html" %}
+<!-- INI PAGE BUAT ADMIN NYA GITU -->
+ 
+<div class="min-h-screen bg-black text-gray-100 py-20 px-6">
+    <!-- Header Section -->
+    <header id="hero-image-history-driver">
+        <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
+            <h1 class="text-5xl font-bold">Driver History</h1>
+            <h2 class="text-lg font-semibold">Explore the latest F1 driver updates and historical data</h2>
+        </div>
+    </header>
+
+    <!-- Newest Driver Update Section -->
+    <div class="max-w-5xl mx-auto mb-10 py-5">
+        <h1 class="text-4xl font-bold mb-6 text-center">🏁 Newest Driver Update</h1>
+
+        <!-- Newest Driver Card -->
+        {% if newest %}
+        <div class="bg-gray-900 rounded-2xl shadow-lg border border-gray-700 overflow-hidden">
+            <div class="grid md:grid-cols-3">
+                <!-- Image Preview -->
+                <div class="col-span-1 bg-gray-800 flex items-center justify-center">
+                    {% if newest.image_url %}
+                        <img src="{{ newest.image_url }}" alt="{{ newest.driver_name }}" class="object-cover w-full h-full md:h-64">
+                    {% else %}
+                        <p class="text-gray-500 italic">No image available</p>
+                    {% endif %}
+                </div>
+
+                <!-- Driver Info -->
+                <div class="col-span-2 p-6">
+                    <h2 class="text-2xl font-semibold text-white mb-3">{{ newest.driver_name }}</h2>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Nationality:</span> {{ newest.nationality }}</p>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Car:</span> {{ newest.car }}</p>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Points:</span> {{ newest.points }}</p>
+                    <p class="text-gray-400 mb-2"><span class="font-semibold text-gray-200">Podiums:</span> {{ newest.podiums }}</p>
+                    <p class="text-gray-400"><span class="font-semibold text-gray-200">Year:</span> {{ newest.year }}</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-500 italic text-center">No driver data available</p>
+        {% endif %}
+
+        <!-- Add New Driver Form -->
+        <div class="bg-gray-900 mt-8 p-6 rounded-2xl border border-gray-700 shadow-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white flex items-center">
+            <svg class="w-6 h-6 mr-2 fill-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M11 17h2v-4h4v-2h-4V7h-2v4H7v2h4v4Zm1 5q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22Z"/>
+            </svg>
+            Add Driver
+            </h3>
+            <form action="#" method="POST" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid md:grid-cols-2 gap-4">
+                    <input type="text" name="driver_name" placeholder="Driver Name" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="text" name="nationality" placeholder="Nationality" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="text" name="car" placeholder="Car" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="number" name="points" step="0.1" placeholder="Points" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="number" name="podiums" placeholder="Podiums" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="number" name="year" placeholder="Year" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="url" name="image_url" placeholder="Image URL (optional)" class="w-full p-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                <button type="submit" class="w-full py-2 bg-red-600 hover:bg-red-700 transition rounded-lg text-white font-semibold">Save Driver</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="max-w-6xl mx-auto my-10 bg-gray-900 border border-gray-800 p-5 rounded-2xl shadow-md">
+    <h3 class="text-lg font-semibold text-gray-100 flex items-center gap-2 mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-red-400">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 1010.8 5.2a7.5 7.5 0 005 10.6z" />
+        </svg>
+        Filter Driver Data
+    </h3>
+
+    <div class="flex flex-wrap gap-3 items-center">
+        <select id="filterType" class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition">
+        <option value="">-- Filter By --</option>
+        <option value="driver_name">Driver Name</option>
+        <option value="car">Car</option>
+        <option value="nationality">Nationality</option>
+        <option value="year">Year</option>
+        </select>
+
+        <input 
+        type="text" 
+        id="filterInput" 
+        placeholder="Type to filter drivers..." 
+        class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 w-72 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+        >
+
+        <button 
+        id="clearFilter"
+        class="ml-auto px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition"
+        >
+        Reset
+        </button>
+    </div>
+    </div>
+
+    <!-- Table Driver History -->
+    <div class="max-w-6xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-700 overflow-hidden">
+        <h2 class="text-2xl font-semibold text-center mt-6 mb-4 text-white">Driver History Table</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-gray-200">
+                <thead class="bg-gray-800 uppercase text-gray-400 text-center">
+                    <tr>
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">Driver</th>
+                        <th class="py-3 px-4">Nationality</th>
+                        <th class="py-3 px-4">Car</th>
+                        <th class="py-3 px-4">Points</th>
+                        <th class="py-3 px-4">Podiums</th>
+                        <th class="py-3 px-4">Year</th>
+                        <th class="py-3 px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700 text-center">
+                    {% for d in drivers %}
+                    <tr class="hover:bg-gray-800 transition">
+                        <td class="py-3 px-4">{{ forloop.counter }}</td>
+                        <td class="py-3 px-4">{{ d.driver_name }}</td>
+                        <td class="py-3 px-4">{{ d.nationality }}</td>
+                        <td class="py-3 px-4">{{ d.car }}</td>
+                        <td class="py-3 px-4">{{ d.points }}</td>
+                        <td class="py-3 px-4">{{ d.podiums }}</td>
+                        <td class="py-3 px-4">{{ d.year }}</td>
+                        <td class="py-3 px-4">
+                            <button 
+                                class="text-blue-400 hover:text-blue-500 font-medium"
+                                onclick="openEditModal('{{ d.id }}', '{{ d.driver_name }}', '{{ d.nationality }}', '{{ d.car }}', '{{ d.points }}', '{{ d.podiums }}', '{{ d.year }}', '{{ d.image_url }}')">
+                                Edit
+                            </button>
+                            <span class="mx-2 text-gray-600">|</span>
+                            <button type="button" class="delete-btn text-red-400 hover:text-red-500 font-medium" data-id="{{ d.id }}">
+                            Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-6 text-gray-500 italic">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Driver -->
+<div id="editDriverModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div class="bg-gray-900 text-white p-6 rounded-2xl w-[400px] shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Edit Driver</h2>
+    <form id="editDriverForm">
+        {% csrf_token %}
+        <input type="hidden" id="editDriverId" name="id">
+
+        <label class="block mb-2 text-sm">Driver Name</label>
+        <input type="text" id="editDriverName" name="driver_name" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Nationality</label>
+        <input type="text" id="editDriverNationality" name="nationality" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Car</label>
+        <input type="text" id="editDriverCar" name="car" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Points</label>
+        <input type="number" id="editDriverPoints" name="points" step="0.1" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Podiums</label>
+        <input type="number" id="editDriverPodiums" name="podiums" class="w-full mb-3 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Year</label>
+        <input type="number" id="editDriverYear" name="year" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700">
+
+        <label class="block mb-2 text-sm">Image URL</label>
+        <input type="url" id="editDriverImage" name="image_url" class="w-full mb-4 p-2 rounded bg-gray-800 border border-gray-700" placeholder="Image URL (optional)">
+
+        <div class="flex justify-end space-x-3">
+
+        <button type="button" onclick="closeEditModal()" class="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded">Cancel</button>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const tableBody = document.querySelector('tbody');
+
+    // ADD DRIVER
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(form).entries());
+        const response = await fetch("{% url 'history:add_driver' %}", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Driver added!');
+            location.reload(); // nanti bisa diganti append row tanpa reload
+        } else {
+            console.error(data.errors);
+            alert('Failed to add driver');
+        }
+    });
+
+    // DELETE DRIVER
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (confirm('Are you sure?')) {
+                const response = await fetch(`/history/driver/delete/${id}/`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    btn.closest('tr').remove();
+                }
+            }
+        });
+    });
+});
+
+// Modal Edit
+function openEditModal(id, name, nationality, car, points, podiums, year, image_url) {
+  document.getElementById('editDriverModal').classList.remove('hidden');
+  document.getElementById('editDriverId').value = id;
+  document.getElementById('editDriverName').value = name;
+  document.getElementById('editDriverNationality').value = nationality;
+  document.getElementById('editDriverCar').value = car;
+  document.getElementById('editDriverPoints').value = points;
+  document.getElementById('editDriverPodiums').value = podiums;
+  document.getElementById('editDriverYear').value = year;
+  document.getElementById('editDriverImage').value = image_url || '';
+}
+
+function closeEditModal() {
+  document.getElementById('editDriverModal').classList.add('hidden');
+}
+
+// Submit Edit Form (AJAX)
+document.getElementById('editDriverForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById('editDriverId').value;
+  const formData = {
+    driver_name: document.getElementById('editDriverName').value,
+    nationality: document.getElementById('editDriverNationality').value,
+    car: document.getElementById('editDriverCar').value,
+    points: document.getElementById('editDriverPoints').value,
+    podiums: document.getElementById('editDriverPodiums').value,
+    year: document.getElementById('editDriverYear').value,
+    image_url: document.getElementById('editDriverImage').value,
+  };
+
+  const response = await fetch(`/history/driver/edit/${id}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const data = await response.json();
+  if (data.success) {
+    alert('Driver updated successfully!');
+    location.reload(); // sementara reload dulu
+  } else {
+    console.error(data.errors || data.error);
+    alert('Failed to update driver');
+  }
+});
+
+// Filter
+const filterType = document.getElementById('filterType');
+const filterInput = document.getElementById('filterInput');
+const rows = document.querySelectorAll('tbody tr');
+
+filterInput.addEventListener('input', () => {
+    const type = filterType.value;
+    const query = filterInput.value.toLowerCase().trim();
+
+    rows.forEach(row => {
+        const cols = {
+        driver_name: row.children[1].textContent.toLowerCase().trim(),
+        nationality: row.children[2].textContent.toLowerCase().trim(),
+        car: row.children[3].textContent.toLowerCase().trim(),
+        year: row.children[6].textContent.toLowerCase().trim(),
+        };
+
+        if (!type || cols[type].includes(query)) {
+        row.style.display = '';
+        } else {
+        row.style.display = 'none';
+        }
+    });
+});
+
+// Buat tombol reset di filter
+document.getElementById('clearFilter').addEventListener('click', () => {
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterInput').value = '';
+    document.querySelectorAll('tbody tr').forEach(row => row.style.display = '');
+});
+
+</script>
+
+{% endblock %}
