@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime, uuid
+import uuid
+from django.utils import timezone
 
 # Create your models here.
 class Forums(models.Model):
@@ -48,8 +49,7 @@ class Forums(models.Model):
         self.save()
 
     def get_duration_since_created(self):
-        datetimenow = datetime.datetime.now()
-        return self.created_at - datetimenow
+        return self.created_at - timezone.now()
 
 class ForumsReplies(models.Model):
     forums = models.ForeignKey(Forums, on_delete=models.CASCADE, related_name="forum_replies")
@@ -70,5 +70,4 @@ class ForumsReplies(models.Model):
         self.save()
 
     def get_duration_since_created(self):
-        datetimenow = datetime.datetime.now()
-        return self.created_at - datetimenow
+        return self.created_at - timezone.now()
