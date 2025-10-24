@@ -259,16 +259,23 @@ if(replyForm){
     if (res.ok) {
   const data = await res.json();
   const div = document.createElement('div');
+  const profileLink = data.username ? `/auth/profile/${encodeURIComponent(data.username)}`: '#';
   div.id = `reply-${data.id}`;
   div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words';
   div.innerHTML = `
-    <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+    <a href="${profileLink}">
+    <div class="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
       ${data.username.slice(0,1).toUpperCase()}
     </div>
+    </a>
     <div class="flex-1 text-gray-200 ">
       <div class="flex justify-between items-start">
         <div>
-          <div class="font-semibold text-gray-200">${data.username}</div>
+          <div class="font-semibold text-gray-200 hover:text-gray-300">
+            <a href="${profileLink}">
+            ${data.username}
+            </a>
+            </div>
           <div class="text-gray-400 text-xs" data-created-at="${data.created_at}">${timeAgo(new Date(data.created_at + 'Z'))}</div>
         </div>
         <div class="text-sm flex items-center gap-2">
@@ -317,27 +324,34 @@ if(loadMoreBtn){
     });
     const data = await res.json();
     data.replies.forEach(r => {
+      const profileLink = r.username ? `/auth/profile/${encodeURIComponent(r.username)}`: '#';
       const div = document.createElement('div');
       div.id = `reply-${r.id}`;
       div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words';
       div.innerHTML = `
-        <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+        <a href="${profileLink}">
+        <div class="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
           ${r.username.slice(0,1).toUpperCase()}
         </div>
+        </a>
         <div class="flex-1 text-gray-200">
           <div class="flex justify-between items-start">
             <div>
-              <div class="font-semibold text-gray-200">${r.username}</div>
+              <div class="font-semibold text-gray-200 hover:text-gray-300">
+                <a href="${profileLink}">
+                  ${r.username}
+                  </a>
+                  </div>
               <div class="text-gray-400 text-xs" data-created-at="${r.created_at}">${timeAgo(new Date(r.created_at + 'Z'))}</div>
             </div>
             <div class="text-sm flex items-center gap-2">
               <span id="reply-like-${r.id}">${r.likes}</span> ❤️
               <button data-reply-id="${r.id}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">${r.user_has_liked ? '👎 Unlike' : '👍 Like'}</button> 
               ${r.is_owner || r.is_forum_owner ? `
-            <button data-reply-id="${r.id}" 
+            <button data-reply-id="${r.id}"   
               class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
               Delete
-            </button>
+            </button> 
             ` : ''}
             </div>
           </div>
