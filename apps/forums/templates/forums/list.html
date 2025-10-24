@@ -45,8 +45,8 @@
       </div>
     </div>
 
-    <div id="loading" class="hidden font-bold text-white bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">Loading...</div>
-    <div id="error" class="hidden text-red-400 bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">Failed to load forums</div>
+    <div id="loading" class="hidden font-bold text-white bg-neutral-900 rounded-xl p-12 text-center">Loading</div>
+    <div id="error" class="hidden text-red-400 bg-neutral-900 rounded-xl p-12 text-center">Failed to load forums</div>
     <section id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></section>
     <section id="empty" class="hidden bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">
       <h3 class="text-2xl font-bold text-white">No discussion yet</h3>
@@ -63,27 +63,50 @@ const errorEl = document.getElementById('error');
 const emptyEl = document.getElementById('empty');
 const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
+let loadingTextInterval;
+
+function startLoadingAnimation() {
+  const loadingEl = document.getElementById('loading');
+  let dots = 0;
+  loadingTextInterval = setInterval(() => {
+    dots = (dots + 1) % 4; 
+    loadingEl.textContent = 'Loading' + '.'.repeat(dots);
+  }, 500); 
+}
+
+function stopLoadingAnimation() {
+  clearInterval(loadingTextInterval);
+}
 
 function showLoading() {
-  loading.classList.remove('hidden');
+  const loadingEl = document.getElementById('loading');
+  loadingEl.classList.remove('hidden');
   errorEl.classList.add('hidden');
   grid.classList.add('hidden');
   emptyEl.classList.add('hidden');
+  startLoadingAnimation();
 }
-function showError() {
-  errorEl.classList.remove('hidden');
-  loading.classList.add('hidden');
-}
-function showEmpty() {
-  emptyEl.classList.remove('hidden');
-  loading.classList.add('hidden');
-  grid.classList.add('hidden');
-}
+
 function showGrid() {
   grid.classList.remove('hidden');
   loading.classList.add('hidden');
   emptyEl.classList.add('hidden');
+  stopLoadingAnimation();
 }
+
+function showError() {
+  errorEl.classList.remove('hidden');
+  loading.classList.add('hidden');
+  stopLoadingAnimation();
+}
+
+function showEmpty() {
+  emptyEl.classList.remove('hidden');
+  loading.classList.add('hidden');
+  grid.classList.add('hidden');
+  stopLoadingAnimation();
+}
+
 
 function buildCard(item) {
   const forum = document.createElement('div');
