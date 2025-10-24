@@ -41,21 +41,21 @@
     <div class="flex flex-wrap items-center gap-3 mb-8">
       {% if request.user.is_authenticated %}
         <button id="like-btn" 
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 transition rounded-lg text-sm font-medium">
-            {% if user_has_liked %}💔 Unlike{% else %}❤️ Like{% endif %}
+            class="px-4 text-gray-200 py-2 bg-red-600 hover:bg-red-700 transition rounded-lg text-sm font-medium">
+            {% if user_has_liked %}👎 Unlike{% else %}👍 Like{% endif %}
         </button>
 
         {% if request.user == forum.user %}
           <a href="{% url 'forums:edit_forum' forum.forums_id %}" 
-             class="px-4 py-2 bg-orange-700 hover:bg-orange-600 rounded-lg text-sm">Edit</a>
+             class="px-4 text-gray-200 py-2 bg-orange-700 hover:bg-orange-600 rounded-lg text-sm">Edit</a>
             {% csrf_token %}
-            <button type="submit" class="inline-block px-4 py-2 bg-red-800 hover:bg-red-900 rounded-lg text-sm" 
+            <button type="submit" class="inline-block px-4 py-2 bg-red-800 hover:bg-red-900 rounded-lg text-sm text-gray-200" 
                     onclick="openDeleteModal()">Delete</button>
           </form>
         {% endif %}
       {% else %}
-        <a href="{% url 'login' %}?next={% url 'forums:show_forum_detail' forum.forums_id %}"
-           class="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm">Login to interact</a>
+        <a href="{% url 'authentication:login' %}?next={% url 'forums:show_forum_detail' forum.forums_id %}"
+           class="px-4 py-2 bg-red-600 hover:bg-red-700 text-gray-200 rounded-lg text-sm">Login to interact</a>
       {% endif %}
     </div>
 
@@ -77,37 +77,45 @@
         </div>
       </form>
       {% else %}
-      <p class="text-gray-400 italic">Login to post a reply.</p>
+      <p class="text-gray-400 mb-2 italic">Login to post a reply.</p>
       {% endif %}
 
       <!-- Replies List -->
       <div id="replies-list" class="space-y-4">
         {% for r in replies %}
-          <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words" id="reply-{{ r.id }}">
-            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
-              {% if r.user %}{{ r.user.username|slice:":1"|upper }}{% else %}A{% endif %}
+          <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words break-all overflow-hidden" id="reply-{{ r.id }}">
+            {% if r.user %}
+            <a href="{% url 'authentication:view_profile' r.user.username %}">
+            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
+              {{ r.user.username|slice:":1"|upper }}
             </div>
+            </a>
+            {% else %}
+            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
+              A
+            </div>
+            {% endif %}
             <div class="flex-1">
               <div class="flex justify-between items-start">
                 <div>
-                  <div class="font-semibold text-gray-200">
-                    {% if r.user %}{{ r.user.username }}{% else %}Anonymous{% endif %}
+                  <div class="font-semibold text-gray-200 hover:text-gray-300">
+                    {% if r.user %}
+                    <a href="{% url 'authentication:view_profile' r.user.username %}">{{ r.user.username }}</a>
+                    {% else %}Anonymous{% endif %}
                   </div>
-                  <div class="text-gray-400 text-xs">{{ r.created_at|naturaltime }}</div>
+                  <div class="text-gray-400 text-xs" data-created-at="{{ r.created_at|date:'c' }}">{{ r.created_at|date:'c' }}</div>
                 </div>
                 <div class="text-sm flex items-center gap-2 text-gray-200">
                   <span id="reply-like-{{ r.id }}">{{ r.forums_replies_likes.count }}</span> ❤️
                   {% if request.user.is_authenticated %}
-                    <button data-reply-id="{{ r.id }}" 
-                            class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
-                      {% if r.user_has_liked %}💔 Unlike{% else %}Like{% endif %}
+                    <button data-reply-id="{{ r.id }}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
+                      {% if r.user_has_liked %}👎 Unlike{% else %}👍 Like{% endif %}
                     </button>
                     {% if request.user == r.user or request.user == forum.user %}
-                      <button data-reply-id="{{ r.id }}" 
-                              class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
+                      <button data-reply-id="{{ r.id }}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
                         Delete
                       </button>
-                    {% endif %}
+                    {% endif %} 
                   {% endif %}
                 </div>
               </div>
@@ -167,12 +175,10 @@
   </div>
 </div>
 
-
-
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 <script>
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 const forumId = "{{ forum.forums_id }}";
-
 
 const likeBtn = document.getElementById('like-btn');
 if (likeBtn) {
@@ -183,7 +189,7 @@ if (likeBtn) {
     });
     const data = await res.json();
     document.getElementById('like-count').textContent = data.forums_likes;
-    likeBtn.textContent = data.user_has_liked ? '💔 Unlike' : '❤️ Like';
+    likeBtn.textContent = data.user_has_liked ? '👎 Unlike' : '👍 Like';
   });
 }
 
@@ -200,7 +206,7 @@ document.addEventListener('click', async (e) => {
     });
     const data = await res.json();
     span.textContent = data.likes;
-    e.target.textContent = data.user_has_liked ? '💔 Unlike' : 'Like';
+    e.target.textContent = data.user_has_liked ? '👎 Unlike' : '👍 Like';
   }
 
   if (e.target.classList.contains('reply-delete-btn')) {
@@ -252,23 +258,30 @@ if(replyForm){
     if (res.ok) {
   const data = await res.json();
   const div = document.createElement('div');
+  const profileLink = data.username ? `/auth/profile/${encodeURIComponent(data.username)}`: '#';
   div.id = `reply-${data.id}`;
-  div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words';
+  div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words break-all overflow-hidden';
   div.innerHTML = `
-    <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+    <a href="${profileLink}">
+    <div class="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
       ${data.username.slice(0,1).toUpperCase()}
     </div>
-    <div class="flex-1">
+    </a>
+    <div class="flex-1 text-gray-200 ">
       <div class="flex justify-between items-start">
         <div>
-          <div class="font-semibold text-gray-200">${data.username}</div>
-          <div class="text-gray-400 text-xs">${data.created_at}</div>
+          <div class="font-semibold text-gray-200 hover:text-gray-300">
+            <a href="${profileLink}">
+            ${data.username}
+            </a>
+            </div>
+          <div class="text-gray-400 text-xs" data-created-at="${data.created_at}">${timeAgo(new Date(data.created_at + 'Z'))}</div>
         </div>
         <div class="text-sm flex items-center gap-2">
           <span id="reply-like-${data.id}">${data.likes}</span> ❤️
           <button data-reply-id="${data.id}" 
             class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
-            Like
+            👍 Like
           </button>
           ${data.is_owner || data.is_forum_owner ? `
             <button data-reply-id="${data.id}" 
@@ -278,7 +291,7 @@ if(replyForm){
           ` : ''}
         </div>
       </div>
-      <div class="mt-2 text-gray-200">${data.content}</div>
+      <div class="mt-2 text-gray-200">${DOMPurify.sanitize(data.content)}</div>
     </div>
   `;
   repliesList.prepend(div);
@@ -310,25 +323,38 @@ if(loadMoreBtn){
     });
     const data = await res.json();
     data.replies.forEach(r => {
+      const profileLink = r.username ? `/auth/profile/${encodeURIComponent(r.username)}`: '#';
       const div = document.createElement('div');
       div.id = `reply-${r.id}`;
-      div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words';
+      div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words break-all overflow-hidden';
       div.innerHTML = `
-        <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
+        <a href="${profileLink}">
+        <div class="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
           ${r.username.slice(0,1).toUpperCase()}
         </div>
-        <div class="flex-1">
+        </a>
+        <div class="flex-1 text-gray-200">
           <div class="flex justify-between items-start">
             <div>
-              <div class="font-semibold text-gray-200">${r.username}</div>
-              <div class="text-gray-400 text-xs">${r.created_at}</div>
+              <div class="font-semibold text-gray-200 hover:text-gray-300">
+                <a href="${profileLink}">
+                  ${r.username}
+                  </a>
+                  </div>
+              <div class="text-gray-400 text-xs" data-created-at="${r.created_at}">${timeAgo(new Date(r.created_at + 'Z'))}</div>
             </div>
             <div class="text-sm flex items-center gap-2">
               <span id="reply-like-${r.id}">${r.likes}</span> ❤️
-              <button data-reply-id="${r.id}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">Like</button>
+              <button data-reply-id="${r.id}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">${r.user_has_liked ? '👎 Unlike' : '👍 Like'}</button> 
+              ${r.is_owner || r.is_forum_owner ? `
+            <button data-reply-id="${r.id}"   
+              class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
+              Delete
+            </button> 
+            ` : ''}
             </div>
           </div>
-          <div class="mt-2 text-gray-200">${r.content}</div>
+          <div class="mt-2 text-gray-200">${DOMPurify.sanitize(r.content)}</div>
         </div>
       `;
       repliesList.appendChild(div);
@@ -337,6 +363,36 @@ if(loadMoreBtn){
     if(data.replies.length < limit) loadMoreBtn.remove();
   });
 }
+
+function timeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+  };
+
+  for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+    const count = Math.floor(seconds / secondsInUnit);
+    if (count >= 1) {
+      return `${count} ${unit}${count > 1 ? 's' : ''} ago`;
+    }
+  }
+
+  return 'just now';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-created-at]').forEach(el => {
+    const dateStr = el.getAttribute('data-created-at');
+    if (dateStr) {
+      el.textContent = timeAgo(new Date(dateStr));
+    }
+  });
+});
 </script>
 
 {% endblock content %}
