@@ -71,7 +71,7 @@
 
           <div class="mt-6 pt-4 border-t border-gray-700">
             <p class="text-sm text-gray-400 mb-2"><strong>About me:</strong></p>
-            <p class="text-sm text-gray-300">{{ user.profile.bio|default:"No bio yet..." }}</p>
+            <p class="text-sm text-gray-300 break-words">{{ user.profile.bio|default:"No bio yet..." }}</p>
           </div>
 
           <a href="{% url 'authentication:edit_profile' %}" class="mt-6 w-full inline-block text-center bg-gradient-to-r from-[#e10600] to-[#ff1e00] hover:from-[#ff1e00] hover:to-[#e10600] text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-lg">
