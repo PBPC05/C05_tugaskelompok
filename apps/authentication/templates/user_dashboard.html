@@ -156,7 +156,7 @@
               {% for thread in recent_threads %}
                 <li class="text-gray-200 hover:text-red-400 transition flex justify-between items-center">
                   <a href="{% url 'forums:show_forum_detail' thread.forums_id %}" class="truncate-1 flex-1 min-w-0 whitespace-nowrap">
-                    Created Forums: {{ thread.title }}
+                    Create Forums: {{ thread.title }}
                   </a>
                   <span class="text-gray-500 text-sm whitespace-nowrap">({{ thread.created_at|naturaltime }})</span>
                 </li>
