@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}Grand Prix Winner History{% endblock %}
+{% load static %}
+
+{% block meta %}
+<title>Grand Prix Winner History</title>
+{% endblock meta %}
 
 {% block content %}
 {% include "navbar.html" %}
@@ -220,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 if (data.success) {
                     btn.closest('tr').remove();
+                    location.reload();
                 }
             }
         });

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Grand Prix Winner History{% endblock %}
+{% block meta %}
+<title>Grand Prix Winner History</title>
+{% endblock meta %}
 
 {% block content %}
 {% include "navbar.html" %}
-<!-- Include Flowbite JS  - Buat pake carousel buatan flowbite nya -->
-<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
 
 <div class="min-h-screen bg-black text-gray-100 py-20 px-4">
 
@@ -229,6 +229,9 @@
   </section>
 
 </div>
+
+<!-- Include Flowbite JS  - Buat pake carousel buatan flowbite nya -->
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
 
 <script>
 
