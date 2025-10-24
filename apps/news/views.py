@@ -50,7 +50,6 @@ def create_news(request):
     news.save()
 
     response = redirect('news_main.html')
-    response.status_code = 201
     return response 
 
 @login_required(login_url="/auth/login/")
@@ -75,7 +74,6 @@ def edit_news_ajax(request, news_id):
     News.objects.filter(pk=news_id).update(**edited_data)
 
     response = redirect('news:show_main')
-    response.status_code = 301
     return response 
 
 @login_required(login_url="/auth/login/")
@@ -141,7 +139,6 @@ def post_comment(request, news_id):
     comment.save()
 
     response = redirect('news:show_news_detail', news_id=news_id)
-    response.status_code = 201
     return response 
 
 def get_comments_json(request, news_id):
