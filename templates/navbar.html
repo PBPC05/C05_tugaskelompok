@@ -1,6 +1,6 @@
 {% load static %}
 
-<nav class="fixed top-0 left-0 w-full bg-[#360000] border-b border-red-900 shadow-sm z-[9999]">
+<nav class="fixed top-0 left-0 w-full bg-[#360000] border-b border-red-900 shadow-sm z-50">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Left: Logo -->
@@ -26,7 +26,7 @@
           </div>
       
           <!-- Dropdown Menu -->
-          <div class="absolute left-0 top-full mt-1 w-44 bg-[#360000] border border-red-900 rounded-none shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <div class="absolute left-0 top-full mt-0 w-44 bg-[#360000] border border-red-900 rounded-none shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
 
             <a href="/information/drivers/" class="block px-4 py-2 text-gray-200 hover:bg-red-800 hover:text-white transition border-b border-white/20">
               Drivers
@@ -53,7 +53,7 @@
           </div>
       
           <!-- Dropdown Menu -->
-          <div class="absolute left-0 top-full mt-1 w-44 bg-[#360000] border border-red-900 rounded-none shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <div class="absolute left-0 top-full mt-0 w-44 bg-[#360000] border border-red-900 rounded-none shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
       
             {% if user.is_superuser %}
             <!-- ADMIN (HISTORY) -->
@@ -136,8 +136,8 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <div class="md:hidden flex items-center">
-        <button class="mobile-menu-button p-2 text-gray-200 hover:text-white transition-colors z-[10000]">
+      <div class="md:hidden flex items-center relative z-[999]">
+        <button class="mobile-menu-button p-2 text-gray-200 hover:text-white transition-colors">
           <span class="sr-only">Open menu</span>
           <div class="w-6 h-6 flex flex-col justify-center items-center">
             <span class="bg-current block h-0.5 w-6 rounded-sm"></span>
@@ -150,84 +150,131 @@
   </div>
 
   <!-- Mobile Menu -->
-  <div class="mobile-menu hidden absolute top-full left-0 w-full md:hidden bg-[#360000] border-t border-red-800 z-[9999]">
-    <div class="px-6 py-4 space-y-4">
+<div class="mobile-menu hidden md:hidden bg-[#360000] border-t border-red-800 z-50 absolute top-full left-0 w-full">
+  <div class="px-6 py-4 space-y-1">
 
-      <a href="/news/" class="block text-gray-200 hover:text-white font-medium py-1">News</a>
-      <a href="/forums/" class="block text-gray-200 hover:text-white font-medium py-1">Forums</a>
+    <!-- Links -->
+    <a href="/news/" class="block text-gray-200 hover:text-white font-medium py-2">News</a>
+    <a href="/forums/" class="block text-gray-200 hover:text-white font-medium py-2">Forums</a>
 
-      <div class="mobile-dropdown">
-        <button type="button" class="flex justify-between items-center w-full text-gray-200 hover:text-white font-medium py-1">
-          <span>Information</span>
-          <svg class="w-4 h-4 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-        <div class="pl-4 mt-1 space-y-1 hidden">
-          <a href="/information/drivers/" class="block text-gray-300 hover:text-white py-1">Drivers</a>
-          <a href="/information/teams/" class="block text-gray-300 hover:text-white py-1">Teams</a>
-          <a href="/information/schedule/" class="block text-gray-300 hover:text-white py-1">Schedule</a>
-          <a href="/information/standings/" class="block text-gray-300 hover:text-white py-1">Standings</a>
-        </div>
+    <!-- Mobile Dropdown: Information -->
+    <div class="mobile-dropdown">
+      <button class="flex justify-between items-center w-full text-gray-200 hover:text-white font-medium py-2">
+        <span>Information</span>
+        <svg class="w-4 h-4 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div class="pl-4 mt-1 space-y-1 hidden">
+        <a href="/information/drivers/" class="block text-gray-300 hover:text-white py-1">Drivers</a>
+        <a href="/information/teams/" class="block text-gray-300 hover:text-white py-1">Teams</a>
+        <a href="/information/schedule/" class="block text-gray-300 hover:text-white py-1">Schedule</a>
+        <a href="/information/standings/" class="block text-gray-300 hover:text-white py-1">Standings</a>
       </div>
+    </div>
 
-      <div class="mobile-dropdown">
-        <button type="button" class="flex justify-between items-center w-full text-gray-200 hover:text-white font-medium py-1">
-          <span>History</span>
-          <svg class="w-4 h-4 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
-        <div class="pl-4 mt-1 space-y-1 hidden">
-          {% if user.is_superuser %}
+    <!-- Mobile Dropdown: History -->
+    <div class="mobile-dropdown">
+      <button class="flex justify-between items-center w-full text-gray-200 hover:text-white font-medium py-2">
+        <span>History</span>
+        <svg class="w-4 h-4 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div class="pl-4 mt-1 space-y-1 hidden">
+        {% if user.is_superuser %}
           <a href="{% url 'history:driver_admin_page' %}" class="block text-gray-300 hover:text-white py-1">Driver History (Admin)</a>
           <a href="{% url 'history:winner_admin_page' %}" class="block text-gray-300 hover:text-white py-1">Grand Prix History (Admin)</a>
-          {% else %}
+        {% else %}
           <a href="{% url 'history:driver_user_page' %}" class="block text-gray-300 hover:text-white py-1">Driver History</a>
           <a href="{% url 'history:winner_user_page' %}" class="block text-gray-300 hover:text-white py-1">Grand Prix History</a>
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
-
-      <a href="/prediction/" class="block text-gray-200 hover:text-white font-medium py-1">Predictions</a>
     </div>
+
+    <a href="/prediction/" class="block text-gray-200 hover:text-white font-medium py-2">Predictions</a>
+
+    <!-- Mobile User Section -->
+    <div class="border-t border-red-900 pt-4">
+      {% if user.is_authenticated %}
+        <a href="{% url 'authentication:user_dashboard' %}" class="flex items-center space-x-3 hover:bg-[#4d0000] p-2 rounded-lg transition">
+          <img src="{% static 'image/testimage.jpg' %}" alt="User" class="h-9 w-9 rounded-full border border-gray-500">
+          <div>
+            <div class="font-semibold text-gray-100">{{ user.username }}</div>
+            <div class="text-xs text-gray-400">{{ user.profile.nationality|default:"Not Set" }}</div>
+          </div>
+        </a>
+        <a href="{% url 'authentication:user_dashboard' %}" class="block text-gray-200 hover:text-white font-medium py-2">Dashboard</a>
+        <a href="{% url 'authentication:edit_profile' %}" class="block text-gray-200 hover:text-white font-medium py-2">Edit Profile</a>
+        {% if user.is_superuser %}
+          <a href="{% url 'authentication:manage_users' %}" class="block text-yellow-400 hover:text-yellow-300 font-medium py-2">Admin Panel</a>
+        {% endif %}
+        <a href="{% url 'authentication:logout' %}" class="block text-red-400 hover:text-red-300 font-medium py-2">Logout</a>
+      {% else %}
+        <a href="{% url 'authentication:login' %}" class="block text-gray-200 hover:text-white font-medium py-2">Login</a>
+        <a href="{% url 'authentication:register' %}" class="block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded text-center">Register</a>
+      {% endif %}
+    </div>
+
   </div>
 </div>
-
 </nav>
 
 <style>
-  .mobile-dropdown > div {
-    display: none;
-    z-index: 9999;
-  }
+.mobile-dropdown > div {
+  display: none;
+}
+.mobile-dropdown > div.show {
+  display: block;
+}
+.mobile-menu.hidden {
+  display: none !important;
+}
 </style>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const mobileBtn = document.querySelector(".mobile-menu-button");
   const mobileMenu = document.querySelector(".mobile-menu");
+  const mobileDropdowns = document.querySelectorAll(".mobile-dropdown");
+  
+  const closeAllDropdowns = () => {
+    mobileDropdowns.forEach(dropdown => {
+      dropdown.querySelector('div').classList.remove('show');
+      dropdown.querySelector('svg').classList.remove('rotate-180');
+    });
+  };
 
   mobileBtn.addEventListener("click", () => {
     mobileMenu.classList.toggle("hidden");
+    
+    if (mobileMenu.classList.contains("hidden") || !mobileMenu.classList.contains("hidden")) {
+      closeAllDropdowns();
+    }
   });
 
-  document.querySelectorAll(".mobile-dropdown > button").forEach(button => {
+  mobileDropdowns.forEach(dropdown => {
+    const button = dropdown.querySelector("button");
+    const content = dropdown.querySelector("div");
+    const icon = dropdown.querySelector("svg");
+
     button.addEventListener("click", (e) => {
       e.stopPropagation();
-      const dropdown = button.nextElementSibling;
-      const isHidden = dropdown.style.display === "none" || dropdown.style.display === "";
-      document.querySelectorAll(".mobile-dropdown > div").forEach(d => d.style.display = "none");
-      dropdown.style.display = isHidden ? "block" : "none";
-      button.querySelector("svg").classList.toggle("rotate-180", isHidden);
+      const isShown = content.classList.contains("show");
+
+      closeAllDropdowns();
+
+      if(!isShown){
+        content.classList.add("show");
+        icon.classList.add("rotate-180");
+      }
     });
   });
 
-  document.querySelectorAll(".mobile-dropdown a, .mobile-menu > a").forEach(link => {
+  document.querySelectorAll(".mobile-menu a").forEach(link => {
     link.addEventListener("click", () => {
       mobileMenu.classList.add("hidden");
-      document.querySelectorAll(".mobile-dropdown > div").forEach(d => d.style.display = "none");
-      document.querySelectorAll(".mobile-dropdown > button svg").forEach(svg => svg.classList.remove("rotate-180"));
+      closeAllDropdowns();
     });
   });
 });
