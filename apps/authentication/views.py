@@ -73,7 +73,7 @@ def user_dashboard(request):
         profile = UserProfile.objects.create(user=request.user)
 
     threads_count = Forums.objects.filter(user=request.user).count()
-    recent_forums = Forums.objects.filter(user=request.user).order_by('-created_at')[:3]
+    recent_forums = Forums.objects.filter(user=request.user).order_by('-created_at')[:5]
     votes_counts = PredictionVote.objects.filter(user=request.user).count()
     comments_count = Comment.objects.filter(user=request.user).count() + ForumsReplies.objects.filter(user=request.user).count()
 
