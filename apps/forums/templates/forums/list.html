@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="bg-neutral-900 pt-10 text-white min-h-screen">
-  <header id="hero-image-prediction">
+  <header id="hero-image-forum">
         <div id="hero-text" class="px-5 py-20 max-w-xl text-white">
             <h1 class="text-5xl font-bold">Forums</h1>
             <h2 class="text-lg font-semibold">Discussion about F1</h2>
@@ -19,12 +19,12 @@
     <div class="flex gap-4 items-center mb-6">
       <div class="flex flex-wrap items-center gap-4 mb-6">
     <!-- Search input -->
-    <input id="search-input" type="search" placeholder="Search title..." class="p-2 text-black rounded-md flex-grow min-w-[200px]" />
+    <input id="search-input" type="search" placeholder="Search discussion..." class="p-2 text-black rounded-md flex-grow min-w-[200px]" />
     <button id="search-btn" class="px-4 py-2 bg-red-700 hover:bg-red-900 rounded-md">Search</button>
 
     <!-- Filter -->
     <div class="flex items-center gap-4 ml-auto px-10">
-      <p>Filter By:</p>
+      <p>Filter by:</p>
       <select id="filter" class="p-2 rounded-md text-black">
         <option value="latest">Latest</option>
         <option value="oldest">Oldest</option>
@@ -39,16 +39,15 @@
         {% if user.is_authenticated %}
         <a href="{% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold">New Discussion</a>
         {% else %}
-        <a href="{% url 'login' %}?next={% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold">Login to create</a>
+        <a href="{% url 'authentication:login' %}?next={% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold">Login to create</a>
         {% endif %}
       </div>
     </div>
 
-    <div id="loading" class="hidden">Loading...</div>
-    <div id="error" class="hidden text-red-400">Failed to load forums</div>
+    <div id="loading" class="hidden font-bold text-white bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">Loading...</div>
+    <div id="error" class="hidden text-red-400 text-center">Failed to load forums</div>
     <section id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></section>
     <section id="empty" class="hidden bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">
-      <img src="{% static 'image/not_available.png' %}" alt="" class="w-32 h-32 mx-auto mb-6 opacity-80">
       <h3 class="text-2xl font-bold text-white">No discussion yet</h3>
     </section>
   </div>

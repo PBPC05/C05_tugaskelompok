@@ -35,12 +35,14 @@
             <button id="filter-start" type="button" class="px-2 py-0.5 bg-red-700 hover:bg-red-900 transition-colors rounded-md">Apply Filter</button>
         </div>
 
+        {% if user.is_superuser %}
         <div id="create-button" class="flex flex-col align-center my-10 text-center rounded-md">
             <div class="p-5">
                 <a href="{% url 'news:create_news' %}" class="font-bold text-xl p-5 rounded-md bg-orange-600 hover:bg-orange-800 transition-colors">New Article</a>
             </div>
             <p class="text-lg font-bold">Welcome Author. Contribute to PitTalk News Here</p>
         </div>
+        {% endif %}
 
         <!-- Loading State -->
         <div id="loading" class="hidden">
@@ -68,9 +70,11 @@
             </div>
             <h3 class="text-2xl font-bold mb-3">No news found</h3>
             <p class="text-gray-400 mb-6">It looks like there are no recent articles in this category.</p>
+            {% if user.is_superuser %}
             <a href="{% url 'news:create_news' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
                 📰 Create News
             </a>
+            {% endif %}
         </section>
 
     </div>
@@ -129,7 +133,7 @@
         const article = document.createElement('article');
         article.className = 'flex flex-col md:flex-row bg-white hover:bg-gray-100 rounded-sm divide-x-4 hover:shadow-lg transition-shadow transition-colors duration-300 overflow-hidden';
 
-        // detail links here
+        // detail links here    
         const linkDetail = `{% url 'news:show_news_detail' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
         const editLink = `{% url 'news:edit_news' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
         const deleteLink = `{% url 'news:delete_news' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', item.id);
@@ -144,8 +148,9 @@
             month: 'long',
             day: 'numeric'
         }));
+        const authorName = DOMPurify.sanitize(item.username)
         const newsViews = (DOMPurify.sanitize(item.news_views) || 0) == 1 ? (DOMPurify.sanitize(item.news_views) || 0) + " view" : (DOMPurify.sanitize(item.news_views) || 0) + " views";
-        const newsComments = (DOMPurify.sanitize(item.news_comments) || 0) == 1 ? (DOMPurify.sanitize(item.news_comments) || 0) + " comment" : (DOMPurify.sanitize(item.news_comments1) || 0) + " comments";
+        const newsComments = (DOMPurify.sanitize(item.news_comments) || 0) == 1 ? (DOMPurify.sanitize(item.news_comments) || 0) + " comment" : (DOMPurify.sanitize(item.news_comments) || 0) + " comments";
 
         const isFeatured = item.is_featured;
         const isHot = newsViews > 200;
@@ -161,7 +166,7 @@
         // edit and delete here
         const editDeleteButtons = `<div class='flex space-x-2'>
         <a href='${editLink}' class='p-4 bg-gray-100 hover:bg-gray-400 text-gray-600 hover:text-gray-700 text-sm transition-colors'>Edit</a>
-        <a href='${deleteLink}' class='p-4 bg-gray-100 hover:bg-gray-400 text-red-600 hover:text-red-700 text-sm transition-colors' onclick='return confirm("Are you sure you want to delete this product?")'>Delete</a>
+        <a href='${deleteLink}' class='p-4 bg-gray-100 hover:bg-gray-400 text-red-600 hover:text-red-700 text-sm transition-colors' onclick='return confirm("Are you sure you want to delete this article?")'>Delete</a>
         </div>`
 
         const cardHtml = `
@@ -180,6 +185,8 @@
                     </h3>
 
                     <div class="flex flex-col sm:flex-row items-center text-sm text-gray-400 mb-3">
+                        <span>Written by ${authorName}</span>
+                        <span class="mx-2">•</span>
                         <time>${createdAt}</time>
                         <span class="mx-2">•</span>
                         <span>${newsViews}</span>
@@ -192,7 +199,9 @@
                     <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
                         <a href="${linkDetail}" class="text-red-600 hover:text-red-700 font-medium text-sm transition-colors">Read
                             more</a>
+                        {% if user.is_superuser %}
                         ${editDeleteButtons}
+                        {% endif %}
                     </div>
                 </div>
         `
