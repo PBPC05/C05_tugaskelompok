@@ -149,7 +149,6 @@
 <script>
     const VOTES_API = "{% url 'prediction:get_votes_json' %}";
     const USER_LOGGED_IN = {% if user.is_authenticated %} true {% else %} false {% endif %};
-    console.log(USER_LOGGED_IN);
 
     const driverLoading = document.getElementById("loading-driver");
     const teamLoading = document.getElementById("loading-team");
