@@ -53,6 +53,12 @@
                     onclick="openDeleteModal()">Delete</button>
           </form>
         {% endif %}
+        {% if request.user.is_staff %}
+          <button id="hot-toggle-btn"
+                  class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg text-sm font-medium">
+            {% if forum.is_hot %}🔥 Unmark Hot{% else %}🔥 Mark Hot{% endif %}
+          </button>
+        {% endif %}
       {% else %}
         <a href="{% url 'authentication:login' %}?next={% url 'forums:show_forum_detail' forum.forums_id %}"
            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-gray-200 rounded-lg text-sm">Login to interact</a>
@@ -73,7 +79,7 @@
                   class="w-full p-3 rounded-lg bg-neutral-800 text-gray-200 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-red-600" 
                   placeholder="Write your reply..."></textarea>
         <div class="mt-3 flex justify-end">
-          <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm">Post Reply</button>
+          <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm text-white">Post Reply</button>
         </div>
       </form>
       {% else %}
@@ -393,6 +399,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+const hotBtn = document.getElementById('hot-toggle-btn');
+if (hotBtn) {
+  hotBtn.addEventListener('click', async () => {
+    const res = await fetch(`{% url 'forums:hot_toggle_forum' forum.forums_id %}`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      hotBtn.textContent = data.is_hot ? '🔥 Unmark Hot' : '🔥 Mark Hot';
+    }
+  });
+}
 </script>
 
 {% endblock content %}
