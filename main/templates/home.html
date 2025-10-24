@@ -21,7 +21,7 @@
 <section class="px-4 md:px-8">
   <h2 class="text-5xl font-bold mb-10">Featured News</h2>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+    {% for check in featured_articles %}
     {% if featured_articles|length > 0 %}
     <a href="{% url 'news:show_news_detail' featured_articles.0.id %}" 
        class="lg:col-span-2 relative group rounded-2xl overflow-hidden shadow-lg block h-[32rem]">
@@ -80,6 +80,11 @@
       View More &rarr;
     </a>
   </div>
+
+  {% empty %}
+    <p class="text-gray-400">No Featured News yet.</p>
+  {% endfor %}
+
 </section>
 
 <!-- Latest Forums -->
@@ -109,9 +114,7 @@
         Read more →
       </a>
     </div>
-    {% empty %}
-    <p class="text-gray-400">No forum posts yet.</p>
-    {% endfor %}
+    
   </div>
 
   <div class="mt-8 flex justify-center">
@@ -119,6 +122,9 @@
       - More Forums -
     </a>
   </div>  
+  {% empty %}
+    <p class="text-gray-400">No forum posts yet.</p>
+    {% endfor %}
 </section>
 
   </div>
