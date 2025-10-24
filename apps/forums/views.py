@@ -167,7 +167,7 @@ def forums_edit_view(request, pk):
 @require_POST
 def forums_delete_view(request, pk):
     forum = get_object_or_404(Forums, forums_id=pk)
-    if forum.user != request.user:
+    if forum.user != request.user and not request.user.is_staff:
         return HttpResponseForbidden("You are not allowed to delete this forum.")
     forum.delete()
     return redirect("forums:list")
@@ -266,6 +266,7 @@ def load_more_replies(request, pk):
             "is_owner": request.user == r.user,
             "is_forum_owner": request.user == r.forums.user,
             "user_has_liked": user_has_liked,
+            'is_admin': request.user.is_staff,
         })
 
     return JsonResponse({"replies": data})
@@ -275,7 +276,7 @@ def load_more_replies(request, pk):
 @require_POST
 def delete_reply(request, reply_id):
     reply = get_object_or_404(ForumsReplies, pk=reply_id)
-    if reply.user != request.user and reply.forums.user != request.user:
+    if reply.user != request.user and reply.forums.user != request.user and not request.user.is_staff:
         return HttpResponseForbidden("Not allowed to delete this reply.")
 
     parent = reply.forums

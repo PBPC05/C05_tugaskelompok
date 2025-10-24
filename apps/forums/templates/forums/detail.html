@@ -45,7 +45,7 @@
             {% if user_has_liked %}👎 Unlike{% else %}👍 Like{% endif %}
         </button>
 
-        {% if request.user == forum.user %}
+        {% if request.user == forum.user or request.user.is_staff %}
           <a href="{% url 'forums:edit_forum' forum.forums_id %}" 
              class="px-4 text-gray-200 py-2 bg-orange-700 hover:bg-orange-600 rounded-lg text-sm">Edit</a>
             {% csrf_token %}
@@ -55,7 +55,7 @@
         {% endif %}
         {% if request.user.is_staff %}
           <button id="hot-toggle-btn"
-                  class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg text-sm font-medium">
+                  class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg text-sm font-medium text-white">
             {% if forum.is_hot %}🔥 Unmark Hot{% else %}🔥 Mark Hot{% endif %}
           </button>
         {% endif %}
@@ -117,7 +117,7 @@
                     <button data-reply-id="{{ r.id }}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
                       {% if r.user_has_liked %}👎 Unlike{% else %}👍 Like{% endif %}
                     </button>
-                    {% if request.user == r.user or request.user == forum.user %}
+                    {% if request.user == r.user or request.user == forum.user or request.user.is_staff %}
                       <button data-reply-id="{{ r.id }}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
                         Delete
                       </button>
@@ -352,7 +352,7 @@ if(loadMoreBtn){
             <div class="text-sm flex items-center gap-2">
               <span id="reply-like-${r.id}">${r.likes}</span> ❤️
               <button data-reply-id="${r.id}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">${r.user_has_liked ? '👎 Unlike' : '👍 Like'}</button> 
-              ${r.is_owner || r.is_forum_owner ? `
+              ${r.is_owner || r.is_forum_owner || r.is_admin ? `
             <button data-reply-id="${r.id}"   
               class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
               Delete
