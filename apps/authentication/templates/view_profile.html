@@ -23,7 +23,7 @@
     {% if profile and profile.bio %}
     <div class="mb-6">
       <h2 class="text-lg font-semibold mb-2 text-gray-300">Bio</h2>
-      <p class="text-gray-400">{{ profile.bio }}</p>
+      <p class="text-gray-400 break-words">{{ profile.bio }}</p>
     </div>
     {% endif %}
 
@@ -33,12 +33,12 @@
         <p class="text-sm">Threads</p>
       </div>
       <div>
-        <p class="text-lg font-semibold text-white">{{ comments_count }}</p>
-        <p class="text-sm">Comments</p>
-      </div>
-      <div>
         <p class="text-lg font-semibold text-white">{{ votes_count }}</p>
         <p class="text-sm">Votes</p>
+      </div>
+      <div>
+        <p class="text-lg font-semibold text-white">{{ comments_count }}</p>
+        <p class="text-sm">Comments</p>
       </div>
     </div>
   </div>
