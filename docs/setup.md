@@ -15,5 +15,8 @@ pip install -r requirements.txt
 
 ### 5. Copy .gitignore.example → .gitignore and update values
 
-### 6. Start server
+### 6. Migrate models
+python manage.py migrate
+
+### 7. Start server
 python manage.py runserver
