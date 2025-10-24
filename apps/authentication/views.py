@@ -207,7 +207,6 @@ def view_profile(request, username):
     """View another user's public profile."""
     user = get_object_or_404(User, username=username)
     
-    # Optionally: prevent showing banned users
     if not user.is_active and not request.user.is_superuser:
         raise Http404("This profile is not available.")
     
@@ -219,9 +218,9 @@ def view_profile(request, username):
     context = {
         'profile_user': user,
         'profile': profile,
-        'threads_count': 0,  # TODO: Replace with actual stats later
+        'threads_count': 0, 
         'votes_count': 0,
         'comments_count': 0,
-        'is_owner': request.user == user,  # for conditional buttons
+        'is_owner': request.user == user,  
     }
     return render(request, 'view_profile.html', context)
