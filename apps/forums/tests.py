@@ -1,99 +1,93 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Forums, ForumsReplies, ForumView
-from django.utils import timezone
-import datetime
+import uuid
 
-class ForumsModelTest(TestCase):
-
+class ForumsTestCase(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='password123')
-        self.forum = Forums.objects.create(
-            user=self.user,
-            title="Test Forum",
-            content="This is a test forum content."
-        )
+        self.user1 = User.objects.create_user(username="user1", password="pass1234")
+        self.user2 = User.objects.create_user(username="user2", password="pass1234")
+        self.forum = Forums.objects.create(user=self.user1, title="Test Forum", content="This is a test forum.")
+        self.client = Client()
 
     def test_forum_creation(self):
         self.assertEqual(self.forum.title, "Test Forum")
-        self.assertEqual(self.forum.content, "This is a test forum content.")
         self.assertEqual(self.forum.forums_views, 0)
         self.assertEqual(self.forum.forums_replies_counts, 0)
-        self.assertFalse(self.forum.is_hot)
 
-    def test_increment_views(self):
-        self.forum.increment_views()
+    def test_forum_view_increment(self):
+        response = self.client.get(reverse("forums:show_forum_detail", args=[self.forum.forums_id]))
         self.forum.refresh_from_db()
         self.assertEqual(self.forum.forums_views, 1)
 
-    def test_user_likes_forum(self):
-        self.assertFalse(self.forum.user_has_liked(self.user))
-        self.forum.forums_likes.add(self.user)
-        self.assertTrue(self.forum.user_has_liked(self.user))
-        self.forum.forums_likes.remove(self.user)
-        self.assertFalse(self.forum.user_has_liked(self.user))
-
-    def test_hot_flag_toggle(self):
-        self.forum.is_hot = True
-        self.forum.save()
+        self.client.login(username="user2", password="pass1234")
+        response = self.client.get(reverse("forums:show_forum_detail", args=[self.forum.forums_id]))
         self.forum.refresh_from_db()
-        self.assertTrue(self.forum.is_hot)
+        self.assertEqual(self.forum.forums_views, 2)
 
-        self.forum.is_hot = False
-        self.forum.save()
+    def test_forum_like_toggle(self):
+        self.client.login(username="user2", password="pass1234")
+        url = reverse("forums:like_forum", args=[self.forum.forums_id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
         self.forum.refresh_from_db()
-        self.assertFalse(self.forum.is_hot)
+        self.assertTrue(self.forum.user_has_liked(self.user2))
 
-    def test_get_duration_since_created(self):
-        duration = self.forum.get_duration_since_created()
-        self.assertIsInstance(duration, datetime.timedelta)
-        self.assertTrue(duration.total_seconds() <= 0)
+        response = self.client.post(url)
+        self.forum.refresh_from_db()
+        self.assertFalse(self.forum.user_has_liked(self.user2))
 
+    def test_forum_create_edit_delete(self):
+        self.client.login(username="user2", password="pass1234")
 
-class ForumsRepliesModelTest(TestCase):
+        create_url = reverse("forums:create_forum")
+        response = self.client.post(create_url, {"title": "New Forum", "content": "Content"})
+        self.assertEqual(response.status_code, 302)
+        new_forum = Forums.objects.get(title="New Forum")
+        self.assertEqual(new_forum.user, self.user2)
 
-    def setUp(self):
-        self.user = User.objects.create_user(username='replyuser', password='password123')
-        self.forum = Forums.objects.create(
-            user=self.user,
-            title="Forum with replies",
-            content="Forum content"
-        )
-        self.reply = ForumsReplies.objects.create(
-            forums=self.forum,
-            user=self.user,
-            replies_content="This is a test reply"
-        )
+        edit_url = reverse("forums:edit_forum", args=[new_forum.forums_id])
+        response = self.client.post(edit_url, {"title": "Updated Forum", "content": "Updated"})
+        self.assertEqual(response.status_code, 302)
+        new_forum.refresh_from_db()
+        self.assertEqual(new_forum.title, "Updated Forum")
 
-    def test_reply_creation(self):
-        self.assertEqual(self.reply.replies_content, "This is a test reply")
-        self.assertEqual(self.reply.forums, self.forum)
-        self.assertEqual(self.reply.user, self.user)
+        delete_url = reverse("forums:delete_forum", args=[new_forum.forums_id])
+        response = self.client.post(delete_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Forums.objects.filter(pk=new_forum.forums_id).exists())
 
-    def test_user_likes_reply(self):
-        self.assertFalse(self.reply.user_has_liked(self.user))
-        self.reply.forums_replies_likes.add(self.user)
-        self.assertTrue(self.reply.user_has_liked(self.user))
-        self.reply.forums_replies_likes.remove(self.user)
-        self.assertFalse(self.reply.user_has_liked(self.user))
+    def test_reply_create_like_delete(self):
+        self.client.login(username="user2", password="pass1234")
+        reply_url = reverse("forums:create_reply", args=[self.forum.forums_id])
 
-    def test_get_duration_since_created(self):
-        duration = self.reply.get_duration_since_created()
-        self.assertIsInstance(duration, datetime.timedelta)
-        self.assertTrue(duration.total_seconds() <= 0)
+        response = self.client.post(reply_url, {"replies_content": "This is a reply"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.forum.forum_replies.count(), 1)
+        reply = self.forum.forum_replies.first()
+        self.assertEqual(reply.replies_content, "This is a reply")
+        self.assertEqual(reply.user, self.user2)
 
+        like_url = reverse("forums:like_reply", args=[reply.id])
+        response = self.client.post(like_url)
+        reply.refresh_from_db()
+        self.assertTrue(reply.user_has_liked(self.user2))
 
-class ForumViewModelTest(TestCase):
+        response = self.client.post(like_url)
+        reply.refresh_from_db()
+        self.assertFalse(reply.user_has_liked(self.user2))
 
-    def setUp(self):
-        self.user = User.objects.create_user(username="viewuser", password="password123")
-        self.forum = Forums.objects.create(user=self.user, title="Forum View Test", content="Content")
-        self.view = ForumView.objects.create(forum=self.forum, user=self.user)
+        delete_url = reverse("forums:delete_reply", args=[reply.id])
+        response = self.client.post(delete_url)
+        self.assertFalse(ForumsReplies.objects.filter(pk=reply.id).exists())
 
-    def test_forum_view_creation(self):
-        self.assertEqual(str(self.view), f"{self.user.username} viewed {self.forum.title}")
-
-    def test_forum_view_unique_constraint(self):
-        from django.db.utils import IntegrityError
-        with self.assertRaises(IntegrityError):
-            ForumView.objects.create(forum=self.forum, user=self.user)
+    def test_load_more_replies(self):
+        self.client.login(username="user2", password="pass1234")
+        for i in range(10):
+            ForumsReplies.objects.create(forums=self.forum, user=self.user1, replies_content=f"Reply {i+1}")
+        
+        url = reverse("forums:load_more_replies", args=[self.forum.forums_id])
+        response = self.client.post(url, {"offset": 0, "limit": 5})
+        data = response.json()
+        self.assertEqual(len(data["replies"]), 5)
