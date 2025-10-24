@@ -19,4 +19,6 @@ urlpatterns = [
     path('reply/<int:reply_id>/delete/', delete_reply, name='delete_reply'),
 
     path('<uuid:pk>/replies/load-more/', load_more_replies, name='load_more_replies'),
+
+    path('<uuid:pk>/hot-toggle/', toggle_hot_forum, name='hot_toggle_forum'),
 ]

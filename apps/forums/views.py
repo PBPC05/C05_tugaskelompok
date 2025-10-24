@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.contrib.admin.views.decorators import staff_member_required
 
 from .models import Forums, ForumsReplies, ForumView
 from .forms import ForumsForm, ForumsRepliesForm
@@ -23,14 +24,14 @@ def forums_list_json(request):
         qs = qs.filter(title__icontains=q)
 
     if filter_type == "latest":
-        qs = qs.order_by("-created_at")
+        qs = qs.order_by("-is_hot", "-created_at")
     elif filter_type == "oldest":
-        qs = qs.order_by("created_at")
+        qs = qs.order_by("-is_hot", "created_at")
     elif filter_type == "hot":
         one_week_ago = timezone.now() - timezone.timedelta(days=7)
-        qs = qs.filter(created_at__gte=one_week_ago).order_by("-forums_views")
+        qs = qs.filter(created_at__gte=one_week_ago).order_by("-is_hot", "-forums_views")
     elif filter_type == "popular":
-        qs = qs.order_by("-forums_views")
+        qs = qs.order_by("-is_hot", "-forums_views")
 
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
@@ -43,7 +44,7 @@ def forums_list_json(request):
             "created_at": f.created_at.isoformat(),
             "forums_views": f.forums_views,
             "forums_replies_counts": f.forums_replies_counts,
-            "is_featured": f.is_hot,
+            "is_hot": f.is_hot,
             "author": f.user.username if f.user else None,
         }
         for f in page_obj.object_list
@@ -284,3 +285,10 @@ def delete_reply(request, reply_id):
     parent.save(update_fields=["forums_replies_counts"])
 
     return JsonResponse({"deleted": True})
+
+@staff_member_required
+def toggle_hot_forum(request, pk):
+    forum = get_object_or_404(Forums, forums_id=pk)
+    forum.is_hot = not forum.is_hot
+    forum.save(update_fields=["is_hot"])
+    return JsonResponse({"is_hot": forum.is_hot})
