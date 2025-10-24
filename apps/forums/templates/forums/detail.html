@@ -84,27 +84,35 @@
       <div id="replies-list" class="space-y-4">
         {% for r in replies %}
           <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words" id="reply-{{ r.id }}">
-            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
-              {% if r.user %}{{ r.user.username|slice:":1"|upper }}{% else %}A{% endif %}
+            {% if r.user %}
+            <a href="{% url 'authentication:view_profile' r.user.username %}">
+            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
+              {{ r.user.username|slice:":1"|upper }}
             </div>
+            </a>
+            {% else %}
+            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
+              A
+            </div>
+            {% endif %}
             <div class="flex-1">
               <div class="flex justify-between items-start">
                 <div>
-                  <div class="font-semibold text-gray-200">
-                    {% if r.user %}{{ r.user.username }}{% else %}Anonymous{% endif %}
+                  <div class="font-semibold text-gray-200 hover:text-gray-300">
+                    {% if r.user %}
+                    <a href="{% url 'authentication:view_profile' r.user.username %}">{{ r.user.username }}</a>
+                    {% else %}Anonymous{% endif %}
                   </div>
-                  <div class="text-gray-400 text-xs">{{ r.created_at|naturaltime }}</div>
+                  <div class="text-gray-400 text-xs" data-created-at="{{ r.created_at|date:'c' }}">{{ r.created_at|date:'c' }}</div>
                 </div>
                 <div class="text-sm flex items-center gap-2 text-gray-200">
                   <span id="reply-like-{{ r.id }}">{{ r.forums_replies_likes.count }}</span> ❤️
                   {% if request.user.is_authenticated %}
-                    <button data-reply-id="{{ r.id }}" 
-                            class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
+                    <button data-reply-id="{{ r.id }}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
                       {% if r.user_has_liked %}💔 Unlike{% else %}Like{% endif %}
                     </button>
                     {% if request.user == r.user or request.user == forum.user %}
-                      <button data-reply-id="{{ r.id }}" 
-                              class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
+                      <button data-reply-id="{{ r.id }}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
                         Delete
                       </button>
                     {% endif %}
@@ -172,7 +180,6 @@
 <script>
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 const forumId = "{{ forum.forums_id }}";
-
 
 const likeBtn = document.getElementById('like-btn');
 if (likeBtn) {
@@ -258,11 +265,11 @@ if(replyForm){
     <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
       ${data.username.slice(0,1).toUpperCase()}
     </div>
-    <div class="flex-1">
+    <div class="flex-1 text-gray-200 ">
       <div class="flex justify-between items-start">
         <div>
           <div class="font-semibold text-gray-200">${data.username}</div>
-          <div class="text-gray-400 text-xs">${data.created_at}</div>
+          <div class="text-gray-400 text-xs" data-created-at="${data.created_at}">${timeAgo(new Date(data.created_at + 'Z'))}</div>
         </div>
         <div class="text-sm flex items-center gap-2">
           <span id="reply-like-${data.id}">${data.likes}</span> ❤️
@@ -317,15 +324,21 @@ if(loadMoreBtn){
         <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
           ${r.username.slice(0,1).toUpperCase()}
         </div>
-        <div class="flex-1">
+        <div class="flex-1 text-gray-200">
           <div class="flex justify-between items-start">
             <div>
               <div class="font-semibold text-gray-200">${r.username}</div>
-              <div class="text-gray-400 text-xs">${r.created_at}</div>
+              <div class="text-gray-400 text-xs" data-created-at="${r.created_at}">${timeAgo(new Date(r.created_at + 'Z'))}</div>
             </div>
             <div class="text-sm flex items-center gap-2">
               <span id="reply-like-${r.id}">${r.likes}</span> ❤️
-              <button data-reply-id="${r.id}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">Like</button>
+              <button data-reply-id="${r.id}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">${r.user_has_liked ? '💔 Unlike' : 'Like'}</button> 
+              ${r.is_owner || r.is_forum_owner ? `
+            <button data-reply-id="${r.id}" 
+              class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
+              Delete
+            </button>
+            ` : ''}
             </div>
           </div>
           <div class="mt-2 text-gray-200">${r.content}</div>
@@ -337,6 +350,36 @@ if(loadMoreBtn){
     if(data.replies.length < limit) loadMoreBtn.remove();
   });
 }
+
+function timeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  const intervals = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+  };
+
+  for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+    const count = Math.floor(seconds / secondsInUnit);
+    if (count >= 1) {
+      return `${count} ${unit}${count > 1 ? 's' : ''} ago`;
+    }
+  }
+
+  return 'just now';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-created-at]').forEach(el => {
+    const dateStr = el.getAttribute('data-created-at');
+    if (dateStr) {
+      el.textContent = timeAgo(new Date(dateStr));
+    }
+  });
+});
 </script>
 
 {% endblock content %}

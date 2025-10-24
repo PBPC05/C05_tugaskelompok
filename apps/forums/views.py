@@ -29,6 +29,8 @@ def forums_list_json(request):
     elif filter_type == "hot":
         one_week_ago = timezone.now() - timezone.timedelta(days=7)
         qs = qs.filter(created_at__gte=one_week_ago).order_by("-forums_views")
+    elif filter_type == "popular":
+        qs = qs.order_by("-forums_views")
 
     paginator = Paginator(qs, page_size)
     page_obj = paginator.get_page(page)
@@ -243,13 +245,26 @@ def load_more_replies(request, pk):
     replies = forum.forum_replies.order_by("-created_at")[offset:offset+limit]
     data = []
 
+    user_has_liked = (
+        forum.user_has_liked(request.user)
+        if request.user.is_authenticated
+        else False
+    )
+
     for r in replies:
+        if request.user.is_authenticated:
+            user_has_liked = r.user_has_liked(request.user)
+        else:
+            r.user_has_liked = False
         data.append({
             "id": r.id,
             "username": r.user.username if r.user else "Anonymous",
             "content": r.replies_content,
             "created_at": r.created_at.strftime("%b %d, %Y %H:%M"),
             "likes": r.forums_replies_likes.count(),
+            "is_owner": request.user == r.user,
+            "is_forum_owner": request.user == r.forums.user,
+            "user_has_liked": user_has_liked,
         })
 
     return JsonResponse({"replies": data})
