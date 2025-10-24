@@ -84,27 +84,35 @@
       <div id="replies-list" class="space-y-4">
         {% for r in replies %}
           <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words" id="reply-{{ r.id }}">
-            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
-              {% if r.user %}{{ r.user.username|slice:":1"|upper }}{% else %}A{% endif %}
+            {% if r.user %}
+            <a href="{% url 'authentication:view_profile' r.user.username %}">
+            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
+              {{ r.user.username|slice:":1"|upper }}
             </div>
+            </a>
+            {% else %}
+            <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
+              A
+            </div>
+            {% endif %}
             <div class="flex-1">
               <div class="flex justify-between items-start">
                 <div>
-                  <div class="font-semibold text-gray-200">
-                    {% if r.user %}{{ r.user.username }}{% else %}Anonymous{% endif %}
+                  <div class="font-semibold text-gray-200 hover:text-gray-300">
+                    {% if r.user %}
+                    <a href="{% url 'authentication:view_profile' r.user.username %}">{{ r.user.username }}</a>
+                    {% else %}Anonymous{% endif %}
                   </div>
                   <div class="text-gray-400 text-xs" data-created-at="{{ r.created_at|date:'c' }}">{{ r.created_at|date:'c' }}</div>
                 </div>
                 <div class="text-sm flex items-center gap-2 text-gray-200">
                   <span id="reply-like-{{ r.id }}">{{ r.forums_replies_likes.count }}</span> ❤️
                   {% if request.user.is_authenticated %}
-                    <button data-reply-id="{{ r.id }}" 
-                            class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
+                    <button data-reply-id="{{ r.id }}" class="reply-like-btn ml-2 px-2 py-1 bg-gray-300 text-black rounded text-xs hover:bg-gray-400 transition">
                       {% if r.user_has_liked %}💔 Unlike{% else %}Like{% endif %}
                     </button>
                     {% if request.user == r.user or request.user == forum.user %}
-                      <button data-reply-id="{{ r.id }}" 
-                              class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
+                      <button data-reply-id="{{ r.id }}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
                         Delete
                       </button>
                     {% endif %}
