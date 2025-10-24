@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import user_passes_test, login_required
 from apps.authentication.models import UserProfile, BanHistory
 from django.http import Http404
+from apps.forums.models import Forums
 
 def register(request):
     if request.user.is_authenticated:
@@ -69,11 +70,15 @@ def user_dashboard(request):
     except UserProfile.DoesNotExist:
         profile = UserProfile.objects.create(user=request.user)
 
+    threads_count = Forums.objects.filter(user=request.user).count()
+    recent_forums = Forums.objects.filter(user=request.user).order_by('-created_at')[:3]
+
     context = {
         'profile': profile,
-        'threads_count': 0,  # TODO: Replace with actual count
+        'threads_count': threads_count,  # TODO: Replace with actual count
         'votes_count': 0,    # TODO: Replace with actual count
         'comments_count': 0, # TODO: Replace with actual count
+        'recent_threads': recent_forums,
     }
     return render(request, 'user_dashboard.html', context)
 
@@ -204,7 +209,6 @@ def ban_user(request, user_id):
     return redirect('authentication:manage_users')
 
 def view_profile(request, username):
-    """View another user's public profile."""
     user = get_object_or_404(User, username=username)
     
     if not user.is_active and not request.user.is_superuser:
@@ -215,10 +219,12 @@ def view_profile(request, username):
     except UserProfile.DoesNotExist:
         profile = None
 
+    threads_count = Forums.objects.filter(user=user).count()
+
     context = {
         'profile_user': user,
         'profile': profile,
-        'threads_count': 0, 
+        'threads_count': threads_count, 
         'votes_count': 0,
         'comments_count': 0,
         'is_owner': request.user == user,  
