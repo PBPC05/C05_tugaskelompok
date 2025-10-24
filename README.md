@@ -41,10 +41,8 @@ Aplikasi **PitTalk** merupakan sebuah platform komunitas berbasis web yang berfo
 | Sumber Dataset | Link |
 |----------------|------|
 | Formula1 Datasets (GitHub) | [Link Datasets F1](https://github.com/toUpperCase78/formula1-datasets) |
-| Driver | [Link Datasets Driver](https://www.kaggle.com/datasets/petalme/f1-drivers-dataset) |
 | Race Result (1950 - 2024) | [Link Datasets Race Result](https://www.kaggle.com/datasets/lakshayjain611/f1-races-results-dataset-1950-to-2024) |
-| GrandPrix | [Link Datasets GrandPrix](https://www.kaggle.com/datasets/harshitstark/f1-grandprix-datavault) |
-| World Championships | [Link Datasets World Championships](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) |
+| Sumber Berita | [Formula 1 Official Website](https://www.formula1.com/en/latest) <br /> [BBC Sport](https://www.bbc.com/sport/formula1) <br /> [Planet F1](https://www.planetf1.com/) |
 | Lainnya | Sumber data relevan (berita, standings, jadwal, dll) |
 
 ---
@@ -52,9 +50,9 @@ Aplikasi **PitTalk** merupakan sebuah platform komunitas berbasis web yang berfo
 ## 👤 Jenis Pengguna
 | Jenis Pengguna | Hak Akses |
 |----------------|-----------|
-| **Guest** | Melihat informasi F1, membaca forum |
-| **User (Login)** | Membuat thread & reply, komentar berita, ikut voting, melihat profil user lain |
-| **Admin** | Mengelola akun (CRUD & ban user), membuat berita resmi |
+| **Guest** | Melihat berita dan informasi F1, membaca thread di forum |
+| **User (Login)** | Membuat thread & reply di forum, komentar berita, ikut voting, melihat profil user lain |
+| **Admin** | Mengelola akun (CRUD & ban user), membuat berita resmi, mengedit data *driver* dan *team*, membuat dan menghapus data *race result*, mengedit data *history* (*driver* dan *winner*) |
 
 ---
 
