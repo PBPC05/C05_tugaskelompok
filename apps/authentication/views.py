@@ -6,7 +6,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import user_passes_test, login_required
 from apps.authentication.models import UserProfile, BanHistory
 from django.http import Http404
-from apps.forums.models import Forums
+from apps.forums.models import Forums, ForumsReplies
+from apps.prediction.models import PredictionVote
+from apps.news.models import Comment
 
 def register(request):
     if request.user.is_authenticated:
@@ -72,12 +74,14 @@ def user_dashboard(request):
 
     threads_count = Forums.objects.filter(user=request.user).count()
     recent_forums = Forums.objects.filter(user=request.user).order_by('-created_at')[:3]
+    votes_counts = PredictionVote.objects.filter(user=request.user).count()
+    comments_count = Comment.objects.filter(user=request.user).count() + ForumsReplies.objects.filter(user=request.user).count()
 
     context = {
         'profile': profile,
         'threads_count': threads_count,  # TODO: Replace with actual count
-        'votes_count': 0,    # TODO: Replace with actual count
-        'comments_count': 0, # TODO: Replace with actual count
+        'votes_count': votes_counts,    # TODO: Replace with actual count
+        'comments_count': comments_count, # TODO: Replace with actual count
         'recent_threads': recent_forums,
     }
     return render(request, 'user_dashboard.html', context)
@@ -220,13 +224,15 @@ def view_profile(request, username):
         profile = None
 
     threads_count = Forums.objects.filter(user=user).count()
+    votes_counts = PredictionVote.objects.filter(user=request.user).count()
+    comments_count = Comment.objects.filter(user=request.user).count() + ForumsReplies.objects.filter(user=request.user).count()
 
     context = {
         'profile_user': user,
         'profile': profile,
         'threads_count': threads_count, 
-        'votes_count': 0,
-        'comments_count': 0,
+        'votes_count': votes_counts,
+        'comments_count': comments_count,
         'is_owner': request.user == user,  
     }
     return render(request, 'view_profile.html', context)
