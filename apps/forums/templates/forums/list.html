@@ -15,15 +15,33 @@
         </div>
     </header>
 
-  <div class="p-10">
-    <div class="flex gap-4 items-center mb-6">
-      <div class="flex flex-wrap items-center gap-4 mb-6">
-    <!-- Search input -->
-    <input id="search-input" type="search" placeholder="Search discussion..." class="p-2 text-black rounded-md flex-grow min-w-[200px]" />
-    <button id="search-btn" class="px-4 py-2 bg-red-700 hover:bg-red-900 rounded-md">Search</button>
+  <div class="p-4 sm:p-10">
+
+  <!-- Search & New Discussion -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 mb-6">
+
+    <!-- Search input + button -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+      <input id="search-input" type="search" placeholder="Search discussion..."
+        class="p-2 text-black rounded-md flex-grow min-w-0 mb-2 sm:mb-0 " />
+      <button id="search-btn" class="px-4 py-2 bg-red-700 hover:bg-red-900 rounded-md w-full sm:w-auto">Search</button>
+    </div>
+
+    <!-- New discussion button -->
+    <div class="mt-2 sm:mt-0 sm:ml-auto">
+      {% if user.is_authenticated %}
+      <a href="{% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold block text-center sm:inline-block">New Discussion</a>
+      {% else %}
+      <a href="{% url 'authentication:login' %}?next={% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold block text-center sm:inline-block">Login to create</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Filter + Pagination -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
     <!-- Filter -->
-    <div class="flex items-center gap-4 ml-auto px-10">
+    <div class="flex items-center gap-2">
       <p>Filter by:</p>
       <select id="filter" class="p-2 rounded-md text-black">
         <option value="latest">Latest</option>
@@ -31,27 +49,20 @@
         <option value="popular">Popular</option>
         <option value="hot">Hot</option>
       </select>
-
-      <div id="pagination" class="flex gap-2 ml-10"></div>
-    </div>
-  </div>
-
-      <div class="ml-auto">
-        {% if user.is_authenticated %}
-        <a href="{% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold">New Discussion</a>
-        {% else %}
-        <a href="{% url 'authentication:login' %}?next={% url 'forums:create_forum' %}" class="px-4 py-2 bg-red-600 hover:bg-red-800 rounded-md font-semibold">Login to create</a>
-        {% endif %}
-      </div>
     </div>
 
-    <div id="loading" class="hidden font-bold text-white bg-neutral-900 rounded-xl p-12 text-center">Loading</div>
-    <div id="error" class="hidden text-red-400 bg-neutral-900 rounded-xl p-12 text-center">Failed to load forums</div>
-    <section id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></section>
-    <section id="empty" class="hidden bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">
-      <h3 class="text-2xl font-bold text-white">No discussion yet</h3>
-    </section>
+    <!-- Pagination -->
+    <div id="pagination" class="flex gap-2 overflow-x-auto"></div>
   </div>
+
+  <!-- Grid / Loading / Error / Empty -->
+  <div id="loading" class="hidden font-bold text-white bg-neutral-900 rounded-xl p-12 text-center">Loading</div>
+  <div id="error" class="hidden text-red-400 bg-neutral-900 rounded-xl p-12 text-center">Failed to load forums</div>
+  <section id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></section>
+  <section id="empty" class="hidden bg-neutral-900 border border-gray-800 rounded-xl p-12 text-center">
+    <h3 class="text-2xl font-bold text-white">No discussion found</h3>
+  </section>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
