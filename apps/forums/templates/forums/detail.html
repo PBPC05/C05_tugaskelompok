@@ -83,7 +83,7 @@
       <!-- Replies List -->
       <div id="replies-list" class="space-y-4">
         {% for r in replies %}
-          <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words" id="reply-{{ r.id }}">
+          <div class="p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words break-all overflow-hidden" id="reply-{{ r.id }}">
             {% if r.user %}
             <a href="{% url 'authentication:view_profile' r.user.username %}">
             <div class="w-10 h-10 bg-gray-600 rounded-full flex items-center hover:bg-gray-700 justify-center text-white font-bold cursor-pointer">
@@ -115,7 +115,7 @@
                       <button data-reply-id="{{ r.id }}" class="reply-delete-btn ml-2 px-2 py-1 bg-red-700 text-white rounded text-xs hover:bg-red-800 transition">
                         Delete
                       </button>
-                    {% endif %}
+                    {% endif %} 
                   {% endif %}
                 </div>
               </div>
@@ -260,7 +260,7 @@ if(replyForm){
   const div = document.createElement('div');
   const profileLink = data.username ? `/auth/profile/${encodeURIComponent(data.username)}`: '#';
   div.id = `reply-${data.id}`;
-  div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words';
+  div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words break-all overflow-hidden';
   div.innerHTML = `
     <a href="${profileLink}">
     <div class="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
@@ -326,7 +326,7 @@ if(loadMoreBtn){
       const profileLink = r.username ? `/auth/profile/${encodeURIComponent(r.username)}`: '#';
       const div = document.createElement('div');
       div.id = `reply-${r.id}`;
-      div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words';
+      div.className = 'p-4 bg-neutral-800 border border-neutral-700 rounded-xl flex gap-3 break-words break-all overflow-hidden';
       div.innerHTML = `
         <a href="${profileLink}">
         <div class="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center text-white font-bold">
