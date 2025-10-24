@@ -26,8 +26,8 @@ Aplikasi **PitTalk** merupakan sebuah platform komunitas berbasis web yang berfo
 | Modul | Deskripsi |
 |-------|-----------|
 | **Authentication** | Registrasi, login, logout, dan manajemen sesi |
-| **Admin Dashboard** | Admin dapat mengelola user (CRUD akun, ban user) |
-| **Forums** | Ruang diskusi pengguna: membuat thread, membaca, dan reply thread |
+| **Admin Dashboard** | Admin dapat mengelola user, drivers, team, race results (CRUD, ban/unban user) |
+| **Forums** | Ruang diskusi pengguna: membuat thread, membaca, dan reply thread, admin dapat menghapus thread dan reply serta mark "HOT" untuk thread |
 | **History** | Informasi riwayat driver & Grand Prix |
 | **Information** | Informasi lengkap driver & tim F1, Klasemen driver & konstruktor, dan Jadwal balapan F1 2025 |
 | **News** | Menyediakan berita terkini seputar F1 |
