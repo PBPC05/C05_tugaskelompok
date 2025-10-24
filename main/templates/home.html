@@ -17,68 +17,109 @@
 
   <div class="p-10">
 
-    <!-- Featured Articles -->
-    <section>
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold">Featured Articles</h2>
-        <a href="news/" class="text-red-500 hover:text-red-700 font-medium">View More →</a>
-      </div>
-      <div class="relative flex overflow-x-auto gap-6 scrollbar-hide py-4">
-        {% for article in featured_articles %}
-        <div class="min-w-[320px] max-w-[320px] h-[420px] bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex-shrink-0 overflow-hidden flex flex-col">
-          {% if article.thumbnail %}
-          <img src="{{ article.thumbnail }}" alt="{{ article.title }}" class="h-48 w-full object-cover">
-          {% else %}
-          <div class="h-48 w-full bg-neutral-700 flex items-center justify-center text-neutral-300">No Image</div>
-          {% endif %}
-          <div class="p-5 text-gray-900 flex flex-col flex-1">
-            <h3 class="text-lg md:text-xl font-semibold mb-2 truncate-1">
-              <a href="{% url 'news:show_news_detail' article.id %}" class="hover:text-red-700 transition-colors duration-200">
-                {{ article.title }}
-              </a>
-            </h3>
-            <p class="text-sm text-gray-500 mb-3">{{ article.user.username|default:"Anonymous" }}</p>
-            <p class="text-gray-700 text-sm mb-4 overflow-hidden text-ellipsis truncate-3 flex-grow">
-                {{ article.content }}
-              </p>
-            <div class="flex justify-between text-xs text-gray-400 mt-auto">
-              <span>{{ article.created_at|date:"F j, Y" }}</span>
-              <span>{{ article.news_views }} views</span>
-            </div>
-          </div>
-        </div>
-        {% empty %}
-        <p class="text-gray-400">No featured articles available.</p>
-        {% endfor %}
-      </div>
-    </section>
+<!-- Featured Articles -->
+<section class="px-4 md:px-8">
+  <h2 class="text-5xl font-bold mb-10">Featured News</h2>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- Latest Forums -->
-    <section class="mt-16">
-      <h2 class="text-3xl font-bold mb-6">Latest Forum Posts</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {% for forum in latest_forums %}
-        <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col p-5 h-[280px]">
-          <div class="flex flex-col flex-1 overflow-hidden">
-            <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-1 truncate-1">
-              <a href="{% url 'forums:show_forum_detail' forum.forums_id %}" class="hover:text-red-700 transition-colors duration-200">
-                {{ forum.title }}
-              </a>
-            </h3>
-            <p class="text-sm text-gray-500 mb-3">{{ forum.user.username|default:"Anonymous" }}</p>
-            <p class="text-gray-700 text-sm mt-4 line-clamp-3">{{ forum.content }}</p>
-          </div>
-          <div class="flex items-center justify-between text-xs md:text-sm text-gray-400 mt-4">
-            <span>{{ forum.created_at|date:"F j, Y" }}</span>
-            <span>{{ forum.forums_replies_counts }} replies</span>
-          </div>
-          <a href="{% url 'forums:show_forum_detail' forum.forums_id %}" class="mt-2 text-red-600 hover:text-red-800 font-medium text-sm md:text-base">Read more →</a>
-        </div>
-        {% empty %}
-        <p class="text-gray-400">No forum posts yet.</p>
-        {% endfor %}
+    {% if featured_articles|length > 0 %}
+    <a href="{% url 'news:show_news_detail' featured_articles.0.id %}" 
+       class="lg:col-span-2 relative group rounded-2xl overflow-hidden shadow-lg block h-[32rem]">
+      {% if featured_articles.0.thumbnail %}
+      <img src="{{ featured_articles.0.thumbnail }}" alt="{{ featured_articles.0.title }}" 
+           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+      {% else %}
+      <div class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+        No Image
       </div>
-    </section>
+      {% endif %}
+
+      <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end p-6">
+        <span class="text-sm font-semibold text-pink-500 mb-2">Featured</span>
+        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white group-hover:text-pink-300 truncate-1">
+          {{ featured_articles.0.title }}
+        </h2>
+        <div class="flex justify-between text-gray-300 text-sm">
+          <span>{{ featured_articles.0.created_at|date:"F j, Y" }}</span>
+          <span>{{ featured_articles.0.news_views }} views</span>
+        </div>
+      </div>
+    </a>
+    {% endif %}
+
+    <div class="flex flex-col gap-6 h-[32rem]">
+      {% for article in featured_articles|slice:"1:5" %}
+      <a href="{% url 'news:show_news_detail' article.id %}" 
+         class="relative group flex-1 rounded-xl overflow-hidden shadow-md hover:shadow-lg block">
+        {% if article.thumbnail %}
+        <img src="{{ article.thumbnail }}" alt="{{ article.title }}" 
+             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+        {% else %}
+        <div class="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
+          No Image
+        </div>
+        {% endif %}
+
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col p-3 justify-between">
+          <h3 class="font-bold text-base md:text-lg text-white truncate-1 group-hover:text-pink-300">
+            {{ article.title }}
+          </h3>
+          <div class="flex justify-between text-xs text-gray-300">
+            <span>{{ article.created_at|date:"M j, Y" }}</span>
+            <span>{{ article.news_views }} views</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <div class="mt-6 text-center lg:text-right">
+    <a href="news/" class="text-pink-500 font-semibold hover:text-pink-400 transition-colors">
+      View More &rarr;
+    </a>
+  </div>
+</section>
+
+<!-- Latest Forums -->
+<section class="mt-16">
+  <h2 class="text-4xl font-bold mb-8">Latest Forum Posts</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for forum in latest_forums %}
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col p-5 min-h-[280px] max-h-[400px] sm:min-h-[250px] sm:max-h-[350px] overflow-hidden">
+      <div class="flex flex-col flex-1 overflow-hidden">
+    <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-1 title-1-line">
+  <a href="{% url 'forums:show_forum_detail' forum.forums_id %}" 
+     class="block hover:text-red-700 transition-colors duration-200">
+    {{ forum.title }}
+  </a>
+    </h3>
+  <p class="text-sm text-gray-500 mb-3">{{ forum.user.username|default:"Anonymous" }}</p>
+  <p class="text-gray-700 text-sm mt-4 line-clamp-3 break-words">
+    {{ forum.content }}
+  </p>
+    </div>
+      <div class="flex items-center justify-between text-xs md:text-sm text-gray-400 mt-4">
+        <span>{{ forum.created_at|date:"F j, Y" }}</span>
+        <span>{{ forum.forums_replies_counts }} replies</span>
+      </div>
+      <a href="{% url 'forums:show_forum_detail' forum.forums_id %}" 
+         class="mt-2 text-red-600 hover:text-red-800 font-medium text-sm md:text-base">
+        Read more →
+      </a>
+    </div>
+    {% empty %}
+    <p class="text-gray-400">No forum posts yet.</p>
+    {% endfor %}
+  </div>
+
+  <div class="mt-8 flex justify-center">
+    <a href="forums/" class=" hover:text-pink-600 text-pink-500 font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+      - More Forums -
+    </a>
+  </div>  
+</section>
 
   </div>
 </div>
@@ -93,5 +134,21 @@
 }
 .line-clamp-2 { -webkit-line-clamp: 2; }
 .line-clamp-3 { -webkit-line-clamp: 3; }
+
+.title-3-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.title-1-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
 </style>
 {% endblock content %}

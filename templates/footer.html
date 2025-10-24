@@ -1,0 +1,78 @@
+{% load tz %}
+{% load static %}
+
+<!-- Footer -->
+<footer class="bg-neutral-950 text-white pt-12 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+
+    <div>
+      <h3 class="text-xl font-bold mb-4">About PitTalk</h3>
+      <p class="text-gray-400 text-sm">
+        PitTalk is a web-based community platform focused on Formula 1 (F1). Join the community to discuss, follow the latest news, and interact with F1 fans worldwide.
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+      <ul class="text-gray-400 space-y-2">
+        <li><a href="/" class="hover:text-pink-500 transition-colors">Home</a></li>
+        <li><a href="/news/" class="hover:text-pink-500 transition-colors">News</a></li>
+        <li><a href="/forums/" class="hover:text-pink-500 transition-colors">Forums</a></li>
+        <li><a href="/predictions/" class="hover:text-pink-500 transition-colors">Predictions</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-xl font-bold mb-4">Contributors</h3>
+      <ul class="text-gray-400 space-y-2">
+        <li class="flex items-center justify-between">
+          <span>Amar Hakim</span>
+          <a href="https://github.com/A-kim1" target="_blank" class="text-pink-500 hover:text-pink-400 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.3c-3.2.7-3.9-1.5-3.9-1.5-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.9 1.8.9 1.8.8 1.3 2.1.9 2.6.7.1-.5.4-.9.8-1.1-2.5-.3-5.1-1.3-5.1-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 1.9 1.2 3.2 0 4.5-2.6 5.5-5.1 5.8.4.3.7.9.7 1.8v2.7c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/></svg>
+          </a>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Arya Putra Parikesit</span>
+          <a href="https://github.com/arya-putra41" target="_blank" class="text-pink-500 hover:text-pink-400 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.3c-3.2.7-3.9-1.5-3.9-1.5-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.9 1.8.9 1.8.8 1.3 2.1.9 2.6.7.1-.5.4-.9.8-1.1-2.5-.3-5.1-1.3-5.1-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 1.9 1.2 3.2 0 4.5-2.6 5.5-5.1 5.8.4.3.7.9.7 1.8v2.7c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/></svg>
+          </a>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Ahmad Faiq Fawwaz Abdussalam</span>
+          <a href="https://github.com/faiqfwwz" target="_blank" class="text-pink-500 hover:text-pink-400 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.3c-3.2.7-3.9-1.5-3.9-1.5-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.9 1.8.9 1.8.8 1.3 2.1.9 2.6.7.1-.5.4-.9.8-1.1-2.5-.3-5.1-1.3-5.1-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 1.9 1.2 3.2 0 4.5-2.6 5.5-5.1 5.8.4.3.7.9.7 1.8v2.7c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/></svg>
+          </a>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Erik Wilbert</span>
+          <a href="https://github.com/erikwilbert" target="_blank" class="text-pink-500 hover:text-pink-400 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.3c-3.2.7-3.9-1.5-3.9-1.5-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.9 1.8.9 1.8.8 1.3 2.1.9 2.6.7.1-.5.4-.9.8-1.1-2.5-.3-5.1-1.3-5.1-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 1.9 1.2 3.2 0 4.5-2.6 5.5-5.1 5.8.4.3.7.9.7 1.8v2.7c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/></svg>
+          </a>
+        </li>
+        <li class="flex items-center justify-between">
+          <span>Ammar Muhammad Rafif</span>
+          <a href="https://github.com/ammarrmuh" target="_blank" class="text-pink-500 hover:text-pink-400 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.3c-3.2.7-3.9-1.5-3.9-1.5-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.9 1.8.9 1.8.8 1.3 2.1.9 2.6.7.1-.5.4-.9.8-1.1-2.5-.3-5.1-1.3-5.1-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 1.9 1.2 3.2 0 4.5-2.6 5.5-5.1 5.8.4.3.7.9.7 1.8v2.7c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/></svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-xl font-bold mb-4">Resources</h3>
+      <div class="flex space-x-4 mb-4">
+        <a href="https://github.com/PBPC05/C05_tugaskelompok.git" class="text-gray-400 hover:text-pink-500 transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2.3c-3.2.7-3.9-1.5-3.9-1.5-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.9 1.8.9 1.8.8 1.3 2.1.9 2.6.7.1-.5.4-.9.8-1.1-2.5-.3-5.1-1.3-5.1-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 1.9 1.2 3.2 0 4.5-2.6 5.5-5.1 5.8.4.3.7.9.7 1.8v2.7c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.65 18.35.5 12 .5z"/></svg>
+        </a>
+        <a href="https://www.figma.com/design/PqxpKIxhKubxfJIsvJJhv5/PitTalk?node-id=0-1&t=dOKtZmrw6hKslm5b-1" target="_blank" class="hover:opacity-80 transition-opacity">
+          <img src="{% static 'image/figma-logo.png' %}" alt="Figma" class="w-5 h-5">
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="mt-8 border-t border-gray-800 pt-4 text-center text-gray-500 text-sm">
+    &copy; {% now "Y" %} PitTalk. All rights reserved.
+  </div>
+</footer>
