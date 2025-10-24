@@ -124,6 +124,7 @@ function buildCard(item) {
   forum.className = 'bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex flex-col p-5 w-full';
   forum.style.height = '280px';
   forum.style.boxSizing = 'border-box';
+  const hotTag = item.is_hot ? `<span>•</span><span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs ml-2">🔥HOT</span>` : '';
 
   const link = "{% url 'forums:show_forum_detail' '00000000-0000-0000-0000-000000000000' %}".replace(
     '00000000-0000-0000-0000-000000000000',
@@ -168,8 +169,9 @@ function buildCard(item) {
       <span>${item.forums_views} views</span>
       <span>•</span>
       <span>${item.forums_replies_counts} replies</span>
+      <span>${hotTag}</span>
       </div>
-      <a href="${link}" class="ml-auto text-red-600 hover:text-red-800 font-medium text-sm md:text-base">Read more →</a>
+      <a href="${link}" class="ml-auto mt-4 text-red-600 hover:text-red-800 font-medium text-sm md:text-base">Read more →</a>
   `;
 
   return forum;
