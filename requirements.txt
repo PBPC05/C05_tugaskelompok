@@ -8,3 +8,4 @@ urllib3
 python-dotenv
 pillow
 django_countries
+django-cors-headers
