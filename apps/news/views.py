@@ -52,7 +52,7 @@ def create_news(request):
     )
     news.save()
 
-    response = redirect('news_main.html')
+    response = redirect('news:show_main')
     return response 
 
 @login_required(login_url="/auth/login/")
