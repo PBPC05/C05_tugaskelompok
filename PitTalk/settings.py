@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-1^i!!9@99n-eq+j@h(ummlm9jb12k+h3bs(m8r4h1d=@ey7aks
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "ammar-muhammad41-pittalk.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.0.2.2", "ammar-muhammad41-pittalk.pbp.cs.ui.ac.id"]
 
 CSRF_TRUSTED_ORIGINS = ["https://ammar-muhammad41-pittalk.pbp.cs.ui.ac.id"]
 
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.prediction',
     'apps.history',
     'apps.authentication',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'PitTalk.urls'
@@ -87,6 +89,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'PitTalk.wsgi.application'
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 
 # Database
