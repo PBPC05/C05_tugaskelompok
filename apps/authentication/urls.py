@@ -21,5 +21,5 @@ urlpatterns = [
     path('edit_user/<int:user_id>/', edit_user, name='edit_user'),
     path('delete_user/<int:user_id>/', delete_user, name='delete_user'),
     path('ban_user/<int:user_id>/', ban_user, name='ban_user'),
-    # todo tambahin path untuk drivers, team result dari faiq
+    
 ]
