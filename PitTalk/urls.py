@@ -27,6 +27,5 @@ urlpatterns = [
     path('prediction/', include('apps.prediction.urls')),
     path('user/', include('apps.user.urls')),
     path('history/', include('apps.history.urls')),
-    path('auth/', include('authentication_flutter.urls')),
-    path('authentication/', include('apps.authentication.urls')), 
+    path('auth/', include('apps.authentication.urls')), 
 ]

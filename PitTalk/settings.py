@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'apps.prediction',
     'apps.history',
     'apps.authentication',
-    'authentication_flutter',
     'corsheaders',
 ]
 
