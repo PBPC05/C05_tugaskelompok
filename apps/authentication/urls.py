@@ -2,7 +2,7 @@ from django.urls import path
 from apps.authentication.views import register_user, login_user, logout_user
 from apps.authentication.views import manage_users, edit_user, delete_user, ban_user
 from apps.authentication.views import user_dashboard, edit_profile, view_profile
-from apps.authentication.views import flutter_register, flutter_login  # Flutter integration view
+from apps.authentication.views import flutter_register, flutter_login, flutter_logout  # Flutter integration view
 
 app_name = 'authentication'
 
@@ -26,4 +26,5 @@ urlpatterns = [
     # Flutter integration
     path('flutter_login/', flutter_login, name='flutter_login'),
     path('flutter_register/', flutter_register, name='flutter_register'),
+    path('flutter_logout/', flutter_logout, name='flutter_logout'),
 ]
