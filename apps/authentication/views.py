@@ -248,71 +248,107 @@ from django.http import JsonResponse
 
 @csrf_exempt
 def flutter_login(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            auth_login(request, user)
-            # Login status successful.
-            return JsonResponse({
-                "username": user.username,
-                "status": True,
-                "message": "Login successful!"
-                # Add other data if you want to send data to Flutter.
-            }, status=200)
+    """Flutter login endpoint"""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                return JsonResponse({
+                    "username": user.username,
+                    "status": True,
+                    "message": "Login successful!"
+                }, status=200)
+            else:
+                return JsonResponse({
+                    "status": False,
+                    "message": "Your account has been banned. Please contact admin."
+                }, status=401)
         else:
             return JsonResponse({
                 "status": False,
-                "message": "Login failed, account is disabled."
+                "message": "Invalid username or password."
             }, status=401)
-
-    else:
-        return JsonResponse({
-            "status": False,
-            "message": "Login failed, please check your username or password."
-        }, status=401)
     
+    return JsonResponse({
+        "status": False,
+        "message": "Invalid request method."
+    }, status=400)
+
+
 @csrf_exempt
 def flutter_register(request):
+    """Flutter register endpoint"""
     if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data['username']
-        password1 = data['password1']
-        password2 = data['password2']
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password1 = data.get('password1')
+            password2 = data.get('password2')
 
-        # Check if the passwords match
-        if password1 != password2:
+            # Validate input
+            if not username or not password1 or not password2:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "All fields are required."
+                }, status=400)
+
+            # Check if passwords match
+            if password1 != password2:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Passwords do not match."
+                }, status=400)
+            
+            # Check password length
+            if len(password1) < 8:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Password must be at least 8 characters long."
+                }, status=400)
+            
+            # Check if username already exists
+            if User.objects.filter(username=username).exists():
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Username already exists."
+                }, status=400)
+            
+            # Create the new user
+            user = User.objects.create_user(username=username, password=password1)
+            user.save()
+            
             return JsonResponse({
-                "status": False,
-                "message": "Passwords do not match."
-            }, status=400)
+                "username": user.username,
+                "status": "success",
+                "message": "User created successfully!"
+            }, status=200)
         
-        # Check if the username is already taken
-        if User.objects.filter(username=username).exists():
+        except json.JSONDecodeError:
             return JsonResponse({
-                "status": False,
-                "message": "Username already exists."
+                "status": "error",
+                "message": "Invalid JSON data."
             }, status=400)
-        
-        # Create the new user
-        user = User.objects.create_user(username=username, password=password1)
-        user.save()
-        
-        return JsonResponse({
-            "username": user.username,
-            "status": 'success',
-            "message": "User created successfully!"
-        }, status=200)
+        except Exception as e:
+            return JsonResponse({
+                "status": "error",
+                "message": f"An error occurred: {str(e)}"
+            }, status=500)
     
-    else:
-        return JsonResponse({
-            "status": False,
-            "message": "Invalid request method."
-        }, status=400)
-    
+    return JsonResponse({
+        "status": "error",
+        "message": "Invalid request method."
+    }, status=400)
+
+
 @csrf_exempt
+@login_required
 def flutter_logout(request):
+    """Flutter logout endpoint"""
     username = request.user.username
     try:
         auth_logout(request)
@@ -321,8 +357,131 @@ def flutter_logout(request):
             "status": True,
             "message": "Logged out successfully!"
         }, status=200)
-    except:
+    except Exception as e:
         return JsonResponse({
             "status": False,
-            "message": "Logout failed."
+            "message": f"Logout failed: {str(e)}"
         }, status=401)
+
+
+@csrf_exempt
+@login_required()
+def flutter_profile(request):
+    """Get user profile for Flutter"""
+    if request.method == 'GET':
+        try:
+            user = request.user
+            profile = user.profile if hasattr(user, 'profile') else None
+            
+            # Get user statistics
+            from apps.forums.models import Forums, ForumsReplies
+            from apps.prediction.models import PredictionVote
+            from apps.news.models import Comment
+            
+            threads_count = Forums.objects.filter(user=user).count()
+            votes_count = PredictionVote.objects.filter(user=user).count()
+            comments_count = (
+                Comment.objects.filter(user=user).count() + 
+                ForumsReplies.objects.filter(user=user).count()
+            )
+            
+            # Prepare profile data
+            profile_data = None
+            if profile:
+                profile_data = {
+                    'id': profile.id,
+                    'phone_number': profile.phone_number or '',
+                    'address': profile.address or '',
+                    'bio': profile.bio or '',
+                    'nationality': str(profile.nationality.code) if profile.nationality else '',
+                    'created_at': profile.created_at.isoformat(),
+                    'updated_at': profile.updated_at.isoformat(),
+                }
+            
+            return JsonResponse({
+                'status': True,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email or '',
+                    'is_active': user.is_active,
+                    'is_superuser': user.is_superuser,
+                    'date_joined': user.date_joined.isoformat(),
+                    'last_login': user.last_login.isoformat() if user.last_login else None,
+                    'profile': profile_data,
+                },
+                'stats': {
+                    'threads_count': threads_count,
+                    'votes_count': votes_count,
+                    'comments_count': comments_count,
+                }
+            }, status=200)
+        
+        except Exception as e:
+            return JsonResponse({
+                'status': False,
+                'message': f'Error fetching profile: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'status': False,
+        'message': 'Invalid request method.'
+    }, status=400)
+
+
+@csrf_exempt
+@login_required
+def flutter_edit_profile(request):
+    """Edit profile endpoint for Flutter"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user = request.user
+            
+            # Update user email
+            email = data.get('email')
+            if email is not None:
+                user.email = email
+                user.save()
+            
+            # Update profile
+            profile = user.profile if hasattr(user, 'profile') else UserProfile.objects.create(user=user)
+            
+            if 'phone_number' in data:
+                profile.phone_number = data['phone_number']
+            
+            if 'address' in data:
+                profile.address = data['address']
+            
+            if 'bio' in data:
+                profile.bio = data['bio']
+            
+            if 'nationality' in data:
+                nationality_code = data['nationality']
+                if nationality_code:
+                    profile.nationality = nationality_code
+                else:
+                    profile.nationality = None
+            
+            profile.save()
+            
+            return JsonResponse({
+                'status': True,
+                'message': 'Profile updated successfully!'
+            }, status=200)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': False,
+                'message': 'Invalid JSON data.'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'status': False,
+                'message': f'Error updating profile: {str(e)}'
+            }, status=500)
+    
+    return JsonResponse({
+        'status': False,
+        'message': 'Invalid request method.'
+    }, status=400)
