@@ -7,6 +7,12 @@ from apps.history.driver_forms import DriverForm
 from apps.history.winners_forms import WinnerForm
 import json
 
+from django.core import serializers
+from django.http import HttpResponse
+import requests
+# API untuk Flutter: kembalikan list JSON terurut sesuai web (year asc, points desc)
+from django.views.decorators.http import require_GET
+
 # Create your views here.
 
 # DRIVER HISTORY
@@ -147,3 +153,65 @@ def edit_winner(request, winner_id):
             return JsonResponse({'success': True})
         return JsonResponse({'success': False, 'errors': form.errors})
     return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+# Flutter
+
+@require_GET
+def api_drivers(request):
+    drivers = Driver.objects.all().order_by('year', '-points')
+    data = []
+    for d in drivers:
+        data.append({
+            "pk": d.id,
+            "fields": {
+                "driver_name": d.driver_name,
+                "nationality": d.nationality,
+                "car": d.car,
+                "points": d.points,
+                "podiums": d.podiums,
+                "year": d.year,  # FIXED
+                "image_url": d.image_url if d.image_url else "",
+            }
+        })
+    return JsonResponse(data, safe=False)
+
+
+
+@require_GET
+def api_winners(request):
+    winners = Winner.objects.all().order_by('date')
+    data = []
+    for w in winners:
+        data.append({
+            "pk": w.id,
+            "fields": {
+                "grand_prix": w.grand_prix,
+                "date": w.date.isoformat(),
+                "winner": w.winner,
+                "car": w.car,
+                "laps": w.laps,
+                "time": w.time,
+                "name_code": w.name_code,
+                "image_url": w.image_url if w.image_url else "",
+            }
+        })
+    return JsonResponse(data, safe=False)
+
+# UTK IMAGE
+def proxy_image(request):
+    image_url = request.GET.get('url')
+    if not image_url:
+        return HttpResponse('No URL provided', status=400)
+
+    try:
+        # Fetch image from external source
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+
+        # Return the image with proper content type
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get('Content-Type', 'image/jpeg')
+        )
+    except Exception as e:
+        return HttpResponse(f'Error: {str(e)}', status=500)
