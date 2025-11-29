@@ -216,3 +216,14 @@ def create_news_flutter(request):
         return JsonResponse({"status": "success"}, status=200)
     else:
         return JsonResponse({"status": "error"}, status=401)
+    
+def increment_news_views(request, news_id):
+    if request.method == "POST":
+        try:
+            news = News.objects.get(id=news_id)
+            news.increment_views
+            return JsonResponse({'status': 'success'}, status=200)
+        except News.DoesNotExist:
+            return JsonResponse({'status': 'error'}, status=404)
+    else:
+        return JsonResponse({'status': 'error'}, status=401)

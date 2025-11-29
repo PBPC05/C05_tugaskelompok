@@ -17,5 +17,6 @@ urlpatterns = [
     path('json/<str:news_id>/comments', get_comments_json, name='get_comments_json'),
     path('<str:news_id>/comment/<str:comment_id>/delete', delete_comment, name='delete_comment'),
     path('proxy-image/', proxy_image, name="proxy_image"),
-    path('create-flutter/', create_news_flutter, name='create_flutter')
+    path('create-flutter/', create_news_flutter, name='create_flutter'),
+    path('<str:news_id>/increment-views/', increment_news_views, name='increment_views')
 ]
