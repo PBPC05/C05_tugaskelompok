@@ -241,6 +241,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 import json
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
 def flutter_login(request):
@@ -520,3 +521,336 @@ def flutter_get_countries(request):
         'status': False,
         'message': 'Invalid request method.'
     }, status=400)
+
+@csrf_exempt
+@login_required
+def flutter_admin_check(request):
+    """Check if user is admin for Flutter"""
+    if request.method == 'GET':
+        return JsonResponse({
+            'is_admin': request.user.is_superuser,
+            'username': request.user.username
+        }, status=200)
+    
+    return JsonResponse({
+        'status': False,
+        'message': 'Invalid request method.'
+    }, status=400)
+
+
+@csrf_exempt
+@login_required
+def flutter_admin_get_users(request):
+    """Get all users for Flutter admin panel"""
+    if request.method != 'GET':
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid request method.'
+        }, status=400)
+    
+    # Check if user is admin
+    if not request.user.is_superuser:
+        return JsonResponse({
+            'status': False,
+            'message': 'Unauthorized. Admin access required.'
+        }, status=403)
+    
+    try:
+        users = User.objects.all().select_related('profile').order_by('-date_joined')
+        
+        users_data = []
+        for user in users:
+            profile_data = None
+            if hasattr(user, 'profile'):
+                profile = user.profile
+                profile_data = {
+                    'id': profile.id,
+                    'phone_number': profile.phone_number or '',
+                    'address': profile.address or '',
+                    'bio': profile.bio or '',
+                    'nationality': str(profile.nationality.code) if profile.nationality else '',
+                    'created_at': profile.created_at.isoformat(),
+                    'updated_at': profile.updated_at.isoformat(),
+                }
+            
+            users_data.append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email or '',
+                'is_active': user.is_active,
+                'is_superuser': user.is_superuser,
+                'date_joined': user.date_joined.isoformat(),
+                'last_login': user.last_login.isoformat() if user.last_login else None,
+                'profile': profile_data,
+            })
+        
+        return JsonResponse({
+            'status': True,
+            'users': users_data,
+            'total_users': users.count(),
+            'active_users': users.filter(is_active=True).count(),
+            'banned_users': users.filter(is_active=False).count(),
+        }, status=200)
+    
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Error fetching users: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@login_required
+def flutter_admin_get_user(request, user_id):
+    """Get specific user details for Flutter admin"""
+    if request.method != 'GET':
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid request method.'
+        }, status=400)
+    
+    # Check if user is admin
+    if not request.user.is_superuser:
+        return JsonResponse({
+            'status': False,
+            'message': 'Unauthorized. Admin access required.'
+        }, status=403)
+    
+    try:
+        user = User.objects.select_related('profile').get(id=user_id)
+        
+        profile_data = None
+        if hasattr(user, 'profile'):
+            profile = user.profile
+            profile_data = {
+                'id': profile.id,
+                'phone_number': profile.phone_number or '',
+                'address': profile.address or '',
+                'bio': profile.bio or '',
+                'nationality': str(profile.nationality.code) if profile.nationality else '',
+                'created_at': profile.created_at.isoformat(),
+                'updated_at': profile.updated_at.isoformat(),
+            }
+        
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email or '',
+            'is_active': user.is_active,
+            'is_superuser': user.is_superuser,
+            'date_joined': user.date_joined.isoformat(),
+            'last_login': user.last_login.isoformat() if user.last_login else None,
+            'profile': profile_data,
+        }
+        
+        return JsonResponse({
+            'status': True,
+            'user': user_data
+        }, status=200)
+    
+    except User.DoesNotExist:
+        return JsonResponse({
+            'status': False,
+            'message': 'User not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Error fetching user: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@login_required
+def flutter_admin_edit_user(request, user_id):
+    """Edit user from Flutter admin panel"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid request method.'
+        }, status=400)
+    
+    # Check if user is admin
+    if not request.user.is_superuser:
+        return JsonResponse({
+            'status': False,
+            'message': 'Unauthorized. Admin access required.'
+        }, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        user_to_edit = User.objects.get(id=user_id)
+        
+        # Prevent editing other admins
+        if user_to_edit.is_superuser and user_to_edit != request.user:
+            return JsonResponse({
+                'status': False,
+                'message': 'Cannot edit another admin account.'
+            }, status=403)
+        
+        # Update user info
+        user_to_edit.username = data.get('username', user_to_edit.username)
+        user_to_edit.email = data.get('email', user_to_edit.email)
+        user_to_edit.is_active = data.get('is_active', user_to_edit.is_active)
+        user_to_edit.save()
+        
+        # Update profile if exists
+        if hasattr(user_to_edit, 'profile'):
+            profile = user_to_edit.profile
+            profile.phone_number = data.get('phone_number', profile.phone_number)
+            profile.address = data.get('address', profile.address)
+            profile.bio = data.get('bio', profile.bio)
+            
+            # Handle nationality
+            nationality_code = data.get('nationality')
+            if nationality_code:
+                profile.nationality = nationality_code
+            else:
+                profile.nationality = None
+            
+            profile.save()
+        
+        return JsonResponse({
+            'status': True,
+            'message': f'User {user_to_edit.username} updated successfully!'
+        }, status=200)
+    
+    except User.DoesNotExist:
+        return JsonResponse({
+            'status': False,
+            'message': 'User not found.'
+        }, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid JSON data.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Error updating user: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@login_required
+def flutter_admin_ban_user(request, user_id):
+    """Ban/Unban user from Flutter admin panel"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid request method.'
+        }, status=400)
+    
+    # Check if user is admin
+    if not request.user.is_superuser:
+        return JsonResponse({
+            'status': False,
+            'message': 'Unauthorized. Admin access required.'
+        }, status=403)
+    
+    try:
+        user_to_ban = User.objects.get(id=user_id)
+        
+        # Prevent banning self
+        if user_to_ban == request.user:
+            return JsonResponse({
+                'status': False,
+                'message': 'You cannot ban your own account!'
+            }, status=400)
+        
+        # Prevent banning other admins
+        if user_to_ban.is_superuser:
+            return JsonResponse({
+                'status': False,
+                'message': 'You cannot ban another admin account!'
+            }, status=403)
+        
+        # Toggle ban status
+        if user_to_ban.is_active:
+            user_to_ban.is_active = False
+            from apps.authentication.models import BanHistory
+            BanHistory.objects.create(
+                user=user_to_ban,
+                banned_by=request.user,
+                reason="Banned by admin via Flutter app"
+            )
+            message = f'User "{user_to_ban.username}" has been banned.'
+        else:
+            user_to_ban.is_active = True
+            from apps.authentication.models import BanHistory
+            BanHistory.objects.filter(user=user_to_ban, is_active=True).update(is_active=False)
+            message = f'User "{user_to_ban.username}" has been unbanned.'
+        
+        user_to_ban.save()
+        
+        return JsonResponse({
+            'status': True,
+            'message': message,
+            'is_active': user_to_ban.is_active
+        }, status=200)
+    
+    except User.DoesNotExist:
+        return JsonResponse({
+            'status': False,
+            'message': 'User not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Error updating ban status: {str(e)}'
+        }, status=500)
+
+
+@csrf_exempt
+@login_required
+def flutter_admin_delete_user(request, user_id):
+    """Delete user from Flutter admin panel"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid request method.'
+        }, status=400)
+    
+    # Check if user is admin
+    if not request.user.is_superuser:
+        return JsonResponse({
+            'status': False,
+            'message': 'Unauthorized. Admin access required.'
+        }, status=403)
+    
+    try:
+        user_to_delete = User.objects.get(id=user_id)
+        
+        # Prevent deleting self
+        if user_to_delete == request.user:
+            return JsonResponse({
+                'status': False,
+                'message': 'You cannot delete your own account!'
+            }, status=400)
+        
+        # Prevent deleting other admins
+        if user_to_delete.is_superuser:
+            return JsonResponse({
+                'status': False,
+                'message': 'You cannot delete another admin account!'
+            }, status=403)
+        
+        username = user_to_delete.username
+        user_to_delete.delete()
+        
+        return JsonResponse({
+            'status': True,
+            'message': f'User "{username}" has been permanently deleted.'
+        }, status=200)
+    
+    except User.DoesNotExist:
+        return JsonResponse({
+            'status': False,
+            'message': 'User not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Error deleting user: {str(e)}'
+        }, status=500)
