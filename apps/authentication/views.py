@@ -58,7 +58,6 @@ def login_user(request):
     context = {'form': form}
     return render(request, 'login.html', context)
 
-
 @login_required
 def logout_user(request):
     logout(request)
@@ -80,9 +79,9 @@ def user_dashboard(request):
 
     context = {
         'profile': profile,
-        'threads_count': threads_count,  # TODO: Replace with actual count
-        'votes_count': votes_counts,    # TODO: Replace with actual count
-        'comments_count': comments_count, # TODO: Replace with actual count
+        'threads_count': threads_count,  
+        'votes_count': votes_counts,    
+        'comments_count': comments_count, 
         'recent_threads': recent_forums,
     }
     return render(request, 'user_dashboard.html', context)
@@ -127,7 +126,6 @@ def manage_users(request):
     }
     return render(request, 'manage_users.html', context)
 
-
 @user_passes_test(lambda u: u.is_superuser, login_url='/auth/login/')
 def edit_user(request, user_id):
     user_to_edit = get_object_or_404(User, id=user_id)
@@ -159,7 +157,6 @@ def edit_user(request, user_id):
     
     return render(request, 'edit_user.html', {'user': user_to_edit})
 
-
 @user_passes_test(lambda u: u.is_superuser, login_url='/auth/login/')
 def delete_user(request, user_id):
     user_to_delete = get_object_or_404(User, id=user_id)
@@ -178,7 +175,6 @@ def delete_user(request, user_id):
     user_to_delete.delete()
     messages.success(request, f'User "{username}" has been permanently deleted.')
     return redirect('authentication:manage_users')
-
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/auth/login/')
 def ban_user(request, user_id):
@@ -344,7 +340,6 @@ def flutter_register(request):
         "message": "Invalid request method."
     }, status=400)
 
-
 @csrf_exempt
 @login_required
 def flutter_logout(request):
@@ -363,12 +358,17 @@ def flutter_logout(request):
             "message": f"Logout failed: {str(e)}"
         }, status=401)
 
-
 @csrf_exempt
-@login_required()
 def flutter_profile(request):
     """Get user profile for Flutter"""
     if request.method == 'GET':
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'status': False,
+                'message': 'User not authenticated. Please login first.'
+            }, status=401)
+        
         try:
             user = request.user
             profile = user.profile if hasattr(user, 'profile') else None
@@ -428,57 +428,92 @@ def flutter_profile(request):
         'message': 'Invalid request method.'
     }, status=400)
 
+@csrf_exempt
+def flutter_edit_profile(request):
+    """Edit profile endpoint for Flutter (safe for JSON)"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid request method.'
+        }, status=400)
+
+    # Check authentication (cookie session)
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': False,
+            'message': 'User not authenticated. Please login first.'
+        }, status=401)
+
+    try:
+        data = json.loads(request.body)
+        user = request.user
+
+        # Update email
+        email = data.get('email')
+        if email is not None:
+            user.email = email
+            user.save()
+
+        # Get or create profile
+        profile = user.profile if hasattr(user, 'profile') else UserProfile.objects.create(user=user)
+
+        # Update profile fields
+        profile.phone_number = data.get('phone_number', profile.phone_number)
+        profile.address = data.get('address', profile.address)
+        profile.bio = data.get('bio', profile.bio)
+
+        # Nationality handling
+        nationality_code = data.get('nationality')
+        if nationality_code:
+            profile.nationality = nationality_code
+        else:
+            profile.nationality = None
+
+        profile.save()
+
+        return JsonResponse({
+            'status': True,
+            'message': 'Profile updated successfully!'
+        }, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': False,
+            'message': 'Invalid JSON data.'
+        }, status=400)
+
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'message': f'Error updating profile: {str(e)}'
+        }, status=500)
+
 
 @csrf_exempt
-@login_required
-def flutter_edit_profile(request):
-    """Edit profile endpoint for Flutter"""
-    if request.method == 'POST':
+def flutter_get_countries(request):
+    """Get list of all countries for Flutter"""
+    if request.method == 'GET':
         try:
-            data = json.loads(request.body)
-            user = request.user
+            from django_countries import countries
             
-            # Update user email
-            email = data.get('email')
-            if email is not None:
-                user.email = email
-                user.save()
-            
-            # Update profile
-            profile = user.profile if hasattr(user, 'profile') else UserProfile.objects.create(user=user)
-            
-            if 'phone_number' in data:
-                profile.phone_number = data['phone_number']
-            
-            if 'address' in data:
-                profile.address = data['address']
-            
-            if 'bio' in data:
-                profile.bio = data['bio']
-            
-            if 'nationality' in data:
-                nationality_code = data['nationality']
-                if nationality_code:
-                    profile.nationality = nationality_code
-                else:
-                    profile.nationality = None
-            
-            profile.save()
+            # Convert countries to list of dictionaries
+            countries_list = [
+                {
+                    'code': code,
+                    'name': name
+                }
+                for code, name in countries
+            ]
             
             return JsonResponse({
                 'status': True,
-                'message': 'Profile updated successfully!'
+                'countries': countries_list
             }, status=200)
         
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'status': False,
-                'message': 'Invalid JSON data.'
-            }, status=400)
         except Exception as e:
             return JsonResponse({
                 'status': False,
-                'message': f'Error updating profile: {str(e)}'
+                'message': f'Error fetching countries: {str(e)}'
             }, status=500)
     
     return JsonResponse({
