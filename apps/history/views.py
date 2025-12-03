@@ -18,7 +18,8 @@ from django.views.decorators.http import require_GET
 # DRIVER HISTORY
 def driver_user_page(request):
     drivers = Driver.objects.all().order_by('year', '-points')
-    newest_drivers = Driver.objects.filter(image_url__isnull=False).order_by('-id')[:5]
+    # newest_drivers = Driver.objects.filter(image_url__isnull=False).order_by('-id')[:5]
+    newest_drivers = Driver.objects.order_by('-id')[:5]
     return render(request, 'driver_page_user_carousel.html', {
         'drivers': drivers,
         'newest_drivers': newest_drivers
@@ -84,7 +85,8 @@ def edit_driver(request, driver_id):
 # WINNER HISTORY
 def winner_user_page(request):
     winners = Winner.objects.all().order_by('date')
-    newest_winners = Winner.objects.filter(image_url__isnull=False).order_by('-id')[:5]
+    # newest_winners = Winner.objects.filter(image_url__isnull=False).order_by('-id')[:5]
+    newest_winners = Winner.objects.order_by('-id')[:5]
     return render(request, 'winner_page_user_carousel.html', {
         'winners': winners,
         'newest_winners': newest_winners
@@ -154,6 +156,84 @@ def edit_winner(request, winner_id):
         return JsonResponse({'success': False, 'errors': form.errors})
     return JsonResponse({'success': False, 'error': 'Invalid method'})
 
+# Utk Show Json nya
+# JSON LIST (DRIVER)
+def show_json_drivers(request):
+    drivers = Driver.objects.all().order_by('year', '-points')
+    data = [
+        {
+            'id': d.id,
+            'driver_name': d.driver_name,
+            'nationality': d.nationality,
+            'car': d.car,
+            'points': d.points,
+            'podiums': d.podiums,
+            'year': d.year,
+            'image_url': d.image_url,
+        }
+        for d in drivers
+    ]
+    return JsonResponse(data, safe=False)
+
+
+# JSON DETAIL (DRIVER)
+def show_json_driver_by_id(request, driver_id):
+    try:
+        d = Driver.objects.get(pk=driver_id)
+        data = {
+            'id': d.id,
+            'driver_name': d.driver_name,
+            'nationality': d.nationality,
+            'car': d.car,
+            'points': d.points,
+            'podiums': d.podiums,
+            'year': d.year,
+            'image_url': d.image_url,
+        }
+        return JsonResponse(data)
+    except Driver.DoesNotExist:
+        return JsonResponse({'detail': 'Not found'}, status=404)
+
+
+# JSON LIST (WINNER)
+def show_json_winners(request):
+    winners = Winner.objects.all().order_by('date')
+    data = [
+        {
+            'id': w.id,
+            'grand_prix': w.grand_prix,
+            'date': w.date.isoformat(),
+            'winner': w.winner,
+            'car': w.car,
+            'laps': w.laps,
+            'time': w.time,
+            'name_code': w.name_code,
+            'image_url': w.image_url,
+        }
+        for w in winners
+    ]
+    return JsonResponse(data, safe=False)
+
+
+# JSON DETAIL (WINNER)
+def show_json_winner_by_id(request, winner_id):
+    try:
+        w = Winner.objects.get(pk=winner_id)
+        data = {
+            'id': w.id,
+            'grand_prix': w.grand_prix,
+            'date': w.date.isoformat(),
+            'winner': w.winner,
+            'car': w.car,
+            'laps': w.laps,
+            'time': w.time,
+            'name_code': w.name_code,
+            'image_url': w.image_url,
+        }
+        return JsonResponse(data)
+    except Winner.DoesNotExist:
+        return JsonResponse({'detail': 'Not found'}, status=404)
+
 # Flutter
 
 @require_GET
@@ -169,7 +249,7 @@ def api_drivers(request):
                 "car": d.car,
                 "points": d.points,
                 "podiums": d.podiums,
-                "year": d.year,  # ← FIXED
+                "year": d.year,  # FIXED
                 "image_url": d.image_url if d.image_url else "",
             }
         })
@@ -204,8 +284,11 @@ def proxy_image(request):
         return HttpResponse('No URL provided', status=400)
 
     try:
+        # Fetch image from external source
         response = requests.get(image_url, timeout=10)
         response.raise_for_status()
+
+        # Return the image with proper content type
         return HttpResponse(
             response.content,
             content_type=response.headers.get('Content-Type', 'image/jpeg')
