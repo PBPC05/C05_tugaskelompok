@@ -6,6 +6,8 @@ from .forms import DriverEditableForm, TeamEditableForm, RaceResultAppendForm
 from .models import Driver, Team, DriverRaceResult, Race
 from .standings import driver_standings, constructor_standings
 from django.db.models import F, Prefetch
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 @login_required
 @require_POST
@@ -17,6 +19,34 @@ def driver_update_ajax(request, pk):
         form.save()
         return JsonResponse({"ok": True})
     return JsonResponse({"ok": False, "errors": form.errors}, status=400)
+
+@csrf_exempt
+def driver_update_flutter(request, pk):
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'ok': False, 'message': 'Authentication required.'}, status=403)
+        
+        if not request.user.is_superuser:
+            return JsonResponse({'ok': False, 'message': 'Admin privileges required.'}, status=403)
+
+        try:
+            obj = Driver.objects.get(pk=pk)
+        except Driver.DoesNotExist:
+            return JsonResponse({'ok': False, 'message': 'Driver not found.'}, status=404)
+
+        try:
+            data = json.loads(request.body)
+        except:
+            data = request.POST
+
+        form = DriverEditableForm(data, instance=obj)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"ok": True, "message": "Driver updated successfully!"})
+        
+        return JsonResponse({"ok": False, "message": "Validation failed", "errors": form.errors}, status=400)
+
+    return JsonResponse({'ok': False, 'message': 'Invalid request method.'}, status=405)
 
 @login_required
 @require_POST
