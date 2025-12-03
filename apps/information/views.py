@@ -130,6 +130,7 @@ def show_drivers_json(request):
                .order_by("team__id"))
     data = [
         {
+            'pk': d.pk,
             'full_name': d.full_name,
             'abbreviation': d.abbreviation,
             'number': d.number,
