@@ -160,13 +160,13 @@ def get_comments_json(request, news_id):
         }
         for comment in comments
     ]
-    print(data)
 
     return JsonResponse(data, safe=False)
 
 def delete_comment(request, comment_id, news_id):
     comment = get_object_or_404(Comment, pk=comment_id)
-    comment.delete()
+    comment.delete()    
+    comment.news.remove_comment()
     response = redirect('news:show_news_detail', news_id=news_id)
     return response
 
@@ -254,6 +254,41 @@ def increment_news_views(request, news_id):
             news.increment_views()
             return JsonResponse({'status': 'success'}, status=200)
         except News.DoesNotExist:
+            return JsonResponse({'status': 'error'}, status=404)
+    else:
+        return JsonResponse({'status': 'error'}, status=401)
+
+@csrf_exempt
+def post_comment_flutter(request, news_id):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        content = strip_tags(data.get("content", ""))
+
+        try:
+            comment_news = News.objects.get(pk=news_id)
+            comment_news.increment_comments()
+
+            new_comment = Comment(
+                news = comment_news,
+                content = content,
+                user = request.user
+            )
+            new_comment.save()
+            return JsonResponse({'status': 'success'}, status=200)
+        except News.DoesNotExist:
+            return JsonResponse({'status': 'error'}, status=404)
+    else:
+        return JsonResponse({'status': 'error'}, status=401)
+    
+@csrf_exempt
+def delete_comment_flutter(request, comment_id):
+    if request.method == "POST":
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+            comment.delete()
+            comment.news.remove_comment()
+            return JsonResponse({'status': 'success'}, status=200)
+        except Comment.DoesNotExist:
             return JsonResponse({'status': 'error'}, status=404)
     else:
         return JsonResponse({'status': 'error'}, status=401)

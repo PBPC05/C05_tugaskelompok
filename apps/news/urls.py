@@ -21,4 +21,6 @@ urlpatterns = [
     path('<str:news_id>/increment-views/', increment_news_views, name='increment_views'),
     path('<str:news_id>/edit-flutter/', edit_news_flutter, name='edit_flutter'),
     path('<str:news_id>/delete-flutter/', delete_news_flutter, name='delete_flutter'),
+    path('<str:news_id>/comment-flutter/', post_comment_flutter, name='post_comment_flutter'),
+    path('comment/<str:comment_id>/delete-flutter/', delete_comment_flutter, name='delete_comment_flutter'),
 ]
