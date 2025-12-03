@@ -18,5 +18,7 @@ urlpatterns = [
     path('<str:news_id>/comment/<str:comment_id>/delete', delete_comment, name='delete_comment'),
     path('proxy-image/', proxy_image, name="proxy_image"),
     path('create-flutter/', create_news_flutter, name='create_flutter'),
-    path('<str:news_id>/increment-views/', increment_news_views, name='increment_views')
+    path('<str:news_id>/increment-views/', increment_news_views, name='increment_views'),
+    path('<str:news_id>/edit-flutter/', edit_news_flutter, name='edit_flutter'),
+    path('<str:news_id>/delete-flutter/', delete_news_flutter, name='delete_flutter'),
 ]

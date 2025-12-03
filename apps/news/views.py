@@ -217,11 +217,41 @@ def create_news_flutter(request):
     else:
         return JsonResponse({"status": "error"}, status=401)
     
+@csrf_exempt
+def edit_news_flutter(request, news_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        edited_data = {
+            'title': strip_tags(data.get("title", "")),
+            'content': strip_tags(data.get("content", "")),
+            'category': data.get("category", ""),
+            'thumbnail': data.get("thumbnail", ""),
+            'is_featured': data.get("is_featured", False),
+        }
+        
+        News.objects.filter(pk=news_id).update(**edited_data)
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
+def delete_news_flutter(request, news_id):
+    if request.method == 'POST':
+        try:
+            news = News.objects.get(pk=news_id)
+            news.delete()
+            return JsonResponse({"status": "success"}, status=200)
+        except News.DoesNotExist:
+            return JsonResponse({'status': 'error'}, status=404)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
 def increment_news_views(request, news_id):
     if request.method == "POST":
         try:
             news = News.objects.get(id=news_id)
-            news.increment_views
+            news.increment_views()
             return JsonResponse({'status': 'success'}, status=200)
         except News.DoesNotExist:
             return JsonResponse({'status': 'error'}, status=404)
