@@ -2,7 +2,11 @@ from django.urls import path
 from apps.authentication.views import register_user, login_user, logout_user
 from apps.authentication.views import manage_users, edit_user, delete_user, ban_user
 from apps.authentication.views import user_dashboard, edit_profile, view_profile
-from apps.authentication.views import flutter_register, flutter_login  # Flutter integration view
+from apps.authentication.views import flutter_register, flutter_login, flutter_logout  # Flutter integration view
+from apps.authentication.views import flutter_profile, flutter_edit_profile
+from apps.authentication.views import flutter_get_countries
+from apps.authentication.views import flutter_admin_check, flutter_admin_get_users
+from apps.authentication.views import flutter_admin_get_user, flutter_admin_edit_user, flutter_admin_ban_user,flutter_admin_delete_user
 
 app_name = 'authentication'
 
@@ -26,4 +30,14 @@ urlpatterns = [
     # Flutter integration
     path('flutter_login/', flutter_login, name='flutter_login'),
     path('flutter_register/', flutter_register, name='flutter_register'),
+    path('flutter_logout/', flutter_logout, name='flutter_logout'),
+    path('flutter_profile/', flutter_profile, name='flutter_profile'),  
+    path('flutter_profile/edit/', flutter_edit_profile, name='flutter_edit_profile'),
+    path('countries/', flutter_get_countries, name='flutter_get_countries'),
+    path('flutter_admin/check/', flutter_admin_check, name='flutter_admin_check'),
+    path('flutter_admin/users/', flutter_admin_get_users, name='flutter_admin_get_users'),
+    path('flutter_admin/user/<int:user_id>/', flutter_admin_get_user, name='flutter_admin_get_user'),
+    path('flutter_admin/user/<int:user_id>/edit/', flutter_admin_edit_user, name='flutter_admin_edit_user'),
+    path('flutter_admin/user/<int:user_id>/ban/', flutter_admin_ban_user, name='flutter_admin_ban_user'),
+    path('flutter_admin/user/<int:user_id>/delete/', flutter_admin_delete_user, name='flutter_admin_delete_user'),  
 ]
