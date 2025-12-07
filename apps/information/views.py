@@ -107,31 +107,32 @@ def raceresult_delete_ajax(request, pk):
 @csrf_exempt
 def raceresult_append_flutter(request):
     if request.method == 'POST':
-        # Cek Auth Manual -> Return JSON
         if not request.user.is_authenticated:
             return JsonResponse({'ok': False, 'message': 'Authentication required.'}, status=403)
         if not request.user.is_superuser:
             return JsonResponse({'ok': False, 'message': 'Admin privileges required.'}, status=403)
 
-        # Handle data (JSON atau Form)
         try:
-            data = json.loads(request.body)
-        except:
-            data = request.POST
+            # Handle JSON atau Form Data
+            try:
+                data = json.loads(request.body)
+            except:
+                data = request.POST.copy()
 
-        form = RaceResultAppendForm(data)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({"ok": True, "message": "Result added successfully!"})
-        
-        return JsonResponse({"ok": False, "message": "Validation failed", "errors": form.errors}, status=400)
+            form = RaceResultAppendForm(data)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({"ok": True, "message": "Result added successfully!"})
+            
+            return JsonResponse({"ok": False, "message": "Validation failed", "errors": form.errors}, status=400)
+        except Exception as e:
+             return JsonResponse({"ok": False, "message": str(e)}, status=500)
 
     return JsonResponse({'ok': False, 'message': 'Invalid request method.'}, status=405)
 
 @csrf_exempt
 def raceresult_delete_flutter(request, pk):
     if request.method == 'POST':
-        # Cek Auth
         if not request.user.is_authenticated:
             return JsonResponse({'ok': False, 'message': 'Authentication required.'}, status=403)
         if not request.user.is_superuser:
@@ -507,3 +508,40 @@ def show_all_races_json_detail(request, season=2025):
         all_races_data.append(race_data)
 
     return JsonResponse({"season": season, "races": all_races_data}, safe=False)
+
+def manage_results_json(request):
+    # Mengambil semua Race, dan men-prefetch hasil balapannya
+    races = Race.objects.prefetch_related(
+        Prefetch(
+            'driver_results',
+            queryset=DriverRaceResult.objects.select_related('driver', 'team').order_by(
+                F('finish_position').asc(nulls_last=True), 'status'
+            )
+        )
+    ).order_by('-date', '-round_number')
+
+    data = []
+    for race in races:
+        results = []
+        for r in race.driver_results.all():
+            results.append({
+                'pk': r.pk,
+                'driver_name': r.driver.full_name,
+                'driver_number': r.driver.number,
+                'team_name': r.team.name,
+                'position': r.finish_position if r.finish_position else r.status,
+                'time': r.time_text,
+                'points': r.points_awarded,
+                'fastest_lap': r.fastest_lap,
+            })
+        
+        data.append({
+            'pk': race.pk,
+            'name': race.name,
+            'circuit': race.circuit.name,
+            'round': race.round_number,
+            'date': race.date.strftime('%Y-%m-%d') if race.date else '',
+            'results': results # List hasil di dalam race
+        })
+
+    return JsonResponse(data, safe=False)
