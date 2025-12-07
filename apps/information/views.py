@@ -240,6 +240,7 @@ def show_drivers_json_detail(request, slug):
 def show_teams_json(request):
     data = [
         {
+            'pk': t.pk,
             'name': t.name,
             'full_name': t.full_name,
             'base': t.base,
