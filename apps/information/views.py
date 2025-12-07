@@ -374,6 +374,7 @@ def race_detail(request, slug):
 def show_schedule_json(request, season=2025):
     data = [
         {
+            'pk': r.pk,
             'season': r.season,
             'round_number': r.round_number,
             'name': r.name,
