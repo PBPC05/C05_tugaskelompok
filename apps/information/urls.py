@@ -28,7 +28,7 @@ urlpatterns = [
     path('admin/results/', manage_results, name='manage_results'),
     path('result/append/ajax/', raceresult_append_ajax, name='raceresult_append_ajax'),
     path('result/<int:pk>/delete/ajax/', raceresult_delete_ajax, name='raceresult_delete_ajax'),
+    path('api/manage/results/', manage_results_json, name='manage_results_json'),
     path('raceresult/append/flutter/', raceresult_append_flutter, name='raceresult_append_flutter'),
     path('raceresult/<int:pk>/delete/flutter/', raceresult_delete_flutter, name='raceresult_delete_flutter'),
-    path('api/races/all/detail/', show_all_races_json_detail, name='show_all_races_json_detail'),
 ]
