@@ -104,6 +104,48 @@ def raceresult_delete_ajax(request, pk):
     obj.delete()
     return JsonResponse({"ok": True})
 
+@csrf_exempt
+def raceresult_append_flutter(request):
+    if request.method == 'POST':
+        # Cek Auth Manual -> Return JSON
+        if not request.user.is_authenticated:
+            return JsonResponse({'ok': False, 'message': 'Authentication required.'}, status=403)
+        if not request.user.is_superuser:
+            return JsonResponse({'ok': False, 'message': 'Admin privileges required.'}, status=403)
+
+        # Handle data (JSON atau Form)
+        try:
+            data = json.loads(request.body)
+        except:
+            data = request.POST
+
+        form = RaceResultAppendForm(data)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"ok": True, "message": "Result added successfully!"})
+        
+        return JsonResponse({"ok": False, "message": "Validation failed", "errors": form.errors}, status=400)
+
+    return JsonResponse({'ok': False, 'message': 'Invalid request method.'}, status=405)
+
+@csrf_exempt
+def raceresult_delete_flutter(request, pk):
+    if request.method == 'POST':
+        # Cek Auth
+        if not request.user.is_authenticated:
+            return JsonResponse({'ok': False, 'message': 'Authentication required.'}, status=403)
+        if not request.user.is_superuser:
+            return JsonResponse({'ok': False, 'message': 'Admin privileges required.'}, status=403)
+
+        try:
+            obj = DriverRaceResult.objects.get(pk=pk)
+            obj.delete()
+            return JsonResponse({"ok": True, "message": "Result deleted successfully!"})
+        except DriverRaceResult.DoesNotExist:
+            return JsonResponse({'ok': False, 'message': 'Result not found.'}, status=404)
+
+    return JsonResponse({'ok': False, 'message': 'Invalid request method.'}, status=405)
+
 @user_passes_test(lambda u: u.is_superuser)
 def manage_results(request):
     races_with_results = Race.objects.prefetch_related(
@@ -217,6 +259,7 @@ def show_drivers_json_detail(request, slug):
     )
 
     data = {
+        'pk': d.pk,
         "full_name": d.full_name,
         "abbreviation": d.abbreviation,
         "number": d.number,
@@ -394,3 +437,73 @@ def show_races_json_detail(request, slug):
         "results": results,
     }
     return JsonResponse(data)
+
+def show_all_races_json_detail(request, season=2025):
+    # Prefetch results for each race to optimize database queries
+    results_prefetch = Prefetch(
+        'driver_results',
+        queryset=DriverRaceResult.objects
+            .select_related("driver", "team")
+            .order_by(F("finish_position").asc(nulls_last=True), "status", "grid_position", "driver__full_name"),
+        to_attr='prefetched_results'
+    )
+
+    # Query all races for the season, including related circuit and results
+    races = (
+        Race.objects
+        .filter(season=season)
+        .select_related("circuit")
+        .prefetch_related(results_prefetch)
+        .order_by('round_number')
+    )
+
+    all_races_data = []
+
+    for race in races:
+        c = race.circuit
+        
+        # Build the results list from the prefetched data
+        results = [
+            {
+                "position": r.finish_position,
+                "status": r.status,
+                "grid": r.grid_position,
+                "laps": r.laps,
+                "time_text": r.time_text,
+                "points": r.points_awarded,
+                "fastest_lap": r.fastest_lap,
+                "driver": {
+                    "full_name": r.driver.full_name,
+                    "number": r.driver.number,
+                    "abbreviation": r.driver.abbreviation,
+                    "url": r.driver.get_absolute_url(),
+                    "number_image": r.driver.number_image,
+                    "driver_image": r.driver.driver_image,
+                },
+                "team": {
+                    "name": r.team.name,
+                    "color": r.team.color,
+                    "url": r.team.get_absolute_url(),
+                    "logo": r.team.team_logo,
+                },
+            }
+            for r in race.prefetched_results
+        ]
+
+        # Build the race data object
+        race_data = {
+            "season": race.season,
+            "round": race.round_number,
+            "slug": race.slug,
+            "name": race.name,
+            "date": race.date.strftime("%d/%m/%Y") if race.date else "",
+            "circuit": c.name if c else "",
+            "country": c.country if c else "",
+            "url": race.get_absolute_url(),
+            "has_results": bool(results),
+            "result_count": len(results),
+            "results": results,
+        }
+        all_races_data.append(race_data)
+
+    return JsonResponse({"season": season, "races": all_races_data}, safe=False)
