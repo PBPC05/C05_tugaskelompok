@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/drivers/flutter/<int:pk>/update/', driver_update_flutter, name='driver_update_flutter'),
     path('admin/teams/', manage_teams, name='manage_teams'),
     path('team/<int:pk>/update/ajax/', team_update_ajax, name='team_update_ajax'),
+    path('admin/teams/flutter/<int:pk>/update/', team_update_flutter, name='team_update_flutter'),
     path('admin/results/', manage_results, name='manage_results'),
     path('result/append/ajax/', raceresult_append_ajax, name='raceresult_append_ajax'),
     path('result/<int:pk>/delete/ajax/', raceresult_delete_ajax, name='raceresult_delete_ajax')
