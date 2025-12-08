@@ -113,10 +113,11 @@
         return cookieValue;
     }
 
-    function showModal() {
+    function showModal(race) {
         const modal = document.getElementById('predictionModal');
         const modalContent = document.getElementById('modalContent');
         const form = document.getElementById('voteForm');
+        currentRace = race;
 
         modal.classList.remove('hidden');
         setTimeout(() => {
