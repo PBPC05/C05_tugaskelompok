@@ -18,10 +18,14 @@
     </header>
 
     <main class="px-10 pt-10 pb-20 flex flex-col gap-10">
-        <div id="next-race" class="text-xl text-black bg-white p-5 rounded-md text-center sm:text-left">
-            <h1>
-                <span class="font-bold">Next Race:</span> 2025 Mexico City Grand Prix
-            </h1>
+        <div id="next-race-container" class="bg-white p-5 rounded-md text-center sm:text-left">
+            <span class="text-black">Next Race: </span>
+            <h1 id="next-race" class="text-xl text-black font-bold"></h1>
+
+            {% if user.is_superuser %}
+                {% csrf_token %}
+                <button class="mt-6 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200" onclick='clearVotesAndRefresh()'>Clear Votes</button>
+            {% endif %}
         </div>
 
         <section id="prediction-driver">
@@ -129,7 +133,7 @@
                     <canvas id="team-chart"></canvas>
                 </div>
                 {% if user.is_authenticated %}
-                <button onclick=showModal() class="vote-btn inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
+                <button onclick=showVoteModal() class="vote-btn inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-md font-semibold transition-all duration-200">
                     ⬆️ Vote Now
                 </button>
                 {% else %}
@@ -148,6 +152,8 @@
 
 <script>
     const VOTES_API = "{% url 'prediction:get_votes_json' %}";
+    const SCHEDULE_API_ENDPOINT = "{% url 'information:show_schedule_json'  %}";
+    const DELETE_VOTES_API = "{% url 'prediction:clear_votes' %}";
     const USER_LOGGED_IN = {% if user.is_authenticated %} true {% else %} false {% endif %};
 
     const driverLoading = document.getElementById("loading-driver");
@@ -158,11 +164,28 @@
     const teamEmpty = document.getElementById("empty-team");
     const driverDisplay = document.getElementById("display-driver");
     const teamDisplay = document.getElementById("display-team");
+    const nextRaceDisplay = document.getElementById("next-race")
 
     let driverChartItem;
     let teamChartItem;
 
     var votesData = [];
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
     // Show/hide page sections
     function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showDisplay = false }) {
@@ -191,6 +214,45 @@
         driverDisplay.classList.toggle('hidden', !showDisplay);
     }
 
+    async function getNextRace() {
+        const response = await fetch(SCHEDULE_API_ENDPOINT, {
+            headers: { 'Accept': 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch data from server');
+        }
+
+        const scheduleData = await response.json();
+
+        if (scheduleData && scheduleData.data) {
+            races = scheduleData.data;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let nextRace = null;
+            let nextRaceFound = false;
+            for (let i = 0; i < races.length; i++) {
+                const raceDate = new Date(races[i].date + 'T00:00:00Z');
+                if (raceDate >= today) {
+                    nextRace = races[i];
+                    nextRaceIndex = i;
+                    nextRaceFound = true;
+                    break;
+                }
+            }
+
+            if (!nextRaceFound) {
+                nextRace = races[races.length - 1];
+            }
+
+            nextRaceDisplay.textContent = nextRace.season + " " + nextRace.name;
+        } else {
+            throw new Error('Invalid data structure from server');
+        }
+    }
+
     async function getVotesFromServer() {
         try {
             displayPageSection({ showLoading: true });
@@ -206,6 +268,7 @@
             const data = await response.json();
             votesData = data || [];
 
+            getNextRace();
             filterAndDisplayVotes();
         } catch (error) {
             console.log("Error loading votes: " + error);
@@ -318,6 +381,10 @@
         }
     }
 
+    function showVoteModal() {
+        showModal(nextRaceDisplay.textContent)
+    }
+
     function disableVoteButtons() {
         const driverContainer = document.getElementById("display-driver");
         const teamContainer = document.getElementById("display-team");
@@ -345,6 +412,33 @@
             // optionally remove interactive classes:
             btn.classList.remove("hover:bg-blue-600"); // example
         });
+    }
+
+    async function clearVotesAndRefresh() {
+        try {
+            // Show confirmation dialog
+            const confirmed = confirm("Are you sure you want to delete all votes for this race?");
+            if (!confirmed) {
+                return false;
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+            const response = await fetch(DELETE_VOTES_API, {
+                method: 'POST',
+                headers: { "X-CSRFToken": csrftoken },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to delete votes');
+            }
+            
+            const newVotes = await fetch("{% url 'prediction:get_votes_json' %}");
+            votesData = await response.json();
+            filterAndDisplayVotes();
+        } catch (error) {
+            console.log("Error deleting votes: " + error);
+        }
     }
 
     document.addEventListener("votePosted", async function () {
