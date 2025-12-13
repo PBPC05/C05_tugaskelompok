@@ -32,6 +32,6 @@ urlpatterns = [
     path('<uuid:pk>/delete-forum-flutter/', delete_forum_flutter, name='delete_forum_flutter'),
     path('<uuid:pk>/like-forum-flutter/', toggle_forum_like_flutter, name='toggle_forum_like_flutter'),
     path('<uuid:pk>/toggle-hot-flutter/', toggle_hot_forum_flutter, name='toggle_hot_forum_flutter'),
-    path('api/check-admin/', views.check_admin, name='check_admin'),
-    path('api/user/profile/', views.get_user_profile, name='user_profile'),
+    path('api/check-admin/', check_admin, name='check_admin'),
+    path('api/user/profile/', get_user_profile, name='user_profile'),
 ]
