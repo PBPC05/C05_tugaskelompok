@@ -292,3 +292,16 @@ def delete_comment_flutter(request, comment_id):
             return JsonResponse({'status': 'error'}, status=404)
     else:
         return JsonResponse({'status': 'error'}, status=401)
+    
+def check_user(request):
+    if request.user.is_authenticated:
+        user = request.user
+        return JsonResponse({'is_logged_in': True})
+    return JsonResponse({'is_logged_in': False})
+
+def check_admin(request):
+    user = request.user
+    return JsonResponse({
+        'is_admin': user.is_superuser or user.is_staff,
+        'is_staff': user.is_staff,
+    })

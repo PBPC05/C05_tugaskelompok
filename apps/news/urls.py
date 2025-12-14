@@ -23,4 +23,6 @@ urlpatterns = [
     path('<str:news_id>/delete-flutter/', delete_news_flutter, name='delete_flutter'),
     path('<str:news_id>/comment-flutter/', post_comment_flutter, name='post_comment_flutter'),
     path('comment/<str:comment_id>/delete-flutter/', delete_comment_flutter, name='delete_comment_flutter'),
+    path('check_user', check_user, name='check_user'),
+    path('check_admin', check_admin, name='check_admin'),
 ]
