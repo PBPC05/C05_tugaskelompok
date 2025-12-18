@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST
 from django.core import serializers
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -74,3 +75,24 @@ def post_vote_flutter(request):
         return JsonResponse({"status": "success"}, status=200)
     else:
         return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
+def clear_votes_flutter(request):
+    if request.method == "POST":
+        PredictionVote.objects.all().delete()
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+    
+def check_user(request):
+    if request.user.is_authenticated:
+        user = request.user
+        return JsonResponse({'is_logged_in': True})
+    return JsonResponse({'is_logged_in': False})
+
+def check_admin(request):
+    user = request.user
+    return JsonResponse({
+        'is_admin': user.is_superuser or user.is_staff,
+        'is_staff': user.is_staff,
+    })

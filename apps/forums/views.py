@@ -533,29 +533,37 @@ def toggle_hot_forum_flutter(request, pk):
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
-
-
-
-@login_required
+@require_GET
 def check_admin(request):
-
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'is_logged_in': False,
+            'is_admin': False,
+            'is_staff': False,
+            'user_id': None,
+            'username': None,
+        }, status=200)
+    
     user = request.user
     return JsonResponse({
+        'is_logged_in': True,
         'is_admin': user.is_superuser or user.is_staff,
         'is_staff': user.is_staff,
         'user_id': user.id,
         'username': user.username,
     })
 
+@require_GET
 def get_user_profile(request):
-
-    if request.user.is_authenticated:
-        user = request.user
-        return JsonResponse({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'is_staff': user.is_staff,
-            'is_superuser': user.is_superuser,
-        })
-    return JsonResponse({'is_logged_in': False})
+    if not request.user.is_authenticated:
+        return JsonResponse({'is_logged_in': False}, status=200)
+    
+    user = request.user
+    return JsonResponse({
+        'is_logged_in': True,
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
+    })
