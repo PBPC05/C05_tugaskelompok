@@ -299,6 +299,7 @@ def toggle_hot_forum(request, pk):
 
 
 # Get all replies for a forum
+@csrf_exempt
 def forum_replies_json(request, pk):
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
@@ -322,6 +323,7 @@ def forum_replies_json(request, pk):
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 # Create a reply - FLUTTER VERSION
+@csrf_exempt
 def create_reply_flutter(request, pk):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -368,6 +370,7 @@ def create_reply_flutter(request, pk):
         }, status=200)
 
 # Delete a reply - FLUTTER VERSION
+@csrf_exempt
 def delete_reply_flutter(request, reply_id):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -403,6 +406,7 @@ def delete_reply_flutter(request, reply_id):
         }, status=200)
 
 # Toggle reply like - FLUTTER VERSION
+@csrf_exempt
 def toggle_reply_like_flutter(request, reply_id):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -433,6 +437,7 @@ def toggle_reply_like_flutter(request, reply_id):
         }, status=200)
 
 # Create forum - FLUTTER VERSION
+@csrf_exempt
 def create_forum_flutter(request):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -479,6 +484,7 @@ def create_forum_flutter(request):
         }, status=200)
 
 # Update forum - FLUTTER VERSION
+@csrf_exempt
 def update_forum_flutter(request, pk):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -532,6 +538,7 @@ def update_forum_flutter(request, pk):
         }, status=200)
 
 # Delete forum - FLUTTER VERSION
+@csrf_exempt
 def delete_forum_flutter(request, pk):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -562,6 +569,7 @@ def delete_forum_flutter(request, pk):
         }, status=200)
 
 # Toggle forum like - FLUTTER VERSION
+@csrf_exempt
 def toggle_forum_like_flutter(request, pk):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -592,6 +600,7 @@ def toggle_forum_like_flutter(request, pk):
         }, status=200)
 
 # Toggle hot status - FLUTTER VERSION
+@csrf_exempt
 def toggle_hot_forum_flutter(request, pk):
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -624,6 +633,7 @@ def toggle_hot_forum_flutter(request, pk):
 
 # Load more replies - FLUTTER VERSION (updated to match your urls.py)
 @require_POST
+@csrf_exempt
 def load_more_replies_flutter(request, pk):
     if not request.user.is_authenticated:
         return JsonResponse({
