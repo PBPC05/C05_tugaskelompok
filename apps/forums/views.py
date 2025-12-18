@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.views.decorators.http import require_GET
 from django.contrib.admin.views.decorators import staff_member_required
 
 from .models import Forums, ForumsReplies, ForumView
