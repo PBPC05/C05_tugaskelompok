@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 from .models import Forums, ForumsReplies, ForumView
 from .forms import ForumsForm, ForumsRepliesForm
