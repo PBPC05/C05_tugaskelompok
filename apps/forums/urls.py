@@ -34,4 +34,5 @@ urlpatterns = [
     path('<uuid:pk>/toggle-hot-flutter/', toggle_hot_forum_flutter, name='toggle_hot_forum_flutter'),
     path('api/check-admin/', check_admin, name='check_admin'),
     path('api/user/profile/', get_user_profile, name='user_profile'),
+    path('<uuid:pk>/replies/load-more-flutter/', load_more_replies_flutter, name='load_more_replies_flutter'),
 ]
