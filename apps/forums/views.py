@@ -107,6 +107,12 @@ def forum_detail_json(request, pk):
     forum = get_object_or_404(Forums, forums_id=pk)
     replies = forum.forum_replies.order_by("created_at").all()
 
+    if request.user.is_authenticated:
+        viewed, created = ForumView.objects.get_or_create(forum=forum, user=request.user)
+        if created:
+            forum.forums_views += 1
+            forum.save(update_fields=["forums_views"])
+
     items = [
         {
             "id": r.id,
