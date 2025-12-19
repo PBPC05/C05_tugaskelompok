@@ -336,8 +336,7 @@ def create_reply_flutter(request, pk):
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
-        data = json.loads(request.body)
-        content = data.get('content', '').strip()
+        content = request.POST.get('content', '').strip()
         
         if not content:
             return JsonResponse({
@@ -449,9 +448,8 @@ def create_forum_flutter(request):
         }, status=200)
     
     try:
-        data = json.loads(request.body)
-        title = data.get('title', '').strip()
-        content = data.get('content', '').strip()
+        title = request.POST.get('title', '').strip()
+        content = request.POST.get('content', '').strip()
         
         if not title or not content:
             return JsonResponse({
@@ -505,9 +503,8 @@ def update_forum_flutter(request, pk):
                 "message": "Permission denied"
             }, status=200)
         
-        data = json.loads(request.body)
-        title = data.get('title', '').strip()
-        content = data.get('content', '').strip()
+        title = request.POST.get('title', '').strip()
+        content = request.POST.get('content', '').strip()
         
         if not title or not content:
             return JsonResponse({
@@ -646,9 +643,8 @@ def load_more_replies_flutter(request, pk):
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
-        data = json.loads(request.body)
-        offset = int(data.get("offset", 0))
-        limit = int(data.get("limit", 5))
+        offset = int(request.POST.get('offset', 0))
+        limit = int(request.POST.get('limit', 5))
 
         replies = forum.forum_replies.order_by("-created_at")[offset:offset+limit]
         data_list = []
