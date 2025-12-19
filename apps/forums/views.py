@@ -711,3 +711,24 @@ def get_user_profile(request):
         'is_staff': user.is_staff,
         'is_superuser': user.is_superuser,
     })
+
+@csrf_exempt
+def track_forum_view(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": "error", "message": "Login required"}, status=200)
+    
+    try:
+        forum = get_object_or_404(Forums, forums_id=pk)
+
+        viewed, created = ForumView.objects.get_or_create(forum=forum, user=request.user)
+        if created:
+            forum.forums_views += 1
+            forum.save(update_fields=["forums_views"])
+        
+        return JsonResponse({
+            "status": "success",
+            "views": forum.forums_views,
+            "message": "View tracked"
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=200)
