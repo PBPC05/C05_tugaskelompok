@@ -129,6 +129,7 @@ def forum_detail_json(request, pk):
         "created_at": forum.created_at.isoformat(),
         "is_hot": forum.is_hot,
         "author": forum.user.username if forum.user else None,
+        "user_has_liked": forum.user_has_liked(request.user) if request.user.is_authenticated else False,
         "replies": items,
     }
     return JsonResponse(data)
