@@ -101,7 +101,7 @@ def show_json(request):
                 'created_at': news.created_at.isoformat() if news.created_at else None,
                 'is_featured': news.is_featured,
             }
-            for news in news_list
+            for news in news_list.order_by('-created_at')
         ]
 
         return JsonResponse(data, safe=False)
