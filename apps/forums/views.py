@@ -4,7 +4,10 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.views.decorators.http import require_GET
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 from .models import Forums, ForumsReplies, ForumView
 from .forms import ForumsForm, ForumsRepliesForm
@@ -104,6 +107,12 @@ def forum_detail_json(request, pk):
     forum = get_object_or_404(Forums, forums_id=pk)
     replies = forum.forum_replies.order_by("created_at").all()
 
+    if request.user.is_authenticated:
+        viewed, created = ForumView.objects.get_or_create(forum=forum, user=request.user)
+        if created:
+            forum.forums_views += 1
+            forum.save(update_fields=["forums_views"])
+
     items = [
         {
             "id": r.id,
@@ -126,6 +135,7 @@ def forum_detail_json(request, pk):
         "created_at": forum.created_at.isoformat(),
         "is_hot": forum.is_hot,
         "author": forum.user.username if forum.user else None,
+        "user_has_liked": forum.user_has_liked(request.user) if request.user.is_authenticated else False,
         "replies": items,
     }
     return JsonResponse(data)
@@ -295,9 +305,7 @@ def toggle_hot_forum(request, pk):
     return JsonResponse({"is_hot": forum.is_hot})
 
 
-
-
-# Get all replies for a forum
+@csrf_exempt
 def forum_replies_json(request, pk):
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
@@ -320,18 +328,24 @@ def forum_replies_json(request, pk):
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
-# Create a reply
+@csrf_exempt
 def create_reply_flutter(request, pk):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200) 
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
-        data = json.loads(request.body)
-        content = data.get('content', '').strip()
+        content = request.POST.get('content', '').strip()
         
         if not content:
-            return JsonResponse({"status": "error", "message": "Content required"}, status=400)
+            return JsonResponse({
+                "status": "error", 
+                "message": "Content required"
+            }, status=200)
         
         reply = ForumsReplies.objects.create(
             forums=forum,
@@ -352,21 +366,31 @@ def create_reply_flutter(request, pk):
             "user_has_liked": False,
             "is_owner": True,
             "is_forum_owner": request.user == forum.user,
-        })
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Delete a reply
+@csrf_exempt
 def delete_reply_flutter(request, reply_id):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
     
     try:
         reply = get_object_or_404(ForumsReplies, id=reply_id)
         
         # Check permissions
         if not (request.user == reply.user or request.user == reply.forums.user or request.user.is_staff):
-            return JsonResponse({"status": "error", "message": "Permission denied"}, status=403)
+            return JsonResponse({
+                "status": "error", 
+                "message": "Permission denied"
+            }, status=200)
         
         forum = reply.forums
         reply.delete()
@@ -374,14 +398,24 @@ def delete_reply_flutter(request, reply_id):
         forum.forums_replies_counts = forum.forum_replies.count()
         forum.save(update_fields=["forums_replies_counts"])
         
-        return JsonResponse({"status": "success", "message": "Reply deleted"})
+        return JsonResponse({
+            "status": "success", 
+            "message": "Reply deleted"
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Toggle reply like
+@csrf_exempt
 def toggle_reply_like_flutter(request, reply_id):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
     
     try:
         reply = get_object_or_404(ForumsReplies, id=reply_id)
@@ -397,22 +431,31 @@ def toggle_reply_like_flutter(request, reply_id):
             "status": "success",
             "likes": reply.forums_replies_likes.count(),
             "user_has_liked": liked
-        })
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Create forum (Flutter version)
+@csrf_exempt
 def create_forum_flutter(request):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
     
     try:
-        data = json.loads(request.body)
-        title = data.get('title', '').strip()
-        content = data.get('content', '').strip()
+        title = request.POST.get('title', '').strip()
+        content = request.POST.get('content', '').strip()
         
         if not title or not content:
-            return JsonResponse({"status": "error", "message": "Title and content required"}, status=400)
+            return JsonResponse({
+                "status": "error", 
+                "message": "Title and content required"
+            }, status=200)
         
         forum = Forums.objects.create(
             user=request.user,
@@ -422,6 +465,7 @@ def create_forum_flutter(request):
         
         return JsonResponse({
             "status": "success",
+            "id": str(forum.forums_id),
             "forums_id": str(forum.forums_id),
             "title": forum.title,
             "content": forum.content,
@@ -432,28 +476,39 @@ def create_forum_flutter(request):
             "is_hot": False,
             "created_at": forum.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
             "user_has_liked": False,
-        })
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Update forum (Flutter version)
+@csrf_exempt
 def update_forum_flutter(request, pk):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
-        
-        # Check ownership
+
         if forum.user != request.user and not request.user.is_staff:
-            return JsonResponse({"status": "error", "message": "Permission denied"}, status=403)
+            return JsonResponse({
+                "status": "error", 
+                "message": "Permission denied"
+            }, status=200)
         
-        data = json.loads(request.body)
-        title = data.get('title', '').strip()
-        content = data.get('content', '').strip()
+        title = request.POST.get('title', '').strip()
+        content = request.POST.get('content', '').strip()
         
         if not title or not content:
-            return JsonResponse({"status": "error", "message": "Title and content required"}, status=400)
+            return JsonResponse({
+                "status": "error", 
+                "message": "Title and content required"
+            }, status=200)
         
         forum.title = title
         forum.content = content
@@ -461,6 +516,7 @@ def update_forum_flutter(request, pk):
         
         return JsonResponse({
             "status": "success",
+            "id": str(forum.forums_id),
             "forums_id": str(forum.forums_id),
             "title": forum.title,
             "content": forum.content,
@@ -471,31 +527,50 @@ def update_forum_flutter(request, pk):
             "is_hot": forum.is_hot,
             "created_at": forum.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
             "user_has_liked": forum.user_has_liked(request.user),
-        })
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Delete forum (Flutter version)
+@csrf_exempt
 def delete_forum_flutter(request, pk):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
-        
-        # Check ownership
+
         if forum.user != request.user and not request.user.is_staff:
-            return JsonResponse({"status": "error", "message": "Permission denied"}, status=403)
+            return JsonResponse({
+                "status": "error", 
+                "message": "Permission denied"
+            }, status=200)
         
         forum.delete()
-        return JsonResponse({"status": "success", "message": "Forum deleted"})
+        return JsonResponse({
+            "status": "success", 
+            "message": "Forum deleted"
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Toggle forum like (Flutter version)
+@csrf_exempt
 def toggle_forum_like_flutter(request, pk):
     if not request.user.is_authenticated:
-        return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
@@ -511,14 +586,27 @@ def toggle_forum_like_flutter(request, pk):
             "status": "success",
             "forums_likes": forum.forums_likes.count(),
             "user_has_liked": liked
-        })
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
-# Toggle hot status (Flutter version)
+@csrf_exempt
 def toggle_hot_forum_flutter(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
+    
     if not request.user.is_staff:
-        return JsonResponse({"status": "error", "message": "Admin only"}, status=403)
+        return JsonResponse({
+            "status": "error", 
+            "message": "Admin only"
+        }, status=200)
     
     try:
         forum = get_object_or_404(Forums, forums_id=pk)
@@ -529,33 +617,111 @@ def toggle_hot_forum_flutter(request, pk):
             "status": "success",
             "is_hot": forum.is_hot,
             "message": f"Forum marked as {'hot' if forum.is_hot else 'not hot'}"
-        })
+        }, status=200)
     except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
 
+# Load more replies - FLUTTER VERSION (updated to match your urls.py)
+@require_POST
+@csrf_exempt
+def load_more_replies_flutter(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "status": "error", 
+            "message": "Login required",
+            "code": "auth_required"
+        }, status=200)
+    
+    try:
+        forum = get_object_or_404(Forums, forums_id=pk)
+        offset = int(request.POST.get('offset', 0))
+        limit = int(request.POST.get('limit', 5))
 
+        replies = forum.forum_replies.order_by("-created_at")[offset:offset+limit]
+        data_list = []
 
+        for r in replies:
+            data_list.append({
+                "id": r.id,
+                "username": r.user.username if r.user else "Anonymous",
+                "content": r.replies_content,
+                "created_at": r.created_at.strftime("%b %d, %Y %H:%M"),
+                "likes": r.forums_replies_likes.count(),
+                "is_owner": request.user == r.user,
+                "is_forum_owner": request.user == r.forums.user,
+                "user_has_liked": r.user_has_liked(request.user) if request.user.is_authenticated else False,
+            })
 
-@login_required
+        return JsonResponse({
+            "status": "success",
+            "replies": data_list
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({
+            "status": "error", 
+            "message": str(e)
+        }, status=200)
+
+@require_GET
 def check_admin(request):
-
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'is_logged_in': False,
+            'is_admin': False,
+            'is_staff': False,
+            'user_id': None,
+            'username': None,
+        }, status=200)
+    
     user = request.user
     return JsonResponse({
+        'is_logged_in': True,
         'is_admin': user.is_superuser or user.is_staff,
         'is_staff': user.is_staff,
         'user_id': user.id,
         'username': user.username,
     })
 
+@require_GET
 def get_user_profile(request):
-
-    if request.user.is_authenticated:
-        user = request.user
+    if not request.user.is_authenticated:
         return JsonResponse({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'is_staff': user.is_staff,
-            'is_superuser': user.is_superuser,
-        })
-    return JsonResponse({'is_logged_in': False})
+            'is_logged_in': False,
+            'id': None,
+            'username': None,
+            'is_staff': False,
+            'is_superuser': False,
+        }, status=200)
+    
+    user = request.user
+    return JsonResponse({
+        'is_logged_in': True,
+        'id': user.id,
+        'username': user.username,
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
+    })
+
+@csrf_exempt
+def track_forum_view(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": "error", "message": "Login required"}, status=200)
+    
+    try:
+        forum = get_object_or_404(Forums, forums_id=pk)
+
+        viewed, created = ForumView.objects.get_or_create(forum=forum, user=request.user)
+        if created:
+            forum.forums_views += 1
+            forum.save(update_fields=["forums_views"])
+        
+        return JsonResponse({
+            "status": "success",
+            "views": forum.forums_views,
+            "message": "View tracked"
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=200)
